@@ -1,49 +1,58 @@
+"""主函数"""
+
 import json
 import concurrent.futures as cf
+import os
 import traceback
 import api
 import time
+import logger
+
+
+question_path = "../assets/test.jsonl"
+result_dir = "results"
 
 
 def process_one(question_json):
     line = question_json
     query = line["question"]
     try:
-        print(f"Processing question ID {line['id']}: {query}")
-        answer = api.get_answer(question=query)
-        ans = str(answer)
-        print(f"Answer for question ID {line['id']}: {ans}")
-        return {"id": line["id"], "question": query, "answer": ans}
+        logger.info(f"【获取问题{line['id']}的答案】", query)
+        answer = str(api.get_answer(question=query))
+        logger.special(f"【{line['id']}的最终答案】: {answer}")
+        return {"id": line["id"], "question": query, "answer": answer}
     except Exception as e:
-        print(f"Error processing question ID {line['id']}: {e}")
-        traceback.print_exc()
+        logger.error(f"【获取问题{line['id']}的答案出错】: {query}")
+        logger.error(traceback.format_exc())
         return {"id": line["id"], "question": query, "answer": "Error: " + str(e)}
 
 
 def main():
-    q_path = "../assets/test.jsonl"
-    result_path = "result.jsonl"
     result_json_list = []
 
-    with open(q_path, "r", encoding="utf-8") as f:
+    with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
-    q_json_list=q_json_list[:1]
-    # 使用 ThreadPoolExecutor 处理问题
+    q_json_list = q_json_list[:1]
+
+    logger.info(f"【问题总数】: {len(q_json_list)}")
+
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
             result_json_list.append(future.result())
 
     result_json_list.sort(key=lambda x: x["id"])
+    if not os.path.exists(result_dir):
+        os.makedirs(result_dir)
+    result_path = os.path.join(result_dir, "result_" + str(int(time.time())) + ".json")
     with open(result_path, "w", encoding="utf-8") as f:
         for result in result_json_list:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
-    start_time = time.time()  # 记录开始时间
+    start_time = time.time()
     main()
-    end_time = time.time()  # 记录结束时间
-    elapsed_time = end_time - start_time  # 计算耗时
-    elapsed_time_minutes = elapsed_time / 60  # 将秒转换为分钟
-    print(f"程序运行时间: {elapsed_time_minutes:.2f} 分钟")
+    end_time = time.time()
+    elapsed_time_minutes = (end_time - start_time) / 60
+    logger.special(f"【程序运行时间】 {elapsed_time_minutes:.2f} 分钟")

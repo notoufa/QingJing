@@ -1,10 +1,10 @@
+"""定义DeepSeek接口"""
+
 import hashlib
 import hmac
 import json
 import random
-import uuid
 import datetime
-import urllib.parse
 
 import requests
 from zhipuai.types.chat.chat_completion import Completion

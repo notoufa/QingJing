@@ -1,4 +1,4 @@
-# 定义与tools.py中的函数对应的API接口，用于返回函数调用的结果。
+"""定义与tools.py中的函数对应的API接口，用于返回函数调用的结果"""
 
 def get_data_by_time_range(table_name, start_time, end_time, columns=[]):
     """
