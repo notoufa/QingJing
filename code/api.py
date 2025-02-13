@@ -83,16 +83,14 @@ def get_table_meta(question):
     """
     获得问题所需的数据表
     """
-    with open("dict.json", "r", encoding="utf-8") as file:
-        context_text = str(json.load(file))
-    prompt = f"""我有如下数据表：<{context_text}>
+    with open(table_meta_file, "r", encoding="utf-8") as file:
+        table_data = json.load(file)
+    prompt = f"""我有如下数据表：<{str(table_data)}>，
     现在基于数据表回答问题：{question}，请分析需要哪些数据表；仅返回需要的数据表名，无需展示分析过程。
     """
     messages = [{"role": "user", "content": prompt}]
     response = simple_completion(messages)
     chosen_table_name = str(response.choices[0].message.content)
-    with open(table_meta_file, "r", encoding="utf-8") as file:
-        table_data = json.load(file)
     table_meta_list = [
         item for item in table_data if item["数据表名"] in chosen_table_name
     ]
