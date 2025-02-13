@@ -20,10 +20,12 @@ def get_prompt_task_decomposition():
     """
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         task_decomposition = file.read()
-    return task_decomposition
+    return f"已知:{get_prompt_background_knowledge()}\n{task_decomposition}"
 
 
-def get_prompt_atomic_question(question, table_meta_list, parent_answers):
+def get_prompt_atomic_question(
+    question, table_meta_list, parent_answers, assumption=None
+):
     """
     获得原子问题模板
     """
@@ -33,8 +35,13 @@ def get_prompt_atomic_question(question, table_meta_list, parent_answers):
     parent_answers_content = (
         f"已知：{str(parent_answers)}" if len(parent_answers) > 0 else ""
     )
-    question_content = f"""请回答以下问题：{question}
-    你自己仔细思考判断，思考完成后，不需要返回思考过程，只需以一句话给出问题的答案，示例："2022/1/1 0:00 ~ 24:00时间段内，四台柴油发电机组的燃油消耗总量为300升。"
+    assumption_content = f"假设：{str(assumption)}" if assumption else ""
+    question_content = f"""请回答问题：{question}，要求如下：
+    - 不要杜撰数据、关键动作等内容，不要假设或猜测传入函数的参数值；
+    - 如果用户的描述不明确，请要求用户提供必要信息；
+    - 如果问题中包含单位要求，请以原单位回答，不要转换为其他语言；
+    - 你自己仔细思考判断，思考完成后，不需要返回思考过程，只需以一句话给出问题的答案；
+    - 回答示例："2022/1/1 0:00 ~ 24:00时间段内，四台柴油发电机组的燃油消耗总量为300升"。
     """
     content = ""
     if table_meta_list_content:
@@ -42,6 +49,9 @@ def get_prompt_atomic_question(question, table_meta_list, parent_answers):
         content += "\n"
     if parent_answers_content:
         content += parent_answers_content
+        content += "\n"
+    if assumption_content:
+        content += assumption_content
         content += "\n"
     content += question_content
     return content

@@ -25,14 +25,16 @@ def get_answer(question):
     """
     获得复杂问题的答案
     """
-    tasks = get_task_decomposition(question)
+    assumption, tasks = get_task_decomposition(question)
     taskid_to_answer = {}
     for task in tasks:
         parent_answers = []
         for parent in task["parents"]:
             if taskid_to_answer.get(parent):
                 parent_answers.append(taskid_to_answer[parent])
-        task_answer = get_atomic_answer(task["question"], parent_answers, tools.tools)
+        task_answer = get_atomic_answer(
+            task["question"], parent_answers, tools.tools, assumption
+        )
         taskid_to_answer[task["id"]] = task_answer
     return taskid_to_answer[tasks[-1]["id"]]
 
@@ -46,13 +48,14 @@ def get_task_decomposition(question):
         {"role": "system", "content": prompts.get_prompt_task_decomposition()},
         {"role": "user", "content": question},
     ]
-    response = get_completion(messages)
-    tasks = json.loads(parse_res(response.choices[0].message.content))
-    logger.success("【问题分解结果】", tasks)
-    return tasks
+    response = get_completion(messages, tools.tools)
+    res = json.loads(parse_res(response.choices[0].message.content))
+    assumption = None if not res.get("assumption") else res["assumption"]
+    logger.success("【问题分解结果】", res)
+    return assumption, res["subtasks"]
 
 
-def get_atomic_answer(question, parent_answers, tools):
+def get_atomic_answer(question, parent_answers, tools, assumption=None):
     """
     获得原子问题的答案
     """
@@ -62,7 +65,7 @@ def get_atomic_answer(question, parent_answers, tools):
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
-                question, table_meta_list, parent_answers
+                question, table_meta_list, parent_answers, assumption
             ),
         },
     ]
@@ -74,7 +77,7 @@ def get_atomic_answer(question, parent_answers, tools):
         args = json.loads(tool_call.function.arguments)
         function_name = tool_call.function.name
         if function_name in functions.function_map:
-            logger.info("【执行工具函数】", function_name)
+            logger.info("【执行工具函数】", function_name, ", 参数:", args)
             function_result = functions.function_map[function_name](**args)
             logger.success("【工具函数执行结果】", function_result)
             function_results.append(function_result)
@@ -117,14 +120,13 @@ def get_completion(messages, tools=[], model="glm-4-plus"):
     """
     获得对话结果
     """
-    # client = ZhipuAI(api_key=check_api_key())
-    # response = client.chat.completions.create(
-    #     model=model,
-    #     stream=False,
-    #     messages=messages,
-    #     tools=tools,
-    # )
-    # return response
-    import deepseek
-
-    return deepseek.request(messages, tools)
+    client = ZhipuAI(api_key=check_api_key())
+    response = client.chat.completions.create(
+        model=model,
+        stream=False,
+        messages=messages,
+        tools=tools,
+    )
+    return response
+    # import deepseek
+    # return deepseek.request(messages, tools)

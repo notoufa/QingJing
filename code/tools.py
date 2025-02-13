@@ -94,13 +94,24 @@ tools = [
                     },
                     "device_name": {
                         "type": "string",
-                        "description": "设备名称，支持以下值：'折臂吊车'、'一号门架'、'二号门架'、'绞车'、'甲板机械设备'。",
+                        "description": "设备名称，支持以下值：'折臂吊车'、'一号门架'、'二号门架'、'绞车'、'甲板机械设备'、'侧推'（与艏推、艏侧推含义相同）、'全船'。",
                         "enum": [
+                            "全船",
+                            "甲板机械设备",
                             "折臂吊车",
                             "一号门架",
                             "二号门架",
-                            "绞车",
-                            "甲板机械设备",
+                            "绞车变频器",
+                            "推进系统",
+                            "一号推进变频器",
+                            "二号推进变频器",
+                            "可伸缩推",
+                            "侧推",
+                            "舵桨",
+                            "一号舵桨转舵A",
+                            "一号舵桨转舵B",
+                            "二号舵桨转舵A",
+                            "二号舵桨转舵B",
                         ],
                     },
                 },
@@ -111,8 +122,8 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_startup_time_by_time_range",
-            "description": "计算指定时间段内设备的开机时长，并返回三种格式的开机时长。设备名称支持 '折臂吊车'、'A架' 和 'DP'。",
+            "name": "get_running_time_by_time_range",
+            "description": "计算指定时间段内设备的运行时长/实际运行时长，并返回三种格式（秒，分，时）的运行时长。实际运行时长表示有电流且不为0的时长，运行时长表示从开机到关机的时长，也称开机时长。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -126,22 +137,25 @@ tools = [
                         "format": "date-time",
                         "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。",
                     },
-                    "shebeiname": {
+                    "is_actual": {
+                        "type": "boolean",
+                        "description": "是否查询实际运行时长，如果为 True，则查询实际运行时长，否则查询运行时长。",
+                    },
+                    "device_name": {
                         "type": "string",
                         "enum": ["折臂吊车", "A架", "DP"],
-                        "description": "设备名称，支持 '折臂吊车'、'A架' 和 'DP'，默认为 '折臂吊车'。",
-                        "default": "折臂吊车",
+                        "description": "设备名称，支持 '折臂吊车'、'A架' 和 'DP'。",
                     },
                 },
-                "required": ["start_time", "end_time"],
+                "required": ["start_time", "end_time", "is_actual", "device_name"],
             },
         },
     },
     {
         "type": "function",
         "function": {
-            "name": "get_running_time_by_time_range",
-            "description": "计算指定时间段内设备的运行时长，并返回三种格式的运行时长。设备名称支持 'A架'。",
+            "name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
+            "description": "计算指定时间段内的理论发电量/实际发电量/燃油消耗量，支持计算一/二/三/四号柴油发电机、整个柴油发电机组。返回值为理论发电量（kWh，float 类型）/实际发电量（kWh，float 类型）/燃油消耗量（L，float 类型）。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -155,14 +169,36 @@ tools = [
                         "format": "date-time",
                         "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。",
                     },
+                    "type": {
+                        "type": "string",
+                        "description": "查询的类型，支持'理论发电量'、'实际发电量'、'燃油消耗量'。",
+                        "enum": [
+                            "理论发电量",
+                            "实际发电量",
+                            "燃油消耗量",
+                        ],
+                    },
                     "device_name": {
                         "type": "string",
-                        "enum": ["A架"],
-                        "description": "设备名称，支持 'A架'，默认为 'A架'。",
-                        "default": "A架",
+                        "description": "设备名称，支持以下值：'一号柴油发电机'、'二号柴油发电机'、'三号柴油发电机'、'四号柴油发电机'、'柴油发电机组'。",
+                        "enum": [
+                            "一号柴油发电机",
+                            "二号柴油发电机",
+                            "三号柴油发电机",
+                            "四号柴油发电机",
+                            "柴油发电机组",
+                        ],
+                    },
+                    "diesel_density": {
+                        "type": "number",
+                        "description": "柴油密度，单位 kg/L。当 type 为 '理论发电量' 时需要提供。",
+                    },
+                    "diesel_calorific_value": {
+                        "type": "number",
+                        "description": "柴油热值，单位 MJ/kg。当 type 为 '理论发电量' 时需要提供。",
                     },
                 },
-                "required": ["start_time", "end_time"],
+                "required": ["start_time", "end_time", "type", "device_name"],
             },
         },
     },

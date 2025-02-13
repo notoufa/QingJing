@@ -1,3 +1,5 @@
 code/data/**
 assets/**
 code/__pycache__/**
+code/results/**
+**/**.pyc
