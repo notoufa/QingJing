@@ -93,7 +93,7 @@ def get_atomic_answer(question, parent_answers, tools):
 
 def get_table_meta(question):
     """
-    获得问题所需的数据表
+    获得问题所需的数据表的元信息
     """
     logger.info("【获取原子问题所需数据表】", question)
     with open(table_meta_file, "r", encoding="utf-8") as file:
