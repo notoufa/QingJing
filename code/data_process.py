@@ -142,16 +142,16 @@ for i in range(1, df.shape[0]):
         df.loc[i, 'status'] = '停电'
         # 开机条件
     if df.loc[i - 1, 'Ajia-3_v'] == -1 and (df.loc[i, 'Ajia-3_v'] == 0 or df.loc[i, 'Ajia-3_v'] == '0'):
-        df.loc[i, 'status'] = '开机'
+        df.loc[i, 'status'] = 'A架开机'
     if df.loc[i - 1, 'Ajia-3_v'] == -1 and df.loc[i, 'Ajia-3_v'] > 0:
-        df.loc[i, 'status'] = '开机'
+        df.loc[i, 'status'] = 'A架开机'
     if df.loc[i - 1, 'Ajia-5_v'] == -1 and (df.loc[i, 'Ajia-5_v'] == 0 or df.loc[i, 'Ajia-5_v'] == '0'):
-        df.loc[i, 'status'] = '开机'
+        df.loc[i, 'status'] = 'A架开机'
     # 关机条件
     if df.loc[i, 'Ajia-3_v'] == -1 and (df.loc[i - 1, 'Ajia-3_v'] == 0 or df.loc[i - 1, 'Ajia-3_v'] == '0'):
-        df.loc[i, 'status'] = '关机'
+        df.loc[i, 'status'] = 'A架关机'
     if df.loc[i, 'Ajia-5_v'] == -1 and (df.loc[i - 1, 'Ajia-5_v'] == 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
-        df.loc[i, 'status'] = '关机'
+        df.loc[i, 'status'] = 'A架关机'
     if df.loc[i, 'Ajia-5_v'] > 0 and df.loc[i - 1, 'Ajia-5_v'] == -1:
         df.loc[i, 'check_current_presence'] = '有电流'
     if df.loc[i, 'Ajia-5_v'] > 0 and (df.loc[i - 1, 'Ajia-5_v'] == 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
@@ -182,9 +182,9 @@ segments = []
 
 # 遍历DataFrame
 for index, row in df.iterrows():
-    if row['status'] == '开机':
+    if row['status'] == 'A架开机':
         start_time = row['csvTime']
-    elif row['status'] == '关机' and start_time is not None:
+    elif row['status'] == 'A架关机' and start_time is not None:
         end_time = row['csvTime']
         segments.append((start_time, end_time))
         start_time = None
@@ -220,9 +220,9 @@ def extract_daily_power_on_times(df):
 
         # 遍历每一天的记录
         for index, row in group.iterrows():
-            if row['status'] == '开机':
+            if row['status'] == 'A架开机':
                 start_time = row['csvTime']
-            elif row['status'] == '关机' and start_time is not None:
+            elif row['status'] == 'A架关机' and start_time is not None:
                 end_time = row['csvTime']
                 segments.append((start_time, end_time))
                 start_time = None
