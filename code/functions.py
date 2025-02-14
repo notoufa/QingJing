@@ -3,7 +3,7 @@
 import pandas as pd
 
 
-def get_data_by_time_range(table_name, start_time, end_time, columns=[]):
+def get_data_by_time_range(table_name, start_time, end_time, columns=None, status=None):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
 
@@ -12,6 +12,7 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=[]):
     start_time (str): 开始时间，格式为 'YYYY-MM-DD HH:MM:SS'
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
+    status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -21,6 +22,7 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=[]):
         "start_time": start_time,
         "end_time": end_time,
         "columns": columns,
+        "status": status,
     }
 
     try:
@@ -48,6 +50,14 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=[]):
             "error": f"在数据表 {table_name} 中未找到时间范围 {start_time} 到 {end_time} 的数据",
             "metadata": metadata,
         }
+
+    if status is not None:
+        filtered_data = filtered_data[filtered_data["status"] == status]
+        if filtered_data.empty:
+            return {
+                "error": f"在数据表 {table_name} 中未找到状态为 {status} 的数据",
+                "metadata": metadata,
+            }
 
     if columns is None:
         columns = filtered_data.columns.tolist()
@@ -87,6 +97,12 @@ def get_actions_by_time_range(start_time, end_time):
     dict: 包含设备状态变化的时间点和对应状态的字典，或错误信息
     """
 
+    # 确保两个时间的差值至少是一分钟，如果小于一分钟，则end_time为start_time后一分钟
+    start_time_dt = pd.to_datetime(start_time)
+    end_time_dt = pd.to_datetime(end_time)
+    if (end_time_dt - start_time_dt).total_seconds() < 60:
+        end_time_dt = start_time_dt + pd.Timedelta(minutes=1)
+
     def get_status_changes(table_name, device_name):
         """
         辅助函数：获取指定设备在指定时间范围内的状态变化。
@@ -110,18 +126,16 @@ def get_actions_by_time_range(start_time, end_time):
             return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
         df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")  # 假设时间戳是纳秒级别
-        start_time_dt = pd.to_datetime(start_time)
-        end_time_dt = pd.to_datetime(end_time)
 
         filtered_data = df[
             (df["csvTime"] >= start_time_dt)
             & (df["csvTime"] <= end_time_dt)
-            & (df["status"] != "None")
+            & (df["status"] != "False")
         ]
 
         if filtered_data.empty:
             return {
-                "error": f"在数据表 {table_name} 中未找到时间范围 {start_time} 到 {end_time} 且 status 不为 'None' 的数据",
+                "error": f"在数据表 {table_name} 中未找到时间范围 {start_time} 到 {end_time} 且 status 不为 'False' 的数据",
                 "metadata": metadata,
             }
 
@@ -319,7 +333,7 @@ def get_running_time_by_time_range(start_time, end_time, is_actual, device_name)
         "A架_actual": ("data/Ajia_plc_1.csv", "有电流", "无电流"),
     }
 
-    check_field_name = "is_device_powered" if is_actual else "status"
+    check_field_name = "check_current_presence" if is_actual else "status"
     device_name = f"{device_name}_actual" if is_actual else device_name
 
     if device_name not in device_config:

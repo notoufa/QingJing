@@ -5,7 +5,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_data_by_time_range",
-            "description": "根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。",
+            "description": "根据数据表名、开始时间、结束时间、列名和状态获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -28,6 +28,11 @@ tools = [
                         "items": {"type": "string"},
                         "description": "需要查询的列名列表。如果未提供，则返回所有列。",
                         "default": [],
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "需要筛选的状态（例如 '开机'、'关机'）。如果未提供，则不筛选状态。",
+                        "default": "",
                     },
                 },
                 "required": ["table_name", "start_time", "end_time"],
