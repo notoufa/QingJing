@@ -88,7 +88,7 @@ def warning(*args, sep=" ", end="\n"):
 
 def error(*args, sep=" ", end="\n"):
     """打印错误信息（红色）"""
-    color_print("ERROR", "red", *args, sep=sep, end=end, file=sys.stderr)
+    color_print("ERROR", "red", *args, sep=sep, end=end)
 
 
 def success(*args, sep=" ", end="\n"):

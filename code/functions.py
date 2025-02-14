@@ -1,5 +1,6 @@
 """定义与tools.py中的函数对应的API接口，用于返回函数调用的结果"""
 
+import traceback
 import pandas as pd
 
 
@@ -194,7 +195,7 @@ def get_device_parameter_by_name(parameter_name_cn):
         "屏蔽值": parameter_info["Parameter_Information_Inhibit"],
         "延迟值": parameter_info["Parameter_Information_Delayed"],
         "安全保护设定值": parameter_info["Safety_Protection_Set_Value"],
-        "附注": parameter_info["Remarks"],
+        "附注（达到安全保护设定值时的措施）": parameter_info["Remarks"],
     }
     return parameter_dict
 
@@ -252,7 +253,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
 
     device_config = {
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
-        "甲板机械设备": ["折臂吊车", "一号门架", "二号门架", "绞车"],
+        "甲板机械设备": ["折臂吊车", "一号门架", "二号门架", "绞车变频器"],
         "折臂吊车": ("device_13_11_meter_1311", "13-11-6_v"),
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
@@ -284,7 +285,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
                 if energy is not None:
                     total_energy += energy
             except Exception as e:
-                print(f"计算设备 {sub_device} 能耗时出错: {e}")
+                print(f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}")
         result = round(total_energy, 2)
     else:
         table_name, power_column = device_config[device_name]
@@ -301,6 +302,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
             print(f"计算设备 {device_name} 能耗时出错: {e}")
     return {
         "result": result,
+        "unit": "kWh",
         "metadata": metadata,
     }
 
@@ -388,7 +390,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     diesel_calorific_value=None,
 ):
     """
-    根据开始时间和结束时间，查询设备在指定时间范围内的运行时间/实际运行时间。
+    根据开始时间和结束时间，查询设备在指定时间范围内的发电量或燃油消耗量
 
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
@@ -496,7 +498,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             total_energy_kWh = filtered_data["energy_kWh"].sum()
             if type == "理论发电量":
                 result = round(
-                    total_energy_kWh * diesel_density * diesel_calorific_value, 2
+                    total_energy_kWh * diesel_density * diesel_calorific_value / 3.6, 2
                 )
             else:
                 result = round(total_energy_kWh, 2)
@@ -505,6 +507,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             print(f"计算设备 {device_name} {type}时出错: {e}")
     return {
         "result": result,
+        "unit": "L" if type == "燃油消耗量" else "Kwh",
         "metadata": metadata,
     }
 
@@ -566,6 +569,48 @@ def calculate_math_operations(operation, operands):
     }
 
 
+from datetime import datetime
+
+
+def calculate_time_interval(start_time: str, end_time: str):
+    """
+    计算两个时间点之间的时间间隔。
+
+    参数:
+        start_time (str): 起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。
+        end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。
+
+    返回:
+        计算得到的时间间隔
+    """
+
+    metadata = {
+        "start_time": start_time,
+        "end_time": end_time,
+    }
+    try:
+        fmt = "%Y-%m-%d %H:%M:%S"
+        start_dt = datetime.strptime(start_time, fmt)
+        end_dt = datetime.strptime(end_time, fmt)
+
+        delta_seconds = (end_dt - start_dt).total_seconds()
+
+        return {
+            "result": {
+                "delta_seconds": delta_seconds,
+                "delta_minutes": delta_seconds / 60,
+                "delta_hours": delta_seconds / 3600,
+                "delta_days": delta_seconds / 86400,
+            },
+            "metadata": metadata,
+        }
+    except ValueError as e:
+        return {
+            "error": f"时间格式错误或无效输入: {e}",
+            "metadata": metadata,
+        }
+
+
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
     "get_actions_by_time_range": get_actions_by_time_range,
@@ -574,4 +619,5 @@ function_map: dict[str, callable] = {
     "get_running_time_by_time_range": get_running_time_by_time_range,
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
     "calculate_math_operations": calculate_math_operations,
+    "calculate_time_interval": calculate_time_interval,
 }
