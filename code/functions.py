@@ -495,6 +495,63 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     }
 
 
+def calculate_math_operations(operation, operands):
+    """
+    进行数学运算，包括加法、减法、乘法、除法、求和和求平均值。
+
+    参数:
+        operation (str): 运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'。
+        operands (list): 数值列表，所有元素必须为数字。
+
+    返回:
+        float: 运算结果。
+
+    异常:
+        ValueError: 如果遇到不支持的运算类型或者在除法中除数为0。
+    """
+    metadata = {
+        "operation": operation,
+        "operands": operands,
+    }
+
+    if not operands:
+        return {
+            "error": "操作数不能为空",
+            "metadata": metadata,
+        }
+
+    if operation == "加法":
+        result = sum(operands)
+    elif operation == "减法":
+        result = operands[0]
+        for num in operands[1:]:
+            result -= num
+    elif operation == "乘法":
+        result = 1
+        for num in operands:
+            result *= num
+    elif operation == "除法":
+        result = operands[0]
+        for num in operands[1:]:
+            if num == 0:
+                raise ValueError("除法错误：除数不能为0")
+            result /= num
+    elif operation == "求和":
+        result = sum(operands)
+    elif operation == "求平均值":
+        result = sum(operands) / len(operands)
+    else:
+        return {
+            "error": "不支持的运算类型: {}".format(operation),
+            "metadata": metadata,
+        }
+
+    return {
+        "result": result,
+        "metadata": metadata,
+    }
+
+
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
     "get_actions_by_time_range": get_actions_by_time_range,
@@ -502,4 +559,5 @@ function_map: dict[str, callable] = {
     "get_total_energy_consumption_by_time_range": get_total_energy_consumption_by_time_range,
     "get_running_time_by_time_range": get_running_time_by_time_range,
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
+    "calculate_math_operations": calculate_math_operations,
 }
