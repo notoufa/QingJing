@@ -44,15 +44,18 @@ def main():
     result_json_list.sort(key=lambda x: x["id"])
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
-    result_path = os.path.join(result_dir, "result_" + str(int(time.time())) + ".json")
-    with open(result_path, "w", encoding="utf-8") as f:
+    date_str = time.strftime("%Y-%m-%d", time.localtime())
+    result_path = os.path.join(result_dir, "result_" + date_str + ".json")
+    with open(result_path, "a", encoding="utf-8") as f:
         for result in result_json_list:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
     start_time = time.time()
+    logger.info("------------------------------【程序开始】------------------------------")
     main()
     end_time = time.time()
     elapsed_time_minutes = (end_time - start_time) / 60
     logger.special(f"【程序运行时间】 {elapsed_time_minutes:.2f} 分钟")
+    logger.info("------------------------------【程序结束】------------------------------")

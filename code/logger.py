@@ -2,6 +2,8 @@
 
 import sys
 import datetime
+import os
+import time
 
 COLORS = {
     "red": "\033[91m",
@@ -12,7 +14,9 @@ COLORS = {
     "cyan": "\033[96m",
     "reset": "\033[0m",
 }
-
+log_dir = "logs"
+date_str=time.strftime("%Y-%m-%d", time.localtime())
+log_path = os.path.join(log_dir, "log_"+date_str+".log")
 
 def color_print(color, *args, sep=" ", end="\n", file=sys.stdout):
     """通用彩色打印函数，带时间戳"""
@@ -22,6 +26,8 @@ def color_print(color, *args, sep=" ", end="\n", file=sys.stdout):
         end=end,
         file=file,
     )
+    with open(log_path, "a", encoding="utf-8") as log_file:
+        log_file.write(f"{timestamp} {sep.join(map(str, args))}{end}")
 
 
 def info(*args, sep=" ", end="\n"):
