@@ -202,4 +202,34 @@ tools = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_math_operations",
+            "description": "进行数学运算，包括加法、减法、乘法、除法、求和和求平均值。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "description": "指定运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'。",
+                        "enum": [
+                            "加法",
+                            "减法",
+                            "乘法",
+                            "除法",
+                            "求和",
+                            "求平均值",
+                        ],
+                    },
+                    "operands": {
+                        "type": "array",
+                        "description": "参与运算的数值列表，所有元素必须为数字。",
+                        "items": {"type": "number"},
+                    },
+                },
+                "required": ["operation", "operands"],
+            },
+        },
+    },
 ]

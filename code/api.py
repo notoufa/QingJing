@@ -9,8 +9,6 @@ import logger
 import os
 from utils import parse_res
 
-table_meta_file = "meta.json"
-
 
 def check_api_key():
     api_key = os.getenv("ZHIPUAI_API_KEY")
@@ -45,7 +43,7 @@ def get_task_decomposition(question):
     """
     logger.info("【获取问题分解结果】", question)
     messages = [
-        {"role": "system", "content": prompts.get_prompt_task_decomposition()},
+        {"role": "system", "content": prompts.get_prompt_task_decomposition(question)},
         {"role": "user", "content": question},
     ]
     response = get_completion(messages, tools.tools)
@@ -99,20 +97,16 @@ def get_table_meta(question):
     获得问题所需的数据表的元信息
     """
     logger.info("【获取原子问题所需数据表】", question)
-    with open(table_meta_file, "r", encoding="utf-8") as file:
-        table_data = json.load(file)
     messages = [
         {
             "role": "user",
-            "content": prompts.get_prompt_table_meta(table_data, question),
+            "content": prompts.get_prompt_get_table_meta(question),
         },
     ]
     response = get_completion(messages)
     chosen_table_names = json.loads(parse_res(response.choices[0].message.content))
     logger.success("【原子问题所需数据表】", chosen_table_names)
-    table_meta_list = [
-        item for item in table_data if item["数据表名"] in chosen_table_names
-    ]
+    table_meta_list = prompts.get_table_meta_by_table_names(chosen_table_names)
     return table_meta_list
 
 
@@ -121,12 +115,14 @@ def get_completion(messages, tools=[], model="glm-4-plus"):
     获得对话结果
     """
     client = ZhipuAI(api_key=check_api_key())
+    logger.trace("【请求回答】", str(messages))
     response = client.chat.completions.create(
         model=model,
         stream=False,
         messages=messages,
         tools=tools,
     )
+    logger.trace("【回答结果】", str(response))
     return response
     # import deepseek
     # return deepseek.request(messages, tools)

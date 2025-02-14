@@ -105,14 +105,14 @@ def merge_csv_files(folder_path, out_path):
         print(f'Merged files with prefix "{prefix}" into {output_file}')
 
     # Convert Excel to CSV
-    os.makedirs('database_in_use', exist_ok=True)
+    os.makedirs('data', exist_ok=True)
     df_device = pd.read_excel(f'{data_path}设备参数详情.xlsx')
+    df_device.to_csv('tmp_data/设备参数详情表.csv', index=False)
     df_device.to_csv('data/设备参数详情表.csv', index=False)
-    df_device.to_csv('database_in_use/设备参数详情表.csv', index=False)
 
 
+merge_csv_files(data_path, 'tmp_data')
 merge_csv_files(data_path, 'data')
-merge_csv_files(data_path, 'database_in_use')
 
 
 # In[3]:
@@ -127,7 +127,7 @@ def convert_to_numeric(value):
 
 
 # 读取CSV文件
-df = pd.read_csv('data/Ajia_plc_1.csv')
+df = pd.read_csv('tmp_data/Ajia_plc_1.csv')
 # 将 Ajia-3_v 和 Ajia-5_v 列转换为数值类型，无法转换的设为 -1
 df['Ajia-3_v'] = df['Ajia-3_v'].apply(convert_to_numeric)
 df['Ajia-5_v'] = df['Ajia-5_v'].apply(convert_to_numeric)
@@ -694,14 +694,14 @@ for segment in segments:
         print(L4)
 df = df.drop(columns=['date'])  # 删除 'date' 列
 df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
-df.to_csv('database_in_use/Ajia_plc_1.csv', index=False)
+df.to_csv('data/Ajia_plc_1.csv', index=False)
 # In[4]:
 
 
 import pandas as pd
 
 # 读取CSV文件
-df = pd.read_csv('data/Port3_ksbg_9.csv')
+df = pd.read_csv('tmp_data/Port3_ksbg_9.csv')
 # 将P3_33列转换为数值类型，无法转换的保留原值
 df['P3_33'] = pd.to_numeric(df['P3_33'], errors='coerce')
 # 初始化status列
@@ -715,12 +715,12 @@ for i in range(1, df.shape[0]):
     if df.loc[i - 1, 'P3_33'] > 0 and df.loc[i, 'P3_33'] == 0:
         df.loc[i, 'status'] = 'OFF_DP'
 # 保存结果
-df.to_csv('database_in_use/Port3_ksbg_9.csv', index=False)
+df.to_csv('data/Port3_ksbg_9.csv', index=False)
 # In[5]:
 
 
 # 读取CSV文件
-df = pd.read_csv('data/device_13_11_meter_1311.csv')
+df = pd.read_csv('tmp_data/device_13_11_meter_1311.csv')
 
 # 将13-11-6_v列转换为数值类型，无法转换的保留原值
 df['13-11-6_v'] = pd.to_numeric(df['13-11-6_v'], errors='coerce')
@@ -879,117 +879,4 @@ for segment in segments:
 df = df.drop(columns=['action'])
 df = df.drop(columns=['13-11-6_v_new'])
 
-df.to_csv('database_in_use/device_13_11_meter_1311.csv', index=False)
-
-
-# In[6]:
-
-
-# Pre3: Data Annotations
-def create_annotations():
-    df_desc = pd.read_csv(f'{data_path}字段释义.csv', encoding='gbk')
-    df_desc['字段含义_new'] = df_desc['字段含义'] + df_desc['单位'].apply(
-        lambda x: f",单位:{x}" if pd.notnull(x) else "")
-    field_dict = df_desc.set_index('字段名')['字段含义_new'].to_dict()
-
-    folder_path = 'database_in_use'
-    files = [f.split('.')[0] for f in os.listdir(folder_path) if f.endswith('.csv')]
-
-    descriptions = []
-    for file_name in files:
-        df = pd.read_csv(f'{folder_path}/{file_name}.csv')
-        columns = df.columns.tolist()
-        annotations = [field_dict.get(col, '无注释') for col in columns]
-        descriptions.append({'数据表名': file_name, '字段名': columns, "字段含义": annotations})
-
-    # Customize specific tables
-    for item in descriptions:
-        if item['数据表名'] == 'Ajia_plc_1':
-            item['字段含义'][-2] = 'A架动作,包括关机、开机、A架摆出、缆绳挂妥、征服者出水、征服者落座、征服者起吊、征服者入水、缆绳解除、A架摆回'
-        if item['数据表名'] == 'device_13_11_meter_1311':
-            item['字段含义'][-1] = '折臂吊车及小艇动作,包括折臂吊车关机,折臂吊车开机,小艇检查完毕,小艇入水,小艇落座'
-        if item['数据表名'] == 'Port3_ksbg_9':
-            item['字段含义'][-1] = 'DP动作,包括OFF_DP,ON_DP'
-
-    with open('dict.json', 'w', encoding='utf-8') as f:
-        json.dump(descriptions, f, ensure_ascii=False, indent=4)
-
-
-create_annotations()
-# In[7]:
-import pandas as pd
-
-df = pd.read_csv(f'{data_path}字段释义.csv', encoding='gbk')
-# 检查某一列是否有重复值
-column_name = '字段名'
-value_counts = df[column_name].value_counts()
-if any(value_counts > 1):
-    print(f"列 '{column_name}' 中存在重复值。")
-else:
-    print(f"列 '{column_name}' 中没有重复值。")
-df['字段含义_new'] = df['字段含义'] + df['单位'].apply(lambda x: ",单位:" + x if pd.notnull(x) else "")
-# 将两列转换为字典
-field_dict = df.set_index('字段名')['字段含义_new'].to_dict()
-
-
-# 读取CSV文件
-
-def aa(filename):
-    df = pd.read_csv(f'database_in_use/{filename}.csv')
-    if 'Unnamed: 0' in df.columns:
-        del df['Unnamed: 0']
-    # 获取列名
-    column_names = df.columns.tolist()
-    # 定义列名与中文注释的映射字典
-    column_name_to_chinese = field_dict
-    # 获取中文注释
-    chinese_annotations = [column_name_to_chinese.get(col, '无注释') for col in column_names]
-
-    last_dict = {'数据表名': filename, '字段名': column_names, "字段含义": chinese_annotations}
-    return last_dict
-
-
-def process_folder(folder_path):
-    # 获取文件夹中的所有CSV文件
-    csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
-
-    # 初始化结果列表
-    result_list = []
-
-    # 遍历每个CSV文件
-    for csv_file in csv_files:
-        # 去掉文件扩展名，获取文件名
-        filename = os.path.splitext(csv_file)[0]
-        # 调用aa函数处理文件
-        result_dict = aa(filename)
-        # 将结果字典添加到列表中
-        result_list.append(result_dict)
-
-    return result_list
-
-
-# 使用示例
-folder_path = 'database_in_use'
-os.makedirs(folder_path, exist_ok=True)
-result = process_folder(folder_path)
-result = [item for item in result if item['数据表名'] != '设备参数详情表']
-for item in result:
-    if item['数据表名'] == 'Ajia_plc_1':
-        item['字段含义'][-1] = 'A架动作,包括关机、开机、A架摆出、缆绳挂妥、征服者出水、征服者落座、征服者起吊、征服者入水、缆绳解除、A架摆回'
-    if item['数据表名'] == 'device_13_11_meter_1311':
-        item['字段含义'][-1] = '折臂吊车及小艇动作,包括折臂吊车关机,折臂吊车开机,小艇检查完毕,小艇入水,小艇落座'
-    if item['数据表名'] == 'Port3_ksbg_9':
-        item['字段含义'][-1] = 'DP动作,包括OFF_DP,ON_DP'
-# %%
-df1 = pd.read_excel(f'{data_path}设备参数详情.xlsx', sheet_name='字段释义')
-df1['含义1'] = df1['含义'].fillna('') + ',' + df1['备注'].fillna('')
-dict_shebei = {'数据表名': '设备参数详情表', '字段名': list(df1['字段']), "字段含义": list(df1['含义1'])}
-# 修改字段含义列表的第二个值
-dict_shebei['字段含义'][1] = "参数中文名,值包含一号柴油发电机组滑油压力、停泊/应急发电机组、一号柴油发电机组滑油压力等"
-result.append(dict_shebei)
-
-# 假设这是你的列表数据
-data_list = result
-# 将列表存入 JSON 文件
-with open('dict.json', 'w', encoding='utf-8') as f:
-    json.dump(data_list, f, ensure_ascii=False, indent=4)
+df.to_csv('data/device_13_11_meter_1311.csv', index=False)

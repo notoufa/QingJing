@@ -28,6 +28,8 @@ def process_one(question_json):
 
 
 def main():
+    logger.init()
+
     result_json_list = []
 
     with open(question_path, "r", encoding="utf-8") as f:

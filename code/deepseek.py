@@ -22,13 +22,10 @@ def get_timestamp():
 
 
 def generate_uuid():
-    # str(uuid.uuid4()).replace("-", "")
     hex_digits = "0123456789abcdef"
     s = [random.choice(hex_digits) for _ in range(32)]
-    s[14] = "4"  # bits 12-15 of the time_hi_and_version field to 0010
-    s[19] = hex_digits[
-        random.randint(0, 3) | 8
-    ]  # bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[14] = "4"
+    s[19] = hex_digits[random.randint(0, 3) | 8]
     return "".join(s)
 
 

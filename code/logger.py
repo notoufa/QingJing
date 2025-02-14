@@ -5,6 +5,14 @@ import datetime
 import os
 import time
 
+LEVELS = ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "SUCCESS", "SPECIAL"]
+
+console_level = "INFO"
+file_level = "TRACE"
+
+logs_path = "logs"
+log_file_path = None
+
 COLORS = {
     "red": "\033[91m",
     "green": "\033[92m",
@@ -12,49 +20,81 @@ COLORS = {
     "blue": "\033[94m",
     "magenta": "\033[95m",
     "cyan": "\033[96m",
+    "white": "\033[97m",
+    "grey": "\033[90m",
     "reset": "\033[0m",
 }
-log_dir = "logs"
-date_str=time.strftime("%Y-%m-%d", time.localtime())
-log_path = os.path.join(log_dir, "log_"+date_str+".log")
 
-def color_print(color, *args, sep=" ", end="\n", file=sys.stdout):
-    """通用彩色打印函数，带时间戳"""
+
+def init(log_filename=None, console_log_level="INFO", file_log_level="TRACE"):
+    """初始化日志模块"""
+    global log_file_path, console_level, file_level
+
+    os.makedirs(logs_path, exist_ok=True)
+
+    if log_filename:
+        log_file_path = os.path.join(logs_path, log_filename)
+    else:
+        log_file_path = os.path.join(logs_path, "log_" + str(int(time.time())) + ".log")
+
+    if console_log_level in LEVELS:
+        console_level = console_log_level
+
+    if file_log_level in LEVELS:
+        file_level = file_log_level
+
+
+def should_log(level, target_level):
+    """判断是否应该打印当前日志"""
+    return LEVELS.index(level) >= LEVELS.index(target_level)
+
+
+def color_print(level, color, *args, sep=" ", end="\n"):
+    """通用日志打印函数，支持控制台和文件输出"""
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    print(
-        f"{timestamp} {COLORS[color]}{sep.join(map(str, args))}{COLORS['reset']}",
-        end=end,
-        file=file,
-    )
-    with open(log_path, "a", encoding="utf-8") as log_file:
-        log_file.write(f"{timestamp} {sep.join(map(str, args))}{end}")
+    log_message = f"{timestamp} [{level}] {sep.join(map(str, args))}"
+
+    if should_log(level, console_level):
+        print(
+            f"{COLORS[color]}{log_message}{COLORS['reset']}", end=end, file=sys.stdout
+        )
+
+    if log_file_path and should_log(level, file_level):
+        with open(log_file_path, "a", encoding="utf-8") as log_file:
+            log_file.write(log_message + "\n")
+
+
+# 各级别日志函数
+def trace(*args, sep=" ", end="\n"):
+    """打印跟踪信息（灰色）"""
+    color_print("TRACE", "grey", *args, sep=sep, end=end)
+
+
+def debug(*args, sep=" ", end="\n"):
+    """打印调试信息（白色）"""
+    color_print("DEBUG", "white", *args, sep=sep, end=end)
 
 
 def info(*args, sep=" ", end="\n"):
     """打印普通信息（蓝色）"""
-    color_print("blue", *args, sep=sep, end=end)
-
-
-def success(*args, sep=" ", end="\n"):
-    """打印成功信息（绿色）"""
-    color_print("green", *args, sep=sep, end=end)
+    color_print("INFO", "blue", *args, sep=sep, end=end)
 
 
 def warning(*args, sep=" ", end="\n"):
     """打印警告信息（黄色）"""
-    color_print("yellow", *args, sep=sep, end=end)
+    color_print("WARNING", "yellow", *args, sep=sep, end=end)
 
 
 def error(*args, sep=" ", end="\n"):
     """打印错误信息（红色）"""
-    color_print("red", *args, sep=sep, end=end, file=sys.stderr)
+    color_print("ERROR", "red", *args, sep=sep, end=end, file=sys.stderr)
 
 
-def debug(*args, sep=" ", end="\n"):
-    """打印调试信息（紫色）"""
-    color_print("magenta", *args, sep=sep, end=end)
+def success(*args, sep=" ", end="\n"):
+    """打印成功信息（绿色）"""
+    color_print("SUCCESS", "green", *args, sep=sep, end=end)
 
 
 def special(*args, sep=" ", end="\n"):
     """打印特殊信息（青色）"""
-    color_print("cyan", *args, sep=sep, end=end)
+    color_print("SPECIAL", "cyan", *args, sep=sep, end=end)
