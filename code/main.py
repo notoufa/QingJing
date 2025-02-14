@@ -47,7 +47,7 @@ def main():
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
     date_str = time.strftime("%Y-%m-%d", time.localtime())
-    result_path = os.path.join(result_dir, "result_" + date_str + ".json")
+    result_path = os.path.join(result_dir, "result_" + date_str + ".jsonl")
     with open(result_path, "a", encoding="utf-8") as f:
         for result in result_json_list:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
