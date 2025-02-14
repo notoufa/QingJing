@@ -34,30 +34,40 @@ def main():
 
     with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
-    # q_json_list = q_json_list[:1]
+    q_json_list = q_json_list[:1]
 
     logger.info(f"【问题总数】: {len(q_json_list)}")
+
+    if not os.path.exists(result_dir):
+        os.makedirs(result_dir)
+    date_str = time.strftime("%Y-%m-%d", time.localtime())
+    result_path = os.path.join(result_dir, "result_" + date_str + ".jsonl")
 
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
             result_json_list.append(future.result())
+            save_result(result_json_list, result_path)
 
+    save_result(result_json_list, result_path)
+
+
+def save_result(result_json_list, result_path):
     result_json_list.sort(key=lambda x: x["id"])
-    if not os.path.exists(result_dir):
-        os.makedirs(result_dir)
-    date_str = time.strftime("%Y-%m-%d", time.localtime())
-    result_path = os.path.join(result_dir, "result_" + date_str + ".json")
-    with open(result_path, "a", encoding="utf-8") as f:
+    with open(result_path, "w", encoding="utf-8") as f:
         for result in result_json_list:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    logger.info("------------------------------【程序开始】------------------------------")
+    logger.info(
+        "------------------------------【程序开始】------------------------------"
+    )
     main()
     end_time = time.time()
     elapsed_time_minutes = (end_time - start_time) / 60
     logger.special(f"【程序运行时间】 {elapsed_time_minutes:.2f} 分钟")
-    logger.info("------------------------------【程序结束】------------------------------")
+    logger.info(
+        "------------------------------【程序结束】------------------------------"
+    )

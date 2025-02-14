@@ -34,7 +34,17 @@ def get_answer(question):
             task["question"], parent_answers, tools.tools, assumption
         )
         taskid_to_answer[task["id"]] = task_answer
-    return taskid_to_answer[tasks[-1]["id"]]
+    final_answer = taskid_to_answer[tasks[-1]["id"]]
+    return final_answer
+    # messages = [
+    #     {
+    #         "role": "system",
+    #         "content": "请你按照原始问题的要求，调整答案中数值、时间、单位等格式",
+    #     },
+    #     {"role": "user", "content": f"原始问题：{question}\n答案：{final_answer}"},
+    # ]
+    # res = get_completion(messages)
+    # return res.choices[0].message.content
 
 
 def get_task_decomposition(question):

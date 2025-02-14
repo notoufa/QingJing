@@ -693,7 +693,7 @@ for segment in segments:
         print('------------------')
         print(L4)
 df = df.drop(columns=['date'])  # 删除 'date' 列
-df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
+# df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
 df.to_csv('data/Ajia_plc_1.csv', index=False)
 # In[4]:
 
