@@ -35,7 +35,8 @@ def init(log_filename=None, console_log_level="INFO", file_log_level="TRACE"):
     if log_filename:
         log_file_path = os.path.join(logs_path, log_filename)
     else:
-        log_file_path = os.path.join(logs_path, "log_" + str(int(time.time())) + ".log")
+        date_str=time.strftime("%Y-%m-%d", time.localtime())
+        log_file_path = os.path.join(logs_path, "log_" + date_str + ".log")
 
     if console_log_level in LEVELS:
         console_level = console_log_level
