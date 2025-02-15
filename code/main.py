@@ -19,7 +19,7 @@ def process_one(question_json):
     try:
         logger.info(f"【获取问题{line['id']}的答案】", query)
         answer = str(api.get_answer(question=query))
-        logger.special(f"【{line['id']}的最终答案】: {answer}")
+        logger.special(f"【{line['id']}的最终答案】: \n{answer}")
         return {"id": line["id"], "question": query, "answer": answer}
     except Exception as e:
         logger.error(f"【获取问题{line['id']}的答案出错】: {query}")

@@ -23,24 +23,25 @@ def get_answer(question):
     """
     获得复杂问题的答案
     """
-    have_time, assumption, tasks = get_task_decomposition(question)
+    assumption, format_requirement, contains_time, subtasks = get_task_decomposition(question)
     taskid_to_answer = {}
-    for task in tasks:
+    for task in subtasks:
         parent_answers = []
         for parent in task["parents"]:
             if taskid_to_answer.get(parent):
                 parent_answers.append(taskid_to_answer[parent])
         task_answer = get_atomic_answer(
-            task["question"], parent_answers, assumption, have_time
+            task["question"], parent_answers, assumption, contains_time
         )
         taskid_to_answer[task["id"]] = task_answer
     tasks_with_answer = []
-    for task in tasks:
+    for task in subtasks:
         task["answer"] = taskid_to_answer[task["id"]]
         tasks_with_answer.append(task)
-    summary= {
+    summary = {
         "question": question,
         "assumption": assumption,
+        "format_requirement": format_requirement,
         "tasks": tasks_with_answer,
     }
     logger.info("【问题总结】", summary)
@@ -62,17 +63,19 @@ def get_task_decomposition(question):
     ]
     response = get_completion(messages, tools.tools)
     res = json.loads(parse_res(response.choices[0].message.content))
-    assumption = None if not res.get("assumption") else res["assumption"]
-    have_time = res.get("have_time")
+    assumption = res["assumption"]
+    format_requirement = res.get("format_requirement")
+    contains_time = res.get("contains_time")
+    subtasks = res.get("subtasks")
     logger.success("【问题分解结果】", res)
-    return have_time, assumption, res["subtasks"]
+    return assumption, format_requirement, contains_time, subtasks
 
 
-def get_atomic_answer(question, parent_answers, assumption=None, have_time=True):
+def get_atomic_answer(question, parent_answers, assumption=None, contains_time=True):
     """
     获得原子问题的答案
     """
-    table_meta_list, tool_list = get_table_meta_and_tool(question, have_time)
+    table_meta_list, tool_list = get_table_meta_and_tool(question, contains_time)
     logger.info("【获取原子问题答案】", question)
     messages = [
         {
@@ -107,7 +110,7 @@ def get_atomic_answer(question, parent_answers, assumption=None, have_time=True)
     return res
 
 
-def get_table_meta_and_tool(question, have_time=True):
+def get_table_meta_and_tool(question, contains_time=True):
     """
     获得问题所需的数据表的元信息和所需工具
     """
@@ -122,7 +125,7 @@ def get_table_meta_and_tool(question, have_time=True):
     res = json.loads(parse_res(response.choices[0].message.content))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
-    if not have_time and "设备参数详情表" not in tables:
+    if not contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
     logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
