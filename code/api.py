@@ -23,26 +23,27 @@ def get_answer(question):
     """
     获得复杂问题的答案
     """
-    assumption, format_requirement, contains_time, subtasks = get_task_decomposition(question)
+    assumption, format_requirement, contains_time, subtasks = get_task_decomposition(
+        question
+    )
     taskid_to_answer = {}
     for task in subtasks:
         parent_answers = []
-        for parent in task["parents"]:
+        for parent in task["parent_ids"]:
             if taskid_to_answer.get(parent):
                 parent_answers.append(taskid_to_answer[parent])
-        task_answer = get_atomic_answer(
+
+        answer, function_results = get_atomic_answer(
             task["question"], parent_answers, assumption, contains_time
         )
-        taskid_to_answer[task["id"]] = task_answer
-    tasks_with_answer = []
-    for task in subtasks:
-        task["answer"] = taskid_to_answer[task["id"]]
-        tasks_with_answer.append(task)
+        task["answer"] = answer
+        # task["function_results"] = function_results
+        taskid_to_answer[task["id"]] = answer
     summary = {
         "question": question,
         "assumption": assumption,
         "format_requirement": format_requirement,
-        "tasks": tasks_with_answer,
+        "tasks": subtasks,
     }
     logger.info("【问题总结】", summary)
     messages = [
@@ -87,27 +88,32 @@ def get_atomic_answer(question, parent_answers, assumption=None, contains_time=T
     ]
     response = get_completion(messages, tool_list)
     messages.append(response.choices[0].message.model_dump())
+    # 循环调用函数
     function_results = []
-    if response.choices[0].message.tool_calls:
-        tool_call = response.choices[0].message.tool_calls[0]
-        args = json.loads(tool_call.function.arguments)
-        function_name = tool_call.function.name
-        if function_name in functions.function_map:
-            logger.info("【执行工具函数】", function_name, ", 参数:", args)
-            function_result = functions.function_map[function_name](**args)
-            logger.success("【工具函数执行结果】", function_result)
-            function_results.append(function_result)
-            messages.append(
-                {
-                    "role": "tool",
-                    "content": f"{function_result}",
-                    "tool_call_id": tool_call.id,
-                }
-            )
-            response = get_completion(messages)
+    max_iterations = 1
+    for _ in range(max_iterations):
+        if response.choices[0].message.tool_calls:
+            for tool_call in response.choices[0].message.tool_calls:
+                function_name = tool_call.function.name
+                args = json.loads(tool_call.function.arguments)
+                if function_name in functions.function_map.keys():
+                    logger.info("【执行工具函数】", function_name, ", 参数:", args)
+                    function_result = functions.function_map[function_name](**args)
+                    function_results.append(function_result)
+                    logger.success("【工具函数执行结果】", function_result)
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "content": f"{function_result}",
+                            "tool_call_id": tool_call.id,
+                        }
+                    )
+            response = get_completion(messages, tool_list)
+        else:
+            break
     res = parse_res(response.choices[0].message.content)
     logger.success("【原子问题答案】", res)
-    return res
+    return res, function_results
 
 
 def get_table_meta_and_tool(question, contains_time=True):

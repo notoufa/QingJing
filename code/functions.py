@@ -307,20 +307,20 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     }
 
 
-def get_running_time_by_time_range(start_time, end_time, is_actual, device_name):
+def get_running_duration_by_time_range(start_time, end_time, type, device_name):
     """
-    根据开始时间和结束时间，查询设备在指定时间范围内的运行时间/实际运行时间。
+    根据开始时间和结束时间，查询设备在指定时间范围内的开机时长/实际运行时长。
 
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
-    :param is_actual: 是否为实际运行时间
+    :param type: 查询类型，'开机时长' 或 '实际运行时长'
     :param device_name: 设备名称，默认为 '折臂吊车'
     :return: 包含三种格式开机时长的字符串
     """
     metadata = {
         "start_time": start_time,
         "end_time": end_time,
-        "is_actual": is_actual,
+        "type": type,
         "device_name": device_name,
     }
 
@@ -330,13 +330,13 @@ def get_running_time_by_time_range(start_time, end_time, is_actual, device_name)
             "折臂吊车开机",
             "折臂吊车关机",
         ),
-        "A架": ("data/Ajia_plc_1.csv", "开机", "关机"),
+        "A架": ("data/Ajia_plc_1.csv", "A架开机", "A架关机"),
         "DP": ("data/Port3_ksbg_9.csv", "ON_DP", "OFF_DP"),
         "A架_actual": ("data/Ajia_plc_1.csv", "有电流", "无电流"),
     }
 
-    check_field_name = "check_current_presence" if is_actual else "status"
-    device_name = f"{device_name}_actual" if is_actual else device_name
+    check_field_name = "check_current_presence" if type == "实际运行时长" else "status"
+    device_name = f"{device_name}_actual" if type == "实际运行时长" else device_name
 
     if device_name not in device_config:
         raise ValueError(f"未知的设备名称: {device_name}")
@@ -373,9 +373,9 @@ def get_running_time_by_time_range(start_time, end_time, is_actual, device_name)
 
     return {
         "result": {
-            "by_seconds": f"开机时长：{seconds}秒",
-            "by_minutes": f"开机时长：{minutes}分钟",
-            "by_hours": f"开机时长：{hours_str}小时{minutes_str}分钟",
+            "by_seconds": f"{seconds}秒",
+            "by_minutes": f"{minutes}分钟",
+            "by_hours": f"{hours_str}小时{minutes_str}分钟",
         },
         "metadata": metadata,
     }
@@ -593,14 +593,19 @@ def calculate_time_interval(start_time: str, end_time: str):
         start_dt = datetime.strptime(start_time, fmt)
         end_dt = datetime.strptime(end_time, fmt)
 
-        delta_seconds = (end_dt - start_dt).total_seconds()
+        seconds = (end_dt - start_dt).total_seconds()
+        minutes = int(seconds / 60)
+        hours = int(seconds // 3600)
+        remaining_minutes = int((seconds % 3600) // 60)
+
+        hours_str = f"{hours:02d}"
+        minutes_str = f"{remaining_minutes:02d}"
 
         return {
             "result": {
-                "delta_seconds": delta_seconds,
-                "delta_minutes": delta_seconds / 60,
-                "delta_hours": delta_seconds / 3600,
-                "delta_days": delta_seconds / 86400,
+                "by_seconds": "{}秒".format(seconds),
+                "by_minutes": "{}分钟".format(minutes),
+                "by_hours": "{}小时{}分钟".format(hours_str, minutes_str),
             },
             "metadata": metadata,
         }
@@ -616,7 +621,7 @@ function_map: dict[str, callable] = {
     "get_actions_by_time_range": get_actions_by_time_range,
     "get_device_parameter_by_name": get_device_parameter_by_name,
     "get_total_energy_consumption_by_time_range": get_total_energy_consumption_by_time_range,
-    "get_running_time_by_time_range": get_running_time_by_time_range,
+    "get_running_duration_by_time_range": get_running_duration_by_time_range,
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,

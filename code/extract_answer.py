@@ -1,0 +1,24 @@
+import json
+
+def extract_answers(input_file, output_file):
+    """
+    读取 JSONL 文件，提取 '问题答案' 部分，并写入新的 JSONL 文件。
+
+    :param input_file: 输入 JSONL 文件路径
+    :param output_file: 输出 JSONL 文件路径
+    """
+    with open(input_file, 'r', encoding='utf-8') as infile, open(output_file, 'w', encoding='utf-8') as outfile:
+        for line in infile:
+            data = json.loads(line.strip())
+            answer = data.get("answer", "")
+            final_answer = answer.split("问题答案：")[-1].strip()
+            
+            result = {
+                "id": data.get("id"),
+                "question": data.get("question"),
+                "answer": final_answer
+            }
+
+            outfile.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+extract_answers("saves/2025-02-16-第1次.jsonl", "saves/2025-02-16-第2次.jsonl")

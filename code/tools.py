@@ -31,7 +31,7 @@ tools = [
                     },
                     "status": {
                         "type": "string",
-                        "description": "需要筛选的状态。如果未提供，则不筛选状态。支持以下值：A架开机、ON DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座",
+                        "description": "需要筛选的状态。如果未提供，则不筛选状态。支持以下值：A架开机、ON_DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF_DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座",
                         "default": "",
                     },
                 },
@@ -127,8 +127,8 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "get_running_time_by_time_range",
-            "description": "查询指定时间段内设备的运行时长或实际运行时长。返回三种格式（秒，分，时）的运行时长。",
+            "name": "get_running_duration_by_time_range",
+            "description": "查询指定时间段内设备的开机时长或实际运行时长。返回三种格式（秒，分，时）的时长结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -142,9 +142,9 @@ tools = [
                         "format": "date-time",
                         "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。",
                     },
-                    "is_actual": {
-                        "type": "boolean",
-                        "description": "是否查询实际运行时长，如果为 True，则查询实际运行时长，否则查询运行时长。",
+                    "type": {
+                        "type": "string",
+                        "description": "查询类型，支持以下值：'开机时长'、'实际运行时长'。",
                     },
                     "device_name": {
                         "type": "string",
@@ -152,7 +152,7 @@ tools = [
                         "enum": ["折臂吊车", "A架", "DP"],
                     },
                 },
-                "required": ["start_time", "end_time", "is_actual", "device_name"],
+                "required": ["start_time", "end_time", "type", "device_name"],
             },
         },
     },
