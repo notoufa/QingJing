@@ -11,7 +11,7 @@ def extract_answers(input_file, output_file):
         for line in infile:
             data = json.loads(line.strip())
             answer = data.get("answer", "")
-            final_answer = answer.split("问题答案：")[-1].strip()
+            final_answer = answer.split("最终答案：")[-1].strip()
             
             result = {
                 "id": data.get("id"),
@@ -21,4 +21,4 @@ def extract_answers(input_file, output_file):
 
             outfile.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-extract_answers("saves/2025-02-16-第1次.jsonl", "saves/2025-02-16-第2次.jsonl")
+extract_answers("saves/2025-02-17-第1次.jsonl", "saves/2025-02-17-第2次.jsonl")
