@@ -95,7 +95,7 @@ def get_prompt_summary_question(message):
     折臂吊车的能耗占甲板机械设备能耗的比例为23.15%。
     """
 
-def get_prompt_get_table_meta_and_tool(question):
+def get_prompt_get_table_meta_and_tool(question,parent_answers, assumption=None):
     """
     获得数据表结构模板
     """
@@ -108,7 +108,11 @@ def get_prompt_get_table_meta_and_tool(question):
         }
         for item in raw_table_data
     ]
-    return f"""我有以下数据表：<{str(table_data)}>，以及可用的函数工具：<{str(tools.tools)}>。
+    parent_answers_content = (
+        f"已知：{str(parent_answers)}" if len(parent_answers) > 0 else ""
+    )
+    assumption_content = f"假设：{str(assumption)}" if assumption else ""
+    question_content=f"""我有以下数据表：<{str(table_data)}>，以及可用的函数工具：<{str(tools.tools)}>。
     请基于这些数据表和工具回答问题：{question}，要求如下：  
     - 分析解决该问题所需的数据表和工具；  
     - 当工具能够独立解决问题时，无需使用数据表；  
@@ -119,6 +123,15 @@ def get_prompt_get_table_meta_and_tool(question):
     "tools": ["tool1", "tool2"]
     }} 
     """
+    content = ""
+    if parent_answers_content:
+        content += parent_answers_content
+        content += "\n"
+    if assumption_content:
+        content += assumption_content
+        content += "\n"
+    content += question_content
+    return content
 
 
 def get_table_meta_by_table_names(table_names):

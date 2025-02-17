@@ -76,7 +76,7 @@ def get_atomic_answer(question, parent_answers, assumption=None, contains_time=T
     """
     获得原子问题的答案
     """
-    table_meta_list, tool_list = get_table_meta_and_tool(question, contains_time)
+    table_meta_list, tool_list = get_table_meta_and_tool(question, contains_time,parent_answers, assumption)
     logger.info("【获取原子问题答案】", question)
     messages = [
         {
@@ -116,7 +116,7 @@ def get_atomic_answer(question, parent_answers, assumption=None, contains_time=T
     return res, function_results
 
 
-def get_table_meta_and_tool(question, contains_time=True):
+def get_table_meta_and_tool(question, contains_time=True,parent_answers=[], assumption=None):
     """
     获得问题所需的数据表的元信息和所需工具
     """
@@ -124,7 +124,7 @@ def get_table_meta_and_tool(question, contains_time=True):
     messages = [
         {
             "role": "user",
-            "content": prompts.get_prompt_get_table_meta_and_tool(question),
+            "content": prompts.get_prompt_get_table_meta_and_tool(question,parent_answers, assumption),
         },
     ]
     response = get_completion(messages)

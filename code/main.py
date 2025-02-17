@@ -16,6 +16,7 @@ result_dir = "results"
 def process_one(question_json):
     line = question_json
     query = line["question"]
+    query = query.replace("下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志", "")
     try:
         logger.info(f"【获取问题{line['id']}的答案】", query)
         answer = str(api.get_answer(question=query))
@@ -34,7 +35,7 @@ def main():
 
     with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
-    # q_json_list = q_json_list[:1]
+    q_json_list = q_json_list[:1]
 
     logger.info(f"【问题总数】: {len(q_json_list)}")
 
