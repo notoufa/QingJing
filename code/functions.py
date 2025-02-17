@@ -307,41 +307,52 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     }
 
 
-def get_running_duration_by_time_range(start_time, end_time, type, device_name):
+def get_running_duration_by_time_range(start_time, end_time, type):
     """
-    根据开始时间和结束时间，查询设备在指定时间范围内的开机时长/实际运行时长。
+    根据开始时间和结束时间，查询设备在指定时间范围内的'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'。
 
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
-    :param type: 查询类型，'开机时长' 或 '实际运行时长'
-    :param device_name: 设备名称，默认为 '折臂吊车'
+    :param type: 查询类型，'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'
     :return: 包含三种格式开机时长的字符串
     """
     metadata = {
         "start_time": start_time,
         "end_time": end_time,
         "type": type,
-        "device_name": device_name,
     }
 
     device_config = {
-        "折臂吊车": (
+        "折臂吊车开机时长": (
             "data/device_13_11_meter_1311.csv",
+            "status",
             "折臂吊车开机",
             "折臂吊车关机",
         ),
-        "A架": ("data/Ajia_plc_1.csv", "A架开机", "A架关机"),
-        "DP": ("data/Port3_ksbg_9.csv", "ON_DP", "OFF_DP"),
-        "A架_actual": ("data/Ajia_plc_1.csv", "有电流", "无电流"),
+        "A架开机时长": (
+            "data/Ajia_plc_1.csv",
+            "status",
+            "A架开机",
+            "A架关机",
+        ),
+        "作业时长": (
+            "data/Port3_ksbg_9.csv",
+            "status",
+            "ON_DP",
+            "OFF_DP",
+        ),
+        "A架实际运行时长": (
+            "data/Ajia_plc_1.csv",
+            "check_current_presence",
+            "有电流",
+            "无电流",
+        ),
     }
 
-    check_field_name = "check_current_presence" if type == "实际运行时长" else "status"
-    device_name = f"{device_name}_actual" if type == "实际运行时长" and device_name=="A架" else device_name
+    if type not in device_config:
+        raise ValueError(f"未知的类型: {type}")
 
-    if device_name not in device_config:
-        raise ValueError(f"未知的设备名称: {device_name}")
-
-    file_path, start_status, end_status = device_config[device_name]
+    file_path, check_field_name, start_status, end_status = device_config[type]
 
     df = pd.read_csv(file_path)
 

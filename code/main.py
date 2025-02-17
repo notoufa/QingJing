@@ -9,7 +9,7 @@ import time
 import logger
 
 
-question_path = "../assets/question.jsonl"
+question_path = "../assets/test.jsonl"
 result_dir = "results"
 
 def query_handler(query):
