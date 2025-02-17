@@ -128,7 +128,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_running_duration_by_time_range",
-            "description": "查询指定时间段内设备的开机时长或实际运行时长。返回三种格式（秒，分，时）的时长结果。",
+            "description": "查询指定时间段内折臂吊车开机时长、A架开机时长、A架实际运行时长或作业时长。返回三种格式（秒，分，时）的时长结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -144,15 +144,16 @@ tools = [
                     },
                     "type": {
                         "type": "string",
-                        "description": "查询类型，支持以下值：'开机时长'、'实际运行时长'。",
-                    },
-                    "device_name": {
-                        "type": "string",
-                        "description": "设备名称，支持以下值：'折臂吊车'、'A架'。",
-                        "enum": ["折臂吊车", "A架"],
+                        "description": "查询类型，支持以下值：'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'。",
+                        "enum":[
+                            "折臂吊车开机时长",
+                            "A架开机时长",
+                            "A架实际运行时长",
+                            "作业时长",
+                        ]
                     },
                 },
-                "required": ["start_time", "end_time", "type", "device_name"],
+                "required": ["start_time", "end_time", "type"],
             },
         },
     },

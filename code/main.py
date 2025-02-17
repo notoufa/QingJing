@@ -9,18 +9,24 @@ import time
 import logger
 
 
-question_path = "../assets/question.jsonl"
+question_path = "../assets/test.jsonl"
 result_dir = "results"
 
+
 def query_handler(query):
-    query = query.replace("下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志", "")
-    query=query.replace("平均作业时长", "平均每天作业时长")
+    replace_dict = {
+        "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
+        "平均作业时长": "平均每天作业时长",
+    }
+    for key, value in replace_dict.items():
+        query = query.replace(key, value)
     return query
-    
+
+
 def process_one(question_json):
     line = question_json
     query = line["question"]
-    query =query_handler(query)
+    query = query_handler(query)
     try:
         logger.info(f"【获取问题{line['id']}的答案】", query)
         answer = str(api.get_answer(question=query))
