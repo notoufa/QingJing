@@ -9,6 +9,7 @@ import time
 import logger
 
 
+splice_index = False
 question_path = "../assets/test.jsonl"
 result_dir = "results"
 
@@ -45,7 +46,8 @@ def main():
 
     with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
-    # q_json_list = q_json_list[:1]
+    if splice_index:
+        q_json_list = q_json_list[:1]
 
     logger.info(f"【问题总数】: {len(q_json_list)}")
 

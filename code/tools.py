@@ -145,12 +145,12 @@ tools = [
                     "type": {
                         "type": "string",
                         "description": "查询类型，支持以下值：'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'。",
-                        "enum":[
+                        "enum": [
                             "折臂吊车开机时长",
                             "A架开机时长",
                             "A架实际运行时长",
                             "作业时长",
-                        ]
+                        ],
                     },
                 },
                 "required": ["start_time", "end_time", "type"],
@@ -212,13 +212,13 @@ tools = [
         "type": "function",
         "function": {
             "name": "calculate_math_operations",
-            "description": "进行数学运算，包括加法、减法、乘法、除法、求和和求平均值。",
+            "description": "进行数学运算，包括加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值。返回运算结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "operation": {
                         "type": "string",
-                        "description": "指定运算类型，支持以下值： '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'。",
+                        "description": "指定运算类型，支持以下值： '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'、'求最大值'、'求最小值'。",
                         "enum": [
                             "加法",
                             "减法",
@@ -226,6 +226,8 @@ tools = [
                             "除法",
                             "求和",
                             "求平均值",
+                            "求最大值",
+                            "求最小值",
                         ],
                     },
                     "operands": {
@@ -254,7 +256,6 @@ tools = [
                         "type": "string",
                         "description": "结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。",
                     },
-                    
                 },
                 "required": ["start_time", "end_time"],
             },

@@ -528,7 +528,7 @@ def calculate_math_operations(operation, operands):
     进行数学运算，包括加法、减法、乘法、除法、求和和求平均值。
 
     参数:
-        operation (str): 运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'。
+        operation (str): 运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'、求最大值、求最小值。
         operands (list): 数值列表，所有元素必须为数字。
 
     返回:
@@ -568,6 +568,10 @@ def calculate_math_operations(operation, operands):
         result = sum(operands)
     elif operation == "求平均值":
         result = sum(operands) / len(operands)
+    elif operation == "求最大值":
+        result = max(operands)
+    elif operation == "求最小值":
+        result = min(operands)
     else:
         return {
             "error": "不支持的运算类型: {}".format(operation),
