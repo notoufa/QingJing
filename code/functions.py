@@ -336,7 +336,7 @@ def get_running_duration_by_time_range(start_time, end_time, type, device_name):
     }
 
     check_field_name = "check_current_presence" if type == "实际运行时长" else "status"
-    device_name = f"{device_name}_actual" if type == "实际运行时长" else device_name
+    device_name = f"{device_name}_actual" if type == "实际运行时长" and device_name=="A架" else device_name
 
     if device_name not in device_config:
         raise ValueError(f"未知的设备名称: {device_name}")

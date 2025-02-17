@@ -148,8 +148,8 @@ tools = [
                     },
                     "device_name": {
                         "type": "string",
-                        "description": "设备名称，支持以下值：'折臂吊车'、'A架' 和 'DP'。",
-                        "enum": ["折臂吊车", "A架", "DP"],
+                        "description": "设备名称，支持以下值：'折臂吊车'、'A架'。",
+                        "enum": ["折臂吊车", "A架"],
                     },
                 },
                 "required": ["start_time", "end_time", "type", "device_name"],
