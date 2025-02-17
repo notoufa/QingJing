@@ -29,7 +29,7 @@ def process_one(question_json):
     query = line["question"]
     query = query_handler(query)
     try:
-        logger.info(f"【获取问题{line['id']}的答案】", query)
+        logger.info(f"【开始获取问题{line['id']}的答案】", query)
         answer = str(api.get_answer(question=query))
         logger.special(f"【{line['id']}的最终答案】: \n{answer}")
         return {"id": line["id"], "question": query, "answer": answer}

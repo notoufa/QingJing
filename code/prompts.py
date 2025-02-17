@@ -31,58 +31,51 @@ def get_prompt_task_decomposition(question):
     """
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         task_decomposition = file.read()
-    return f"已知:{str(get_knowledge_by_question(question))}\n{task_decomposition}"
+    return f"""
+    已知信息:{str(get_knowledge_by_question(question))}
+    {task_decomposition}
+    """
 
 
 def get_prompt_atomic_question(
-    question, table_meta_list, parent_answers, assumption=None
+    question, table_meta_list, parent_tasks, assumption=None
 ):
     """
     获得原子问题模板
     """
-    table_meta_list_content = (
-        f"已知数据表结构：{str(table_meta_list)}" if len(table_meta_list) > 0 else ""
-    )
-    parent_answers.append(get_knowledge_by_question(question))
-    parent_answers_content = (
-        f"已知：{str(parent_answers)}" if len(parent_answers) > 0 else ""
-    )
-    assumption_content = f"假设：{str(assumption)}" if assumption else ""
-    question_content = f"""请回答问题：{question}，并严格遵守以下要求：
+    knowledge_list = get_knowledge_by_question(question)
+    return f"""
+    {f"已知数据表结构：{str(table_meta_list)}" if len(table_meta_list) > 0 else ""}
+    {f"已知知识：{str(knowledge_list)}" if len(knowledge_list) > 0 else ""}
+    {f"假设条件：{str(assumption)}" if assumption else ""}
+    {f"已知信息：{str(parent_tasks)}" if len(parent_tasks) > 0 else ""}
+    
+    请回答问题：{question}，并严格遵守以下要求：
     - **不得杜撰**时间、数据或关键动作，**不得假设或猜测**任何传入函数的参数值；
-    - 回答中设备的关键动作不要拆开；
-    - 不要进行任何格式转换，如时间、数值等，**直接使用原始数据**；
+    - 回答中设备的关键动作不得拆开，需完整保留；
+    - 不要进行任何格式转换（时间、数值），**直接使用原始数据**；
     - **涉及数学运算**时，必须调用数学函数计算，**不得手动计算**；
     - **请先仔细思考**，但仅需以一句话给出最终答案，**不返回思考过程**；
-    - 回答示例
-        - 2022/1/1 0:00 ~ 24:00时间段内，四台柴油发电机组的燃油消耗总量为300L。
-        - 2024年8月19日下午A架的开机时间是13:34
+    
+    回答格式示例
+      - 2022/1/1 0:00 ~ 24:00时间段内，四台柴油发电机组的燃油消耗总量为300L。
+      - 2024年8月19日下午A架的开机时间是13:34
     """
-    content = ""
-    if table_meta_list_content:
-        content += table_meta_list_content
-        content += "\n"
-    if parent_answers_content:
-        content += parent_answers_content
-        content += "\n"
-    if assumption_content:
-        content += assumption_content
-        content += "\n"
-    content += question_content
-    return content
 
 
 def get_prompt_summary_question(message):
     """
     获得问题总结模板
     """
-    return f"""请根据问题解答过程{message}，给出最终答案，要求如下：
+    return f"""
+    请根据问题解答过程{message}，给出最终答案，并严格遵守以下要求：
     - 评估验证解答过程的正确性，若存在错误，请尝试修正；
     - 设备的关键动作用【】包裹，例如：【A架开机】；
     - 严格遵守问题中的单位、时间格式、数值格式等要求，同时给出原始数值及格式化后的数值；  
-    - 数值与单位之间不得有空格，例如：300L；  
+    - 数值与单位之间不得有空格，例如：300L；
     - 若问题未指定小数位数，默认保留2位小数并四舍五入；
     - 请先仔细思考，简要描述思考过程后，以一句话给出最终答案（请勿使用Markdown格式）。
+    
     回答格式示例（严格遵循）：
     输入：2024/8/24 上午，折臂吊车的能耗占甲板机械设备的比例（以%输出，保留2位小数）？
     输出：
@@ -96,43 +89,36 @@ def get_prompt_summary_question(message):
     折臂吊车的能耗占甲板机械设备能耗的比例为23.15%。
     """
 
-def get_prompt_get_table_meta_and_tool(question,parent_answers, assumption=None):
+
+def get_prompt_get_table_meta_and_tool(question, parent_tasks, assumption=None):
     """
-    获得数据表结构模板
+    生成数据表结构查询的 Prompt
     """
     with open(table_meta_file, "r", encoding="utf-8") as file:
         raw_table_data = json.load(file)
+
     table_data = [
-        {
-            "table_name": item["table_name"],
-            "table_desc": item["table_desc"],
-        }
+        {"table_name": item["table_name"], "table_desc": item["table_desc"]}
         for item in raw_table_data
     ]
-    parent_answers_content = (
-        f"已知：{str(parent_answers)}" if len(parent_answers) > 0 else ""
-    )
-    assumption_content = f"假设：{str(assumption)}" if assumption else ""
-    question_content=f"""我有以下数据表：<{str(table_data)}>，以及可用的函数工具：<{str(tools.tools)}>。
-    请基于这些数据表和工具回答问题：{question}，要求如下：  
-    - 分析解决该问题所需的数据表和工具；  
-    - 当工具能够独立解决问题时，无需使用数据表；  
-    - 请先仔细思考，但仅需返回最终结果，不需要提供思考过程；  
-    - 输出格式：仅返回所需的数据表名列表和工具列表，示例如下：
+
+    return f"""
+    已知可用的数据表：{str(table_data)}
+    已知可调用的函数工具：{str(tools.tools)}
+    {f"假设条件：{str(assumption)}" if assumption else ""}
+    {f"已知信息：{str(parent_tasks)}" if len(parent_tasks) > 0 else ""}
+    
+    请基于数据表、工具和已知条件回答以下问题：{question}
+    要求：
+    - 分析解决该问题所需的最少的数据表和工具；  
+    - 若已知条件或工具可独立解决问题，无需使用数据表；
+    - 请先仔细思考，但仅需返回最终结果，不需要提供思考过程；
+    - 输出格式：仅返回 JSON 格式的所需数据表名列表和工具列表，例如：
     {{
-    "tables": ["table1", "table2"],
-    "tools": ["tool1", "tool2"]
-    }} 
+        "tables": ["table1", "table2"],
+        "tools": ["tool1", "tool2"]
+    }}
     """
-    content = ""
-    if parent_answers_content:
-        content += parent_answers_content
-        content += "\n"
-    if assumption_content:
-        content += assumption_content
-        content += "\n"
-    content += question_content
-    return content
 
 
 def get_table_meta_by_table_names(table_names):
