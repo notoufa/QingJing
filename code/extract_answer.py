@@ -21,4 +21,4 @@ def extract_answers(input_file, output_file):
 
             outfile.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-extract_answers("saves/2025-02-17-第1次.jsonl", "saves/2025-02-17-第2次.jsonl")
+extract_answers("saves/2025-02-17-第3次.jsonl", "saves/2025-02-17-第4次.jsonl")
