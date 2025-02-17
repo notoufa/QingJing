@@ -11,7 +11,7 @@ def extract_answers(input_file, output_file):
         for line in infile:
             data = json.loads(line.strip())
             answer = data.get("answer", "")
-            final_answer = answer.split("最终答案：")[-1].strip()
+            final_answer = answer.split("问题答案：")[-1].strip()
             
             result = {
                 "id": data.get("id"),
