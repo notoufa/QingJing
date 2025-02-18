@@ -37,6 +37,16 @@ def get_prompt_task_decomposition(question):
     """
 
 
+def get_prompt_vote(question):
+    """
+    获得投票模板
+    """
+    return f"""
+    以下是针对问题 "{question}" 的多个回答结果，请评估并选择出现次数最多的答案：
+    请返回投票结果的思考过程和最终答案，无需返回投票过程：
+    """
+
+
 def get_prompt_atomic_question(
     question, table_meta_list, parent_tasks, assumption=None
 ):

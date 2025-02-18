@@ -30,7 +30,7 @@ def process_one(question_json):
     query = query_handler(query)
     try:
         logger.info(f"【开始获取问题{line['id']}的答案】", query)
-        answer = str(api.get_answer(question=query))
+        answer = str(api.vote(question=query))
         logger.special(f"【{line['id']}的最终答案】: \n{answer}")
         return {"id": line["id"], "question": query, "answer": answer}
     except Exception as e:
