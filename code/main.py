@@ -10,13 +10,13 @@ import logger
 
 result_dir = "results"
 # 测试模式
-splice_index = True
-question_path = "../assets/test.jsonl"
-vote_times = 1
+# splice_index = True
+# question_path = "../assets/test.jsonl"
+# vote_times = 1
 # 运行模式
-# splice_index = False
-# question_path = "../assets/question.jsonl"
-# vote_times=3
+splice_index = False
+question_path = "../assets/question.jsonl"
+vote_times=1
 
 
 def query_handler(query):
