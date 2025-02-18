@@ -313,11 +313,11 @@ tools = [
 tools_description = [
     {
         "function_name": "get_data_by_time_range",
-        "description": "输入：数据表名、开始时间、结束时间、列名和状态，   输出：从开始时间到结束时间内的对应列数据。",
+        "description": "输入：数据表名、开始时间、结束时间、列名和状态，   输出：从开始时间到结束时间内的对应列或特定状态（A架开机、ON_DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF_DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座）的列数据。",
     },
     {
         "function_name": "get_actions_by_time_range",
-        "description": "输入：开始时间、结束时间，     输出：从开始时间到结束时间内正在进行关键动作的设备及动作列表。",
+        "description": "输入：开始时间、结束时间，     输出：从开始时间到结束时间内正在进行关键动作的全部设备及动作列表。",
     },
     {
         "function_name": "get_device_parameter_by_name",
