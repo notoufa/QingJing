@@ -115,7 +115,8 @@ def get_prompt_get_table_meta_and_tool(question,parent_answers, assumption=None)
     assumption_content = f"假设：{str(assumption)}" if assumption else ""
     question_content=f"""我有以下数据表：<{str(table_data)}>，以及可用的函数工具：<{str(tools.tools)}>。
     请基于这些数据表和工具回答问题：{question}，要求如下：  
-    - 分析解决该问题所需的数据表和工具；  
+    - 分析解决该问题所需的数据表和工具；
+    - 涉及数学计算时，返回的工具列表中应包含数学计算函数'calculate_math_operations'；  
     - 当工具能够独立解决问题时，无需使用数据表；  
     - 请先仔细思考，但仅需返回最终结果，不需要提供思考过程；  
     - 输出格式：仅返回所需的数据表名列表和工具列表，示例如下：
