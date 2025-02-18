@@ -675,15 +675,19 @@ def convert_seconds(seconds):
         raise ValueError("时间不能为负数")
 
     minutes = seconds // 60
+    demical_minutes = seconds / 60
     remaining_seconds = seconds % 60
 
     hours = seconds // 3600
     remaining_minutes = (seconds % 3600) // 60
+    demical_hours = seconds / 3600
 
     return {
         "by_seconds": f"{seconds}秒",
         "by_minutes": f"{minutes}分钟{remaining_seconds}秒",
+        "by_demical_minutes": f"{demical_minutes}分钟",
         "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
+        "by_demical_hours": f"{demical_hours}小时",
     }
 
 
@@ -696,4 +700,5 @@ function_map: dict[str, callable] = {
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,
+    "convert_seconds": convert_seconds,
 }

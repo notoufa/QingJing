@@ -171,6 +171,8 @@ def get_atomic_answer(question, parent_tasks, assumption=None, contains_time=Tru
                             "tool_call_id": tool_call.id,
                         }
                     )
+                else:
+                    logger.error("【未找到工具函数】", function_name)
             response = get_completion(messages, tool_list)
         else:
             break
