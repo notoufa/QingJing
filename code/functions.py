@@ -4,6 +4,68 @@ import json
 import traceback
 import pandas as pd
 
+action_table_configs = {
+    "A架开机": "Ajia_plc_1",
+    "ON DP": "Port3_ksbg_9",
+    "ON_DP": "Port3_ksbg_9",
+    "征服者起吊": "Ajia_plc_1",
+    "征服者入水": "Ajia_plc_1",
+    "缆绳解除": "Ajia_plc_1",
+    "A架摆回": "Ajia_plc_1",
+    "小艇落座": "device_13_11_meter_1311",
+    "A架关机": "Ajia_plc_1",
+    "OFF DP": "Port3_ksbg_9",
+    "OFF_DP": "Port3_ksbg_9",
+    "折臂吊车开机": "device_13_11_meter_1311",
+    "A架摆出": "Ajia_plc_1",
+    "小艇检查完毕": "device_13_11_meter_1311",
+    "小艇入水": "device_13_11_meter_1311",
+    "缆绳挂妥": "Ajia_plc_1",
+    "征服者出水": "Ajia_plc_1",
+    "折臂吊车关机": "device_13_11_meter_1311",
+    "征服者落座": "Ajia_plc_1",
+}
+
+action_field_configs = {
+    "A架开机": ["Ajia-3_v", "Ajia-5_v"],
+    "ON DP": ["P3_33", "P3_18"],
+    "征服者起吊": ["Ajia-3_v", "Ajia-5_v"],
+    "征服者入水": ["Ajia-3_v", "Ajia-5_v"],
+    "缆绳解除": ["Ajia-3_v", "Ajia-5_v"],
+    "A架摆回": ["Ajia-3_v", "Ajia-5_v"],
+    "小艇落座": ["13-11-6_v"],
+    "A架关机": ["Ajia-3_v", "Ajia-5_v"],
+    "OFF DP": ["P3_33", "P3_18"],
+    "折臂吊车开机": ["13-11-6_v"],
+    "A架摆出": ["Ajia-3_v", "Ajia-5_v"],
+    "小艇检查完毕": ["13-11-6_v"],
+    "小艇入水": ["13-11-6_v"],
+    "缆绳挂妥": ["Ajia-3_v", "Ajia-5_v"],
+    "征服者出水": ["Ajia-3_v", "Ajia-5_v"],
+    "折臂吊车关机": ["13-11-6_v"],
+    "征服者落座": ["Ajia-3_v", "Ajia-5_v"],
+}
+
+action_rule_configs = {
+    "A架开机": "电流值从error变为0（取0）",
+    "ON DP": "数值从0增加（取增加）",
+    "征服者起吊": "电流从稳定值（50多），取高于50的点",
+    "征服者入水": "缆绳解除的时间点往前推一分钟",
+    "缆绳解除": "电流从高值回落至稳定值（50多），取50",
+    "A架摆回": "征服者入水后，电流重新增加到峰值（最大值点）",
+    "小艇落座": "数值增加（回落前的最后一个值）",
+    "A架关机": "电流值变为error（取error）",
+    "OFF DP": "数值归零（取0）",
+    "折臂吊车开机": "数值从0增加（取增加）",
+    "A架摆出": "征服者起吊前，电流到达峰值（取峰值）",
+    "小艇检查完毕": "数值增加（回落前的最后一个值）",
+    "小艇入水": "数值增加（回落前的最后一个值）",
+    "缆绳挂妥": "征服者出水往前推一分钟",
+    "征服者出水": "电流峰值（取峰值）",
+    "折臂吊车关机": "数值归零（取0）",
+    "征服者落座": "电流从高值回落至稳定值（50多）（取50）",
+}
+
 
 def get_data_by_time_range(table_name, start_time, end_time, columns=None, status=None):
     """
@@ -592,17 +654,48 @@ def calculate_action_proportion(
         year=start_dt.year, month=start_dt.month, day=start_dt.day
     )
 
+    if action not in action_table_configs.keys():
+        return {
+            "error": f"动作 {action} 不存在",
+            "metadata": metadata,
+        }
+
     table_data = get_data_by_time_range(
-        "action_data", start_time, end_time, columns=["csvTime"], status=action
+        action_table_configs[action],
+        start_time,
+        end_time,
+        columns=["csvTime"],
+        status=action,
     )["result"]
 
-    print(table_data)
+    before_count = 0
+    total_count = 0
+    day_map = {}
+    for res_time in table_data['csvTime']:
+        res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
+        res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
+        if not day_map.get(res_day):
+            day_map[res_day] = {
+                "performed": True,
+                "filtered": False,
+            }
+        time_point_dt = time_point_dt.replace(
+            year=res_time_dt.year, month=res_time_dt.month, day=res_time_dt.day
+        )
+        if res_time_dt < time_point_dt:
+            day_map[res_day] = {
+                "performed": True,
+                "filtered": True,
+            }
 
-    before_count = sum(1 for time in table_data if time < time_point_dt)
-    total_count = len(table_data)
+    for key in day_map:
+        if day_map[key]["filtered"]:
+            before_count += 1
+
+    total_count = len(day_map)
 
     if total_count == 0:
-        return 0  # 防止除以零
+        return 0
 
     proportion = (before_count / total_count) * 100
     return {
