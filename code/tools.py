@@ -232,7 +232,7 @@ tools = [
                     },
                     "operands": {
                         "type": "array",
-                        "description": "参与运算的数值列表，所有元素必须为数字。",
+                        "description": "参与运算的数值列表，所有元素必须为数字。减法、除法的操作数至少为2个",
                         "items": {"type": "number"},
                     },
                 },
@@ -244,7 +244,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "calculate_time_interval",
-            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时、天的计算。返回值为按秒、分钟、小时、天计算的时间间隔。",
+            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -258,6 +258,23 @@ tools = [
                     },
                 },
                 "required": ["start_time", "end_time"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "convert_seconds",
+            "description": "将秒转换为分钟、小时，并返回对应的数值。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "seconds": {
+                        "type": "number",
+                        "description": "时间间隔（秒），必须是非负数值。",
+                    }
+                },
+                "required": ["seconds"],
             },
         },
     },

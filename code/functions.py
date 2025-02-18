@@ -375,19 +375,9 @@ def get_running_duration_by_time_range(start_time, end_time, type):
             start_uptime = None
 
     seconds = total_duration.total_seconds()
-    minutes = int(seconds / 60)
-    hours = int(seconds // 3600)
-    remaining_minutes = int((seconds % 3600) // 60)
-
-    hours_str = f"{hours:02d}"
-    minutes_str = f"{remaining_minutes:02d}"
 
     return {
-        "result": {
-            "by_seconds": f"{seconds}秒",
-            "by_minutes": f"{minutes}分钟",
-            "by_hours": f"{hours_str}小时{minutes_str}分钟",
-        },
+        "result": convert_seconds(seconds),
         "metadata": metadata,
     }
 
@@ -623,19 +613,8 @@ def calculate_time_interval(start_time: str, end_time: str):
         end_dt = datetime.strptime(end_time, fmt)
 
         seconds = (end_dt - start_dt).total_seconds()
-        minutes = int(seconds / 60)
-        hours = int(seconds // 3600)
-        remaining_minutes = int((seconds % 3600) // 60)
-
-        hours_str = f"{hours:02d}"
-        minutes_str = f"{remaining_minutes:02d}"
-
         return {
-            "result": {
-                "by_seconds": "{}秒".format(seconds),
-                "by_minutes": "{}分钟".format(minutes),
-                "by_hours": "{}小时{}分钟".format(hours_str, minutes_str),
-            },
+            "result": convert_seconds(seconds),
             "metadata": metadata,
         }
     except ValueError as e:
@@ -643,6 +622,32 @@ def calculate_time_interval(start_time: str, end_time: str):
             "error": f"时间格式错误或无效输入: {e}",
             "metadata": metadata,
         }
+
+
+def convert_seconds(seconds):
+    """
+    将秒转换为三种格式的时间表示：
+    1. by_seconds: 以秒显示
+    2. by_minutes: 以分钟+秒显示
+    3. by_hours: 以小时+分钟+秒显示
+
+    :param seconds: 需要转换的时间（单位：秒）
+    :return: 包含三种格式的字典
+    """
+    if seconds < 0:
+        raise ValueError("时间不能为负数")
+
+    minutes = seconds // 60
+    remaining_seconds = seconds % 60
+
+    hours = seconds // 3600
+    remaining_minutes = (seconds % 3600) // 60
+
+    return {
+        "by_seconds": f"{seconds}秒",
+        "by_minutes": f"{minutes}分钟{remaining_seconds}秒",
+        "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
+    }
 
 
 function_map: dict[str, callable] = {
