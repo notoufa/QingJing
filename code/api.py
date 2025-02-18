@@ -123,7 +123,7 @@ def get_task_decomposition(question):
         {"role": "system", "content": prompts.get_prompt_task_decomposition(question)},
         {"role": "user", "content": question},
     ]
-    response = get_completion(messages, tools.tools)
+    response = get_completion(messages)
     res = json.loads(parse_res(response.choices[0].message.content))
     assumption = res["assumption"]
     format_requirement = res.get("format_requirement")

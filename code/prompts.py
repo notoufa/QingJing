@@ -32,6 +32,7 @@ def get_prompt_task_decomposition(question):
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         task_decomposition = file.read()
     return f"""
+    已知可调用的函数工具：{str(tools.tools_description)}
     已知信息:{str(get_knowledge_by_question(question))}
     {task_decomposition}
     """
@@ -91,7 +92,7 @@ def get_prompt_summary_question(message):
         - 数值与单位之间不得有空格，例如：300L；
         - 转换为整数、小数、整数分钟时，默认四舍五入；
         - 若问题未指定小数位数，默认保留2位小数；
-    - 请先仔细思考，简要描述思考过程后，以一句话给出最终答案（请勿使用Markdown格式）。
+    - 请先仔细思考，简要描述思考过程及每一步的中间结果后，以一句话给出最终答案（请勿使用Markdown格式）。
     
     回答格式示例（严格遵循）：
     输入：2024/8/24 上午，折臂吊车的能耗占甲板机械设备的比例（以%输出，保留2位小数）？

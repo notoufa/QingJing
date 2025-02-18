@@ -211,6 +211,35 @@ tools = [
     {
         "type": "function",
         "function": {
+            "name": "calculate_action_proportion",
+            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24-8/30在9点前开始作业的比例（%，保留2位小数）",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "description": "时间段起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。",
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "description": "时间段结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。",
+                    },
+                    "action": {
+                        "type": "string",
+                        "description": "需要计算比例的动作名称，支持以下值：A架开机、ON_DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF_DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座",
+                    },
+                    "time_point": {
+                        "type": "string",
+                        "description": "指定时间点，格式为 'HH:MM'，表示该时间点前的比例。",
+                    },
+                },
+                "required": ["start_time", "end_time", "action", "time_point"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "calculate_math_operations",
             "description": "进行数学运算，包括加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值。返回运算结果。",
             "parameters": {
@@ -281,18 +310,18 @@ tools = [
 ]
 
 
-tools_description=[
+tools_description = [
     {
         "function_name": "get_data_by_time_range",
         "description": "输入：数据表名、开始时间、结束时间、列名和状态，   输出：从开始时间到结束时间内的对应列数据。",
     },
     {
         "function_name": "get_actions_by_time_range",
-        "description": "输入：开始时间、结束时间，     输出：从开始时间到结束时间内正在进行关键动作的设备及动作列表。", 
+        "description": "输入：开始时间、结束时间，     输出：从开始时间到结束时间内正在进行关键动作的设备及动作列表。",
     },
     {
         "function_name": "get_device_parameter_by_name",
-        "description": "输入：参数中文名称，    输出：参数上下限范围、何时触发何种机制/事件(如报警值、屏蔽值、延迟值、安全保护设定值、达到安全保护设定值时的措施)。", 
+        "description": "输入：参数中文名称，    输出：参数上下限范围、何时触发何种机制/事件(如报警值、屏蔽值、延迟值、安全保护设定值、达到安全保护设定值时的措施)。",
     },
     {
         "function_name": "get_total_energy_consumption_by_time_range",
@@ -318,4 +347,8 @@ tools_description=[
         "function_name": "convert_seconds",
         "description": "输入：时间间隔（秒），     输出：时间间隔对应的分钟、小时。",
     },
+    {
+        "function_name": "calculate_action_proportion",
+        "description": "输入：开始时间、结束时间、动作名称、时间点，     输出：指定时间段内指定动作在指定时间点前发生的比例（%）。",
+    }
 ]

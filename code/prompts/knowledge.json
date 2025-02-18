@@ -261,5 +261,11 @@
             "Shutdown",
             "Safety protection"
         ]
+    },
+    {
+        "knowledge": "一般而言，两个时刻的小时和分钟相同即意味着它们同时发生",
+        "keys": [
+            "同时"
+        ]
     }
 ]

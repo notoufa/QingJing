@@ -564,6 +564,54 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     }
 
 
+def calculate_action_proportion(
+    start_time: str, end_time: str, action: str, time_point: str
+):
+    """
+    计算指定时间段内指定动作在指定时间点前发生的比例
+
+    :param start_time: 时间段的起始时间，格式为 'YYYY-MM-DD HH:MM:SS'
+    :param end_time: 时间段的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
+    :param action: 需要计算比例的动作名称，如 '起吊'、'入水' 等
+    :param time_point: 指定时间点，格式为 'HH:MM'
+
+    :return: 动作在指定时间点前发生的比例，返回百分比
+    """
+    metadata = {
+        "start_time": start_time,
+        "end_time": end_time,
+        "action": action,
+        "time_point": time_point,
+    }
+
+    start_dt = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+    end_dt = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+
+    time_point_dt = datetime.strptime(time_point, "%H:%M")
+    time_point_dt = time_point_dt.replace(
+        year=start_dt.year, month=start_dt.month, day=start_dt.day
+    )
+
+    table_data = get_data_by_time_range(
+        "action_data", start_time, end_time, columns=["csvTime"], status=action
+    )["result"]
+
+    print(table_data)
+
+    before_count = sum(1 for time in table_data if time < time_point_dt)
+    total_count = len(table_data)
+
+    if total_count == 0:
+        return 0  # 防止除以零
+
+    proportion = (before_count / total_count) * 100
+    return {
+        "result": round(proportion, 2),
+        "unit": "%",
+        "metadata": metadata,
+    }
+
+
 def calculate_math_operations(operation, operands):
     """
     进行数学运算，包括加法、减法、乘法、除法、求和和求平均值。
@@ -698,6 +746,7 @@ function_map: dict[str, callable] = {
     "get_total_energy_consumption_by_time_range": get_total_energy_consumption_by_time_range,
     "get_running_duration_by_time_range": get_running_duration_by_time_range,
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
+    "calculate_action_proportion": calculate_action_proportion,
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
