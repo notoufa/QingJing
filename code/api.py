@@ -21,7 +21,7 @@ def check_api_key():
     return api_key
 
 
-def vote(question, n=1):
+def vote(question, n=3):
     """
     多次调用 get_answer 获取答案，并让 LLM 评估选出最优答案。
 

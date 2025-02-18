@@ -9,8 +9,8 @@ import time
 import logger
 
 
-splice_index = True
-question_path = "../assets/test.jsonl"
+splice_index = False
+question_path = "../assets/question.jsonl"
 result_dir = "results"
 
 
