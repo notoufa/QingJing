@@ -1,6 +1,7 @@
 """负责与GLM的API进行交互，执行函数调用"""
 
 import json
+import traceback
 from zhipuai import ZhipuAI
 import tools
 import functions
@@ -8,6 +9,7 @@ import prompts
 import logger
 import os
 from utils import parse_res
+from collections import Counter
 
 
 def check_api_key():
@@ -19,9 +21,49 @@ def check_api_key():
     return api_key
 
 
-def get_answer(question, n=3):
+def vote(question, n=1):
     """
-    获得复杂问题的答案
+    多次调用 get_answer 获取答案，并让 LLM 评估选出最优答案。
+
+    :param question: 需要解答的问题
+    :param n: 采样次数，默认 3 次
+    :return: LLM 评估后选出的最佳答案
+    """
+
+    results = []
+
+    for i in range(n):
+        try:
+            logger.info(f"【开始第{i+1}次获取问题答案】")
+            answer = str(get_answer(question, i + 1))
+            results.append(answer)
+            logger.special(f"【第{i+1}次得到的最终答案】: \n{answer}")
+        except Exception as e:
+            logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
+            logger.error(traceback.format_exc())
+
+    if len(results) == 1:
+        return results[0]
+
+    logger.info(f"【开始投票】")
+
+    answer_list = "\n".join(
+        [f"答案 {i+1}: {result}" for i, result in enumerate(results)]
+    )
+
+    messages = [
+        {"role": "system", "content": prompts.get_prompt_vote(question)},
+        {"role": "user", "content": answer_list},
+    ]
+
+    best_answer = get_completion(messages)
+
+    return best_answer.choices[0].message.content
+
+
+def get_answer(question, vote_index=1):
+    """
+    获得复杂问题的答案，最终返回文本格式的最终答案
     """
     assumption, format_requirement, contains_time, subtasks = get_task_decomposition(
         question
