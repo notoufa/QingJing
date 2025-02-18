@@ -19,7 +19,7 @@ def check_api_key():
     return api_key
 
 
-def get_answer(question):
+def get_answer(question, n=3):
     """
     获得复杂问题的答案
     """
@@ -57,6 +57,13 @@ def get_answer(question):
         "format_requirement": format_requirement,
         "subtasks": subtasks,
     }
+    return get_summary(summary)
+
+
+def get_summary(summary):
+    """
+    获得问题总结的答案
+    """
     logger.info("【问题总结】", summary)
     messages = [
         {"role": "user", "content": prompts.get_prompt_summary_question(summary)},

@@ -1,5 +1,6 @@
 """定义与tools.py中的函数对应的API接口，用于返回函数调用的结果"""
 
+import json
 import traceback
 import pandas as pd
 
@@ -83,8 +84,44 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=None, statu
 
     return {
         "result": result,
+        "column_desc": get_meta_by_table_columns(table_name, columns),
         "metadata": metadata,
     }
+
+
+def get_meta_by_table_columns(table_name, columns):
+    """
+    根据数据表名和列名，获取数据表中指定列的元信息。
+
+    参数:
+    table_name (str): 数据表名
+    columns (list): 需要查询的列名列表
+
+    返回:
+    dict: 包含列名和对应元信息的字典，或错误信息
+    """
+
+    with open("prompts/table_meta.json", "r", encoding="utf-8") as file:
+        raw_table_data = json.load(file)
+
+    table_meta = None
+
+    for table in raw_table_data:
+        if table["table_name"] == table_name:
+            table_meta = table
+
+    if table_meta is None:
+        return {
+            "error": f"数据表 {table_name} 的元信息不存在",
+        }
+
+    column_desc = {}
+    for column in columns:
+        for tmp in table_meta["columns"]:
+            if tmp["name"] == column:
+                column_desc[column] = tmp["desc"]
+
+    return column_desc
 
 
 def get_actions_by_time_range(start_time, end_time):
