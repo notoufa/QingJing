@@ -26,24 +26,36 @@ def get_answer(question):
     assumption, format_requirement, contains_time, subtasks = get_task_decomposition(
         question
     )
-    taskid_to_answer = {}
+
+    def get_task_by_id(id):
+        for task in subtasks:
+            if task["id"] == id:
+                return task
+        return None
+
     for task in subtasks:
-        parent_answers = []
+        parent_tasks = []
         for parent in task["parent_ids"]:
-            if taskid_to_answer.get(parent):
-                parent_answers.append(taskid_to_answer[parent])
+            parent = get_task_by_id(parent)
+            if parent:
+                parent_tasks.append(
+                    {
+                        "question": parent["question"],
+                        "answer": parent["answer"],
+                        "function_results": parent["function_results"],
+                    }
+                )
 
         answer, function_results = get_atomic_answer(
-            task["question"], parent_answers, assumption, contains_time
+            task["question"], parent_tasks, assumption, contains_time
         )
         task["answer"] = answer
-        # task["function_results"] = function_results
-        taskid_to_answer[task["id"]] = answer
+        task["function_results"] = function_results
     summary = {
         "question": question,
         "assumption": assumption,
         "format_requirement": format_requirement,
-        "tasks": subtasks,
+        "subtasks": subtasks,
     }
     logger.info("【问题总结】", summary)
     messages = [
@@ -72,17 +84,19 @@ def get_task_decomposition(question):
     return assumption, format_requirement, contains_time, subtasks
 
 
-def get_atomic_answer(question, parent_answers, assumption=None, contains_time=True):
+def get_atomic_answer(question, parent_tasks, assumption=None, contains_time=True):
     """
     获得原子问题的答案
     """
-    table_meta_list, tool_list = get_table_meta_and_tool(question, contains_time,parent_answers, assumption)
-    logger.info("【获取原子问题答案】", question)
+    table_meta_list, tool_list = get_table_meta_and_tool(
+        question, contains_time, parent_tasks, assumption
+    )
+    logger.info("【开始获取原子问题答案】", question)
     messages = [
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
-                question, table_meta_list, parent_answers, assumption
+                question, table_meta_list, parent_tasks, assumption
             ),
         },
     ]
@@ -97,7 +111,7 @@ def get_atomic_answer(question, parent_answers, assumption=None, contains_time=T
                 function_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
                 if function_name in functions.function_map.keys():
-                    logger.info("【执行工具函数】", function_name, ", 参数:", args)
+                    logger.info("【开始执行工具函数】", function_name, ", 参数:", args)
                     function_result = functions.function_map[function_name](**args)
                     function_results.append(function_result)
                     logger.success("【工具函数执行结果】", function_result)
@@ -116,15 +130,19 @@ def get_atomic_answer(question, parent_answers, assumption=None, contains_time=T
     return res, function_results
 
 
-def get_table_meta_and_tool(question, contains_time=True,parent_answers=[], assumption=None):
+def get_table_meta_and_tool(
+    question, contains_time=True, parent_tasks=[], assumption=None
+):
     """
     获得问题所需的数据表的元信息和所需工具
     """
-    logger.info("【获取原子问题所需数据表】", question)
+    logger.info("【开始获取原子问题所需数据表和工具】", question)
     messages = [
         {
             "role": "user",
-            "content": prompts.get_prompt_get_table_meta_and_tool(question,parent_answers, assumption),
+            "content": prompts.get_prompt_get_table_meta_and_tool(
+                question, parent_tasks, assumption
+            ),
         },
     ]
     response = get_completion(messages)
@@ -156,5 +174,3 @@ def get_completion(messages, tools=[], model="glm-4-plus"):
     )
     logger.trace("【回答结果】", str(response))
     return response
-    # import deepseek
-    # return deepseek.request(messages, tools)

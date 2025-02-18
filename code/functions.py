@@ -480,23 +480,32 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
         }
 
     result = None
+    mj_result = None
     if isinstance(device_config[type][device_name], list):
         total_energy = 0
+        total_mj_energy = 0
         for sub_device in device_config[type][device_name]:
             try:
-                energy = get_total_energy_generation_or_fuel_consumption_by_time_range(
-                    start_time,
-                    end_time,
-                    type,
-                    sub_device,
-                    diesel_density,
-                    diesel_calorific_value,
-                )["result"]
+                sub_result = (
+                    get_total_energy_generation_or_fuel_consumption_by_time_range(
+                        start_time,
+                        end_time,
+                        type,
+                        sub_device,
+                        diesel_density,
+                        diesel_calorific_value,
+                    )
+                )
+                energy = sub_result["result"]
+                mj_energy = sub_result["mj_result"]
                 if energy is not None:
                     total_energy += energy
+                if mj_energy is not None:
+                    total_mj_energy += mj_energy
             except Exception as e:
                 print(f"计算设备 {sub_device} {type}时出错: {e}")
         result = round(total_energy, 2)
+        mj_result = round(total_mj_energy, 2)
     else:
         file_name, field_name = device_config[type][device_name]
         file_path = f"data/{file_name}.csv"
@@ -511,6 +520,9 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
                 result = round(
                     total_energy_kWh * diesel_density * diesel_calorific_value / 3.6, 2
                 )
+                mj_result = round(
+                    total_energy_kWh * diesel_density * diesel_calorific_value, 2
+                )
             else:
                 result = round(total_energy_kWh, 2)
 
@@ -519,6 +531,8 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     return {
         "result": result,
         "unit": "L" if type == "燃油消耗量" else "Kwh",
+        "mj_result": mj_result,
+        "mj_result_desc": "mj_result表示转换为MJ单位的值",
         "metadata": metadata,
     }
 
