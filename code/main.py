@@ -6,20 +6,22 @@ import os
 import traceback
 import api
 import time
+from solution import ProblemSolution, VoteResult
 import logger
 
-result_dir = "results"
+submit_dir = "results"
+solution_dir = "solutions"
 # 测试模式
-# splice_index = True
-# question_path = "../assets/test.jsonl"
-# vote_times = 1
+splice_index = True
+question_path = "../assets/test.jsonl"
+vote_times = 1
 # 运行模式
-splice_index = False
-question_path = "../assets/question.jsonl"
-vote_times=1
+# splice_index = False
+# question_path = "../assets/question.jsonl"
+# vote_times=3
 
 
-def query_handler(query):
+def handle_question(query):
     replace_dict = {
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
@@ -29,25 +31,32 @@ def query_handler(query):
     return query
 
 
-def process_one(question_json):
-    line = question_json
-    query = line["question"]
-    query = query_handler(query)
+def process_one(line: dict) -> VoteResult | dict:
+    id = line["id"]
+    question = line["question"]
+    question = handle_question(question)
     try:
-        logger.info(f"【开始获取问题{line['id']}的答案】", query)
-        answer = str(api.vote(question=query, vote_times=vote_times))
-        logger.special(f"【{line['id']}的最终答案】: \n{answer}")
-        return {"id": line["id"], "question": query, "answer": answer}
+        logger.info(f"【开始获取问题{id}的答案】", question)
+        vote_res = api.vote(id, question, vote_times).clone()
+        logger.special(f"【{id}的最终答案】: \n{vote_res.final_answer}")
+        return vote_res
     except Exception as e:
-        logger.error(f"【获取问题{line['id']}的答案出错】: {query}")
-        logger.error(traceback.format_exc())
-        return {"id": line["id"], "question": query, "answer": "Error: " + str(e)}
+        trace = traceback.format_exc()
+        logger.error(f"【获取问题{id}的答案出错】: {e}")
+        logger.error(trace)
+        return {
+            "id": id,
+            "question": question,
+            "error_message": e,
+            "traceback": trace,
+        }
 
 
 def main():
     logger.init()
 
-    result_json_list = []
+    vote_results: list[VoteResult] = []
+    submit_result_list: list[dict] = []
 
     with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
@@ -56,25 +65,34 @@ def main():
 
     logger.info(f"【问题总数】: {len(q_json_list)}")
 
-    if not os.path.exists(result_dir):
-        os.makedirs(result_dir)
+    os.makedirs(submit_dir, exist_ok=True)
+    os.makedirs(solution_dir, exist_ok=True)
     date_str = time.strftime("%Y-%m-%d", time.localtime())
-    result_path = os.path.join(result_dir, "result_" + date_str + ".jsonl")
+    submit_path = os.path.join(submit_dir, "result_" + date_str + ".jsonl")
+    solution_path = os.path.join(solution_dir, "solution_" + date_str + ".jsonl")
 
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
-            result_json_list.append(future.result())
-            save_result(result_json_list, result_path)
+            vote_res = future.result()
+            vote_results.append(vote_res)
+            submit_result_list.append(vote_res.to_submit_json())
+            save_submit_result(submit_result_list, submit_path)
+            save_solutions(vote_results, solution_path)
 
-    save_result(result_json_list, result_path)
 
-
-def save_result(result_json_list, result_path):
-    result_json_list.sort(key=lambda x: x["id"])
-    with open(result_path, "w", encoding="utf-8") as f:
-        for result in result_json_list:
+def save_submit_result(submit_result_list, submit_path):
+    submit_result_list.sort(key=lambda x: x["id"])
+    with open(submit_path, "w", encoding="utf-8") as f:
+        for result in submit_result_list:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+
+def save_solutions(vote_results: list[VoteResult], result_path):
+    vote_results.sort(key=lambda x: x.id)
+    with open(result_path, "w", encoding="utf-8") as f:
+        for vote_res in vote_results:
+            f.write(json.dumps(vote_res.to_dict(), ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """构造Prompt"""
 
 import json
+from solution import Subtask
 import tools
 import logger
 
@@ -10,9 +11,12 @@ prompt_task_decomposition_file = "prompts/task_decomposition.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 
 
-def get_knowledge_by_question(question):
+def get_knowledge_by_question(question: str) -> list[str]:
     """
     根据问题获得背景知识
+
+    :param question: 问题
+    :return: 背景知识列表
     """
     with open(prompt_knowledge_file, "r", encoding="utf-8") as file:
         knowledge_list = json.load(file)
@@ -25,9 +29,12 @@ def get_knowledge_by_question(question):
     return list(knowledge_set)
 
 
-def get_prompt_task_decomposition(question):
+def get_prompt_task_decomposition(question: str) -> str:
     """
     获得任务分解模板
+
+    :param question: 问题
+    :return: 任务分解模板
     """
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         task_decomposition = file.read()
@@ -38,9 +45,12 @@ def get_prompt_task_decomposition(question):
     """
 
 
-def get_prompt_vote(question):
+def get_prompt_vote(question: str) -> str:
     """
     获得投票模板
+
+    :param question: 问题
+    :return: 投票模板
     """
     return f"""
     以下是针对问题 "{question}" 的多个回答结果，请评估并选择出现次数最多的答案：
@@ -58,17 +68,22 @@ def get_prompt_vote(question):
 
 
 def get_prompt_atomic_question(
-    question, table_meta_list, parent_tasks, assumption=None
-):
+    task: Subtask, assumption: str, table_meta_list: list[dict]
+) -> str:
     """
     获得原子问题模板
+
+    :param task: 原子问题
+    :param assumption: 假设条件
+    :param table_meta_list: 数据表结构列表
     """
+    question = task.question
     knowledge_list = get_knowledge_by_question(question)
     return f"""
     {f"已知数据表结构：{str(table_meta_list)}" if len(table_meta_list) > 0 else ""}
     {f"已知知识：{str(knowledge_list)}" if len(knowledge_list) > 0 else ""}
     {f"假设条件：{str(assumption)}" if assumption else ""}
-    {f"已知信息：{str(parent_tasks)}" if len(parent_tasks) > 0 else ""}
+    已知信息：{str(task.get_parent_tasks_desc())}
     
     请回答问题：{question}，并严格遵守以下要求：
     - 不得杜撰时间、数据或关键动作，不得假设或猜测任何传入函数的参数值；
@@ -86,12 +101,15 @@ def get_prompt_atomic_question(
     """
 
 
-def get_prompt_summary_question(message):
+def get_prompt_summary_question(summary: dict) -> str:
     """
     获得问题总结模板
+
+    :param summary: 问题总结
+    :return: 问题总结模板
     """
     return f"""
-    请根据问题解答过程{message}，给出最终答案，并严格遵守以下要求：
+    请根据问题解答过程{summary}，给出最终答案，并严格遵守以下要求：
     - 评估验证解答过程的正确性，若存在错误，请尝试修正；
     - 回答中设备的关键动作不得拆开，用【】包裹，例如：【A架开机】；
     - 数值格式要求
@@ -117,9 +135,13 @@ def get_prompt_summary_question(message):
     """
 
 
-def get_prompt_get_table_meta_and_tool(question, parent_tasks, assumption=None):
+def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     """
     生成数据表结构查询的 Prompt
+
+    :param task: 问题
+    :param assumption: 假设条件
+    :return: Prompt
     """
     with open(table_meta_file, "r", encoding="utf-8") as file:
         raw_table_data = json.load(file)
@@ -133,9 +155,9 @@ def get_prompt_get_table_meta_and_tool(question, parent_tasks, assumption=None):
     已知可用的数据表：{str(table_data)}
     已知可调用的函数工具：{str(tools.tools_description)}
     {f"假设条件：{str(assumption)}" if assumption else ""}
-    {f"已知信息：{str(parent_tasks)}" if len(parent_tasks) > 0 else ""}
+    已知信息：{str(task.get_parent_tasks_desc())}
     
-    请基于数据表、工具和已知条件回答以下问题：{question}
+    请基于数据表、工具和已知条件回答以下问题：{task.question}：
     要求：
     - 分析解决该问题所必需的数据表和工具；  
     - 涉及数值计算时，返回的工具列表中应包含数学计算函数'calculate_math_operations'；
@@ -150,9 +172,12 @@ def get_prompt_get_table_meta_and_tool(question, parent_tasks, assumption=None):
     """
 
 
-def get_table_meta_by_table_names(table_names):
+def get_table_meta_by_table_names(table_names: list[str]) -> list[dict]:
     """
     根据数据表名获得数据表结构
+
+    :param table_names: 数据表名列表
+    :return: 数据表结构列表
     """
     with open(table_meta_file, "r", encoding="utf-8") as file:
         table_data = json.load(file)

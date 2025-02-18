@@ -3,6 +3,7 @@
 import json
 import traceback
 from zhipuai import ZhipuAI
+from solution import ProblemSolution, Decomposition, Subtask, VoteResult
 import tools
 import functions
 import prompts
@@ -21,102 +22,97 @@ def check_api_key():
     return api_key
 
 
-def vote(question, vote_times):
+def vote(id: str, question: str, vote_times: int) -> VoteResult:
     """
     多次调用 get_answer 获取答案，并让 LLM 评估选出最优答案。
 
-    :param question: 需要解答的问题
-    :param n: 采样次数
+    :param id: 问题 ID
+    :param question: 问题
+    :param vote_times: 采样次数
     :return: LLM 评估后选出的最佳答案
     """
 
-    results = []
+    vote_res = VoteResult(id, question, vote_times)
 
     for i in range(vote_times):
         try:
             logger.info(f"【开始第{i+1}次获取问题答案】")
-            answer = str(get_answer(question))
-            results.append(answer)
-            logger.special(f"【第{i+1}次得到的最终答案】: \n{answer}")
+            solution = get_answer(id, question)
+            vote_res.solutions.append(solution)
+            logger.special(f"【第{i+1}次得到的最终答案】: \n{solution.answer}")
         except Exception as e:
             logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
             logger.error(traceback.format_exc())
 
-    if len(results) == 1:
-        return results[0]
+    if len(vote_res.solutions) == 1:
+        vote_res.final_answer = vote_res.solutions[0].get_submit_answer()
+        return vote_res
 
     logger.info(f"【开始投票】")
 
-    answer_list = "\n".join(
-        [f"答案 {i+1}: {result}" for i, result in enumerate(results)]
+    answer_content = "\n".join(
+        [f"答案 {i+1}: {result}" for i, result in enumerate(vote_res.get_answers())]
     )
 
     messages = [
         {"role": "system", "content": prompts.get_prompt_vote(question)},
-        {"role": "user", "content": answer_list},
+        {"role": "user", "content": answer_content},
     ]
 
     best_answer = get_completion(messages)
+    vote_res.final_answer = best_answer.choices[0].message.content
 
-    return best_answer.choices[0].message.content
+    return vote_res
 
 
-def get_answer(question):
+def get_answer(id: str, question: str) -> ProblemSolution:
     """
     获得复杂问题的答案，最终返回文本格式的最终答案
     """
-    assumption, format_requirement, contains_time, subtasks = get_task_decomposition(
-        question
-    )
+    solution = ProblemSolution(id, question)
+    decomposition = get_task_decomposition(solution.question)
+    solution.decomposition = decomposition
 
-    def get_task_by_id(id):
-        for task in subtasks:
-            if task["id"] == id:
-                return task
-        return None
-
-    for task in subtasks:
+    for task in decomposition.subtasks:
         parent_tasks = []
-        for parent in task["parent_ids"]:
-            parent = get_task_by_id(parent)
-            if parent:
-                parent_tasks.append(
-                    {
-                        "question": parent["question"],
-                        "answer": parent["answer"],
-                        "function_results": parent["function_results"],
-                    }
-                )
-
-        answer, function_results = get_atomic_answer(
-            task["question"], parent_tasks, assumption, contains_time
-        )
-        task["answer"] = answer
-        task["function_results"] = function_results
-    summary = {
-        "question": question,
-        "assumption": assumption,
-        "format_requirement": format_requirement,
-        "subtasks": subtasks,
-    }
-    return get_summary(summary)
+        for parent_id in task.parent_ids:
+            parent_task = decomposition.get_task_by_id(parent_id)
+            if parent_task:
+                parent_tasks.append(parent_task)
+        task.parent_tasks = parent_tasks
+        res_task = get_atomic_answer(decomposition, task)
+        task.answer = res_task.answer
+        task.function_results = res_task.function_results
+    summary = get_summary(solution)
+    solution.answer = summary.split("问题答案：")[-1]
+    solution.reasoning = summary.split("问题答案：")[0]
+    return solution
 
 
-def get_summary(summary):
+def get_summary(solution: ProblemSolution) -> str:
     """
     获得问题总结的答案
+
+    :param solution: 问题解答
+    :return: 问题总结的答案
     """
-    logger.info("【问题总结】", summary)
+    logger.info("【问题总结】", solution)
     messages = [
-        {"role": "user", "content": prompts.get_prompt_summary_question(summary)},
+        {
+            "role": "user",
+            "content": prompts.get_prompt_summary_question(solution.to_summary_json()),
+        },
     ]
     response = get_completion(messages)
     return response.choices[0].message.content
 
 
-def get_task_decomposition(question):
+def get_task_decomposition(question: str) -> Decomposition:
     """
     获得问题的分解结果
+
+    :param question: 问题
+    :return: 问题的分解结果
     """
     logger.info("【获取问题分解结果】", question)
     messages = [
@@ -125,27 +121,27 @@ def get_task_decomposition(question):
     ]
     response = get_completion(messages)
     res = json.loads(parse_res(response.choices[0].message.content))
-    assumption = res["assumption"]
-    format_requirement = res.get("format_requirement")
-    contains_time = res.get("contains_time")
-    subtasks = res.get("subtasks")
-    logger.success("【问题分解结果】", res)
-    return assumption, format_requirement, contains_time, subtasks
+    decomposition = Decomposition.from_dict(res)
+    logger.success("【问题分解结果】", decomposition.to_dict())
+    return decomposition
 
 
-def get_atomic_answer(question, parent_tasks, assumption=None, contains_time=True):
+def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
     """
     获得原子问题的答案
+
+    :param decomposition: 问题的分解结果
+    :param task: 原子问题
+    :param parent_tasks: 父任务
+    :return: 原子问题的答案
     """
-    table_meta_list, tool_list = get_table_meta_and_tool(
-        question, contains_time, parent_tasks, assumption
-    )
-    logger.info("【开始获取原子问题答案】", question)
+    table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
+    logger.info("【开始获取原子问题答案】", task.question)
     messages = [
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
-                question, table_meta_list, parent_tasks, assumption
+                task, decomposition.assumption, table_meta_list
             ),
         },
     ]
@@ -174,25 +170,32 @@ def get_atomic_answer(question, parent_tasks, assumption=None, contains_time=Tru
                 else:
                     logger.error("【未找到工具函数】", function_name)
             response = get_completion(messages, tool_list)
+            messages.append(response.choices[0].message.model_dump())
         else:
             break
-    res = parse_res(response.choices[0].message.content)
-    logger.success("【原子问题答案】", res)
-    return res, function_results
+    answer = parse_res(response.choices[0].message.content)
+    logger.success("【原子问题答案】", answer)
+    res_task = task.clone()
+    res_task.answer = answer
+    res_task.function_results = function_results
+    res_task.parent_tasks = None
+    return res_task
 
 
-def get_table_meta_and_tool(
-    question, contains_time=True, parent_tasks=[], assumption=None
-):
+def get_table_meta_and_tool(decomposition: Decomposition, task: Subtask) -> tuple:
     """
     获得问题所需的数据表的元信息和所需工具
+
+    :param decomposition: 问题的分解结果
+    :param task: 原子问题
+    :return: 数据表的元信息和所需工具
     """
-    logger.info("【开始获取原子问题所需数据表和工具】", question)
+    logger.info("【开始获取原子问题所需数据表和工具】", task.question)
     messages = [
         {
             "role": "user",
             "content": prompts.get_prompt_get_table_meta_and_tool(
-                question, parent_tasks, assumption
+                task, decomposition.assumption
             ),
         },
     ]
@@ -202,7 +205,7 @@ def get_table_meta_and_tool(
     need_tools = res.get("tools", [])
     # if "能耗" in question:
     #     need_tools=['get_total_energy_consumption_by_time_range']
-    if not contains_time and "设备参数详情表" not in tables:
+    if not decomposition.contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
     logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
@@ -216,6 +219,11 @@ def get_table_meta_and_tool(
 def get_completion(messages, tools=[], model="glm-4-plus"):
     """
     获得对话结果
+
+    :param messages: 对话消息
+    :param tools: 工具
+    :param model: 模型
+    :return: 对话结果
     """
     client = ZhipuAI(api_key=check_api_key())
     logger.trace("【请求回答】", str(messages), "【工具】", str(tools))

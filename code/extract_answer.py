@@ -1,7 +1,7 @@
 import json
 
-input_file = "submits/2025-02-17-第5次-71.33.jsonl"
-output_file = "submits/2025-02-17-第6次.jsonl"
+input_file = "submits/2025-02-18-第3次-73.33.jsonl"
+output_file = "submits/2025-02-18-第4次.jsonl"
 
 
 def extract_answers(input_file, output_file):
@@ -62,5 +62,5 @@ def merge_answers(input_files, output_file):
             outfile.write(",".join(row) + "\n")
 
 
-# extract_answers(input_file, output_file)
-merge_answers(["submits/2025-02-17-第6次.jsonl", "submits/2025-02-18-第2次.jsonl"], "submits/对比.csv")
+extract_answers(input_file, output_file)
+# merge_answers(["submits/2025-02-17-第6次.jsonl", "submits/2025-02-18-第2次.jsonl"], "submits/对比.csv")
