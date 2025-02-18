@@ -200,8 +200,8 @@ def get_table_meta_and_tool(
     res = json.loads(parse_res(response.choices[0].message.content))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
-    if "能耗" in question:
-        need_tools=['get_total_energy_consumption_by_time_range']
+    # if "能耗" in question:
+    #     need_tools=['get_total_energy_consumption_by_time_range']
     if not contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
     logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
