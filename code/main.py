@@ -8,10 +8,15 @@ import api
 import time
 import logger
 
-
-splice_index = False
-question_path = "../assets/question.jsonl"
 result_dir = "results"
+# 测试模式
+splice_index = True
+question_path = "../assets/test.jsonl"
+vote_times = 1
+# 运行模式
+# splice_index = False
+# question_path = "../assets/question.jsonl"
+# vote_times=3
 
 
 def query_handler(query):
@@ -30,7 +35,7 @@ def process_one(question_json):
     query = query_handler(query)
     try:
         logger.info(f"【开始获取问题{line['id']}的答案】", query)
-        answer = str(api.vote(question=query))
+        answer = str(api.vote(question=query, vote_times=vote_times))
         logger.special(f"【{line['id']}的最终答案】: \n{answer}")
         return {"id": line["id"], "question": query, "answer": answer}
     except Exception as e:

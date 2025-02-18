@@ -21,21 +21,21 @@ def check_api_key():
     return api_key
 
 
-def vote(question, n=3):
+def vote(question, vote_times):
     """
     多次调用 get_answer 获取答案，并让 LLM 评估选出最优答案。
 
     :param question: 需要解答的问题
-    :param n: 采样次数，默认 3 次
+    :param n: 采样次数
     :return: LLM 评估后选出的最佳答案
     """
 
     results = []
 
-    for i in range(n):
+    for i in range(vote_times):
         try:
             logger.info(f"【开始第{i+1}次获取问题答案】")
-            answer = str(get_answer(question, i + 1))
+            answer = str(get_answer(question))
             results.append(answer)
             logger.special(f"【第{i+1}次得到的最终答案】: \n{answer}")
         except Exception as e:
@@ -61,7 +61,7 @@ def vote(question, n=3):
     return best_answer.choices[0].message.content
 
 
-def get_answer(question, vote_index=1):
+def get_answer(question):
     """
     获得复杂问题的答案，最终返回文本格式的最终答案
     """
