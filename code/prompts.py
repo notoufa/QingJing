@@ -106,7 +106,7 @@ def get_prompt_get_table_meta_and_tool(question, parent_tasks, assumption=None):
 
     return f"""
     已知可用的数据表：{str(table_data)}
-    已知可调用的函数工具：{str(tools.tools)}
+    已知可调用的函数工具：{str(tools.tools_description)}
     {f"假设条件：{str(assumption)}" if assumption else ""}
     {f"已知信息：{str(parent_tasks)}" if len(parent_tasks) > 0 else ""}
     

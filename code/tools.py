@@ -279,3 +279,43 @@ tools = [
         },
     },
 ]
+
+
+tools_description=[
+    {
+        "function_name": "get_data_by_time_range",
+        "description": "输入：数据表名、开始时间、结束时间、列名和状态，   输出：从开始时间到结束时间内的对应列数据。",
+    },
+    {
+        "function_name": "get_actions_by_time_range",
+        "description": "输入：开始时间、结束时间，     输出：从开始时间到结束时间内正在进行关键动作的设备及动作列表。", 
+    },
+    {
+        "function_name": "get_device_parameter_by_name",
+        "description": "输入：参数中文名称，    输出：参数上下限范围、何时触发何种机制/事件(如报警值、屏蔽值、延迟值、安全保护设定值、达到安全保护设定值时的措施)。", 
+    },
+    {
+        "function_name": "get_total_energy_consumption_by_time_range",
+        "description": "输入：开始时间、结束时间、设备名称，     输出：从开始时间到结束时间内指定设备('全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进相关设备）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B')的总能耗。",
+    },
+    {
+        "function_name": "get_running_duration_by_time_range",
+        "description": "输入：开始时间、结束时间、查询类型('折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长')，     输出：从开始时间到结束时间内动作类型的时长结果（秒、分、时）。",
+    },
+    {
+        "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
+        "description": "输入：开始时间、结束时间、设备名称('一号柴油发电机'、'二号柴油发电机'、'三号柴油发电机'、'四号柴油发电机'、'柴油发电机组')，     输出：从开始时间到结束时间内设备的理论发电量、实际发电量或燃油消耗量。",
+    },
+    {
+        "function_name": "calculate_math_operations",
+        "description": "输入：运算类型('加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'、'求最大值'、'求最小值')，操作数列表，     输出：运算结果。",
+    },
+    {
+        "function_name": "calculate_time_interval",
+        "description": "输入：起始时间、结束时间，     输出：两个时间点之间的时间间隔（秒、分钟、小时）。",
+    },
+    {
+        "function_name": "convert_seconds",
+        "description": "输入：时间间隔（秒），     输出：时间间隔对应的分钟、小时。",
+    },
+]
