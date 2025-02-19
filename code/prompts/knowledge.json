@@ -163,7 +163,7 @@
         ]
     },
     {
-        "knowledge": "DP过程指从ON_DP到OFF DP的过程；一天内可能存在多次ON_DP和OFF_DP，每次ON_DP到OFF_DP均为一个DP过程；查询ON_DP和OFF_DP后，需要根据动作发生次数确定共有几个DP过程；每个DP过程的设备能耗等均需独立分开计算",
+        "knowledge": "DP过程指从ON_DP到OFF DP的过程；一天内可能存在多次ON_DP和OFF_DP，每次ON_DP到OFF_DP均为一个DP过程；计算时只考虑第一次DP过程",
         "keys": [
             "作业时长",
             "DP过程",
