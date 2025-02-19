@@ -93,11 +93,12 @@ class Subtask:
 
 
 class Decomposition:
-    def __init__(self, contains_time, format_requirement, assumption, subtasks):
+    def __init__(self, contains_time, format_requirement, assumption, subtasks, chain_of_subtasks):
         self.contains_time: bool = contains_time
         self.format_requirement: str = format_requirement
         self.assumption: str = assumption
         self.subtasks: list[Subtask] = subtasks
+        self.chain_of_subtasks: str = chain_of_subtasks
 
     def __repr__(self):
         return (
@@ -123,6 +124,7 @@ class Decomposition:
             format_requirement=data["format_requirement"],
             assumption=data["assumption"],
             subtasks=subtasks,
+            chain_of_subtasks=data["chain_of_subtasks"],
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -134,6 +136,7 @@ class Decomposition:
             "subtasks": [
                 subtask.to_dict(export_api_response) for subtask in self.subtasks
             ],
+            "chain_of_subtasks": self.chain_of_subtasks,
         }
 
     def to_simple_dict(self):
@@ -143,6 +146,7 @@ class Decomposition:
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
+            "chain_of_subtasks": self.chain_of_subtasks,
         }
 
     def get_initial_dict(self) -> dict:
@@ -151,6 +155,7 @@ class Decomposition:
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
             "subtasks": [subtask.get_initial_dict() for subtask in self.subtasks],
+            "chain_of_subtasks": self.chain_of_subtasks,
         }
 
 

@@ -150,7 +150,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
-                task, decomposition.assumption, table_meta_list
+                task, decomposition.assumption, decomposition.chain_of_subtasks, table_meta_list
             ),
         },
     ]

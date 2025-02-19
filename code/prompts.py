@@ -68,7 +68,7 @@ def get_prompt_vote(question: str) -> str:
 
 
 def get_prompt_atomic_question(
-    task: Subtask, assumption: str, table_meta_list: list[dict]
+    task: Subtask, assumption: str, chain_of_subtasks: str, table_meta_list: list[dict]
 ) -> str:
     """
     获得原子问题模板
@@ -83,6 +83,7 @@ def get_prompt_atomic_question(
     {f"已知数据表结构：{str(table_meta_list)}" if len(table_meta_list) > 0 else ""}
     {f"已知知识：{str(knowledge_list)}" if len(knowledge_list) > 0 else ""}
     {f"假设条件：{str(assumption)}" if assumption else ""}
+    {f"子任务链：{str(chain_of_subtasks)}" if len(chain_of_subtasks) > 0 else ""}
     已知信息：{str(task.get_parent_tasks_desc())}
     
     请回答问题：<{question}>，并严格遵守以下要求：
@@ -160,8 +161,7 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     请基于数据表、工具和已知条件回答以下问题：<{task.question}>：
     要求：
     - 分析解决该问题所必需的数据表和工具；  
-    - 涉及数值计算时，返回的工具列表中应包含数学计算函数'calculate_math_operations'；
-    - 涉及时间计算时，返回的工具列表中应包含时间计算函数'calculate_time_interval'；
+    - 涉及计算的问题尽可能选择对应的工具 
     - 若已知条件或工具可独立解决问题，无需使用数据表；
     - 请先仔细思考，但仅需返回最终结果，不需要提供思考过程；
     - 输出格式：仅返回 JSON 格式的所需数据表名列表和工具列表，例如：
