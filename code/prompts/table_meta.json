@@ -975,7 +975,7 @@
             },
             {
                 "name": "Remarks",
-                "desc": "附注,备注设备超过安全保护设定值之后动作；值为Alarm state表示报警；值为Shutdown表示停机"
+                "desc": "附注,备注设备超过安全保护设定值之后动作；可选值为Alarm state、Shutdown"
             },
             {
                 "name": "Safety_Protection_Set_Value",

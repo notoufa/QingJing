@@ -306,12 +306,23 @@ def get_device_parameter_by_name(parameter_name_cn):
         "报警值": parameter_info["Parameter_Information_Alarm"],
         "屏蔽值": parameter_info["Parameter_Information_Inhibit"],
         "延迟值": parameter_info["Parameter_Information_Delayed"],
-        "安全保护设定值": parameter_info["Safety_Protection_Set_Value"],
+        "安全保护设定值": parameter_info["Safety_Protection_Set_Value"]
+        + parameter_info["Remarks"],
         "附注（达到安全保护设定值时的措施）": parameter_info["Remarks"],
     }
-    
-    parameter_dict = {key: (None if pd.isna(value) else value) for key, value in parameter_dict.items()}
-    
+
+    parameter_dict = {
+        key: (None if pd.isna(value) else value)
+        for key, value in parameter_dict.items()
+    }
+
+    for key, value in parameter_dict.items():
+        str_value = str(value).strip()
+        if "↑" in str_value:
+            parameter_dict[key] = "超过 " + str_value.replace("↑", " 触发 ")
+        if "↓" in str_value:
+            parameter_dict[key] = "低于 " + str_value.replace("↓", " 触发 ")
+
     return {
         "result": parameter_dict,
         "metadata": metadata,
