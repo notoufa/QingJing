@@ -48,7 +48,7 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             logger.info(f"【开始第{i+1}次获取问题答案】")
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
-            logger.special(f"【第{i+1}次得到的最终答案】: \n{solution.answer}")
+            logger.special(f"【第{i+1}次得到的最终答案】: \n{solution.get_submit_answer()}")
         except Exception as e:
             logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
             logger.error(traceback.format_exc())
@@ -96,8 +96,8 @@ def get_answer(id: str, question: str) -> ProblemSolution:
         task.parent_tasks = parent_tasks
         task = get_atomic_answer(decomposition, task)
     summary, api_response = get_summary(solution)
-    solution.answer = summary.split("问题答案：")[-1]
-    solution.reasoning = summary.split("问题答案：")[0]
+    solution.answer = summary.split("最终答案：")[-1]
+    solution.reasoning = summary.split("最终答案：")[0]
     solution.summary_api_response = api_response
     return solution
 

@@ -1,7 +1,7 @@
 import json
 
-input_file = "submits/2025-02-18-第3次-73.33.jsonl"
-output_file = "submits/2025-02-18-第4次.jsonl"
+input_file = "submits/2025-02-19-第1次-76.6.jsonl"
+output_file = "submits/2025-02-19-第2次.jsonl"
 
 
 def extract_answers(input_file, output_file):
@@ -17,7 +17,7 @@ def extract_answers(input_file, output_file):
         for line in infile:
             data = json.loads(line.strip())
             answer = data.get("answer", "")
-            final_answer = answer.split("问题答案：")[-1].strip()
+            final_answer = answer.split("最终答案：")[-1].strip()
 
             result = {
                 "id": data.get("id"),
