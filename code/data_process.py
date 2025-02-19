@@ -136,29 +136,43 @@ df['status'] = 'False'
 df['check_current_presence'] = 'False'
 # 遍历每一行，判断设备状态
 for i in range(1, df.shape[0]):
+    # 取当前行和前一行的数据
+    prev_ajia3 = df.loc[i - 1, 'Ajia-3_v']
+    prev_ajia5 = df.loc[i - 1, 'Ajia-5_v']
+    curr_ajia3 = df.loc[i, 'Ajia-3_v']
+    curr_ajia5 = df.loc[i, 'Ajia-5_v']
 
-    # 关机条件
-    if df.loc[i, 'Ajia-5_v'] == -1 and (df.loc[i - 1, 'Ajia-5_v'] > 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
+    # 停电条件：当前 Ajia-5_v == -1，且前一时刻 Ajia-5_v > 0 或 0
+    if curr_ajia5 == -1 and (prev_ajia5 >= 0):
         df.loc[i, 'status'] = '停电'
-        # 开机条件
-    if df.loc[i - 1, 'Ajia-3_v'] == -1 and (df.loc[i, 'Ajia-3_v'] == 0 or df.loc[i, 'Ajia-3_v'] == '0'):
+
+    # A架开机条件：前一时刻 Ajia-3_v == -1，且当前 Ajia-3_v >= 0
+    if prev_ajia3 == -1 and curr_ajia3 >= 0:
         df.loc[i, 'status'] = 'A架开机'
-    if df.loc[i - 1, 'Ajia-3_v'] == -1 and df.loc[i, 'Ajia-3_v'] > 0:
+    if prev_ajia5 == -1 and curr_ajia5 >= 0:
         df.loc[i, 'status'] = 'A架开机'
-    if df.loc[i - 1, 'Ajia-5_v'] == -1 and (df.loc[i, 'Ajia-5_v'] == 0 or df.loc[i, 'Ajia-5_v'] == '0'):
-        df.loc[i, 'status'] = 'A架开机'
-    # 关机条件
-    if df.loc[i, 'Ajia-3_v'] == -1 and (df.loc[i - 1, 'Ajia-3_v'] == 0 or df.loc[i - 1, 'Ajia-3_v'] == '0'):
+
+    # A架关机条件：当前 Ajia-3_v == -1，且前一时刻 Ajia-3_v >= 0
+    if curr_ajia3 == -1 and prev_ajia3 >= 0:
         df.loc[i, 'status'] = 'A架关机'
-    if df.loc[i, 'Ajia-5_v'] == -1 and (df.loc[i - 1, 'Ajia-5_v'] == 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
+    if curr_ajia5 == -1 and prev_ajia5 >= 0:
         df.loc[i, 'status'] = 'A架关机'
-    if df.loc[i, 'Ajia-5_v'] > 0 and df.loc[i - 1, 'Ajia-5_v'] == -1:
+
+    # 电流检测条件
+    # 有电流：前一时刻有一个或全部为0，下一刻均不为0
+    if (prev_ajia3 == 0 or prev_ajia5 == 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
         df.loc[i, 'check_current_presence'] = '有电流'
-    if df.loc[i, 'Ajia-5_v'] > 0 and (df.loc[i - 1, 'Ajia-5_v'] == 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
-        df.loc[i, 'check_current_presence'] = '有电流'
-    if df.loc[i, 'Ajia-5_v'] == 0 and (df.loc[i - 1, 'Ajia-5_v'] > 0 or df.loc[i - 1, 'Ajia-5_v'] == '0'):
+    # 无电流：前一时刻均不为0，下一刻有一个或全部为0
+    elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 == 0 or curr_ajia5 == 0):
         df.loc[i, 'check_current_presence'] = '无电流'
 
+#（Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
+def compute_angle_range(row):
+    if row['Ajia-0_v'] == 'error' or row['Ajia-1_v'] == 'error':
+        return 'error'
+    return abs(float(row['Ajia-0_v']) -float( row['Ajia-1_v']))
+
+df['angle_range'] = df.apply(compute_angle_range, axis=1)
 
 def is_mostly_fifty(L_):
     # 去掉列表中0或者超过200的值
@@ -188,6 +202,7 @@ for index, row in df.iterrows():
         end_time = row['csvTime']
         segments.append((start_time, end_time))
         start_time = None
+
 
 
 def extract_daily_power_on_times(df):
@@ -696,7 +711,6 @@ df = df.drop(columns=['date'])  # 删除 'date' 列
 # df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
 df.to_csv('data/Ajia_plc_1.csv', index=False)
 # In[4]:
-
 
 import pandas as pd
 
