@@ -15,7 +15,7 @@ export_api_response = False
 # 模式选择
 mode = "test"
 if mode == "test":
-    splice_index = False
+    splice_index = True
     question_path = "../assets/test.jsonl"
     vote_times = 1
 else:

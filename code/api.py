@@ -109,7 +109,7 @@ def get_summary(solution: ProblemSolution) -> tuple[str, ApiResponse]:
     :param solution: 问题解答
     :return: 问题总结的答案
     """
-    logger.info("【问题总结】", solution.to_dict())
+    logger.info("【问题总结】", solution.to_summary_json())
     messages = [
         {
             "role": "user",
