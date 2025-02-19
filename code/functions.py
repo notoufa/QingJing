@@ -144,7 +144,7 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=None, statu
                 filtered_data[column].dt.strftime("%Y-%m-%d %H:%M:%S").tolist()
             )
         else:
-            result[column] = filtered_data[column].values.tolist()
+            result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
 
     return {
         "result": result,
@@ -254,7 +254,6 @@ def get_actions_by_time_range(start_time, end_time):
 
         status_changes = filtered_data[["csvTime", "status"]].copy()
 
-        # 将csvTime列转换为"%Y-%m-%d %H:%M:%S"
         status_changes["csvTime"] = status_changes["csvTime"].dt.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
@@ -339,7 +338,7 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
         raise ValueError(f"时间列转换失败: {e}")
 
     filtered_data = df[
-        (df["csvTime"] >= start_time) & (df["csvTime"] < end_time)
+        (df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)
     ].copy()
 
     if filtered_data.empty:
