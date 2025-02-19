@@ -1,6 +1,35 @@
 import copy
 
 
+class ApiResponse:
+    """
+    单次请求
+    """
+
+    def __init__(self, messages, response):
+        self.messages = messages
+        self.response = response
+
+    def __repr__(self):
+        return f"ApiResponse(Messages={self.messages}, Responses={self.response})"
+
+    def to_dict(self):
+        """Converts the ApiResponse object into a dictionary for serialization."""
+        usage = self.response.usage
+        choices = self.response.choices
+        return {
+            "messages": self.messages,
+            "response": [str(choice) for choice in choices],
+            "prompt_tokens": usage.prompt_tokens,
+            "completion_tokens": usage.completion_tokens,
+            "total_tokens": usage.total_tokens,
+        }
+
+    def clone(self):
+        """Creates a deep copy of the ApiResponse instance."""
+        return copy.deepcopy(self)
+
+
 class Subtask:
     def __init__(self, task_id, question, parent_ids):
         self.task_id: int = task_id
@@ -9,6 +38,7 @@ class Subtask:
         self.answer: str = None
         self.function_results = None
         self.parent_tasks: list[Subtask] = None
+        self.api_response: ApiResponse = None
 
     def __repr__(self):
         return f"Subtask(ID={self.task_id}, Question={self.question}, ParentIDs={self.parent_ids})"
@@ -29,15 +59,35 @@ class Subtask:
             "parent_ids": self.parent_ids,
             "answer": self.answer,
             "function_results": self.function_results,
+            "api_response": (
+                self.api_response.to_dict() if self.api_response is not None else None
+            ),
+        }
+
+    def to_simple_dict(self):
+        """返回一个字典表示，不包含api_response"""
+        return {
+            "task_id": self.task_id,
+            "question": self.question,
+            "parent_ids": self.parent_ids,
+            "answer": self.answer,
+            "function_results": self.function_results,
         }
 
     def get_parent_tasks_desc(self) -> str:
         if not self.parent_tasks or len(self.parent_tasks) == 0:
             return ""
-        return [task.to_dict() for task in self.parent_tasks]
+        return [task.to_simple_dict() for task in self.parent_tasks]
 
     def clone(self):
         return copy.deepcopy(self)
+
+    def get_initial_dict(self) -> dict:
+        return {
+            "task_id": self.task_id,
+            "question": self.question,
+            "parent_ids": self.parent_ids,
+        }
 
 
 class Decomposition:
@@ -82,6 +132,23 @@ class Decomposition:
             "subtasks": [subtask.to_dict() for subtask in self.subtasks],
         }
 
+    def to_simple_dict(self):
+        """返回一个字典表示，不包含api_response"""
+        return {
+            "contains_time": self.contains_time,
+            "format_requirement": self.format_requirement,
+            "assumption": self.assumption,
+            "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
+        }
+
+    def get_initial_dict(self) -> dict:
+        return {
+            "contains_time": self.contains_time,
+            "format_requirement": self.format_requirement,
+            "assumption": self.assumption,
+            "subtasks": [subtask.get_initial_dict() for subtask in self.subtasks],
+        }
+
 
 class ProblemSolution:
     def __init__(self, problem_id, question):
@@ -92,27 +159,32 @@ class ProblemSolution:
         self.answer: str = None
         self.error_message: str = None
         self.traceback: str = None
+        self.decomposition_api_response: ApiResponse = None
+        self.summary_api_response: ApiResponse = None
 
     def __repr__(self):
         return f"ProblemSolution(ID={self.id}, Question={self.question})"
 
     def to_dict(self):
         """返回一个字典表示，用于数据存储或转换"""
-        if self.is_error():
-            return {
-                "id": self.id,
-                "question": self.question,
-                "error_message": self.error_message,
-                "traceback": self.traceback,
-            }
-        else:
-            return {
-                "id": self.id,
-                "question": self.question,
-                "decomposition": self.decomposition.to_dict(),
-                "reasoning": self.reasoning,
-                "answer": self.answer,
-            }
+        return {
+            "id": self.id,
+            "question": self.question,
+            "initial_decomposition": self.decomposition.get_initial_dict(),
+            "decomposition_api_response": (
+                self.decomposition_api_response.to_dict()
+                if self.decomposition_api_response
+                else None
+            ),
+            "decomposition": self.decomposition.to_dict(),
+            "summary_api_response": (
+                self.summary_api_response.to_dict()
+                if self.summary_api_response
+                else None
+            ),
+            "reasoning": self.reasoning,
+            "answer": self.answer,
+        }
 
     def to_submit_json(self):
         """返回一个字典表示，用于提交"""
@@ -123,6 +195,7 @@ class ProblemSolution:
         }
 
     def get_submit_answer(self) -> str:
+        """返回用于提交的答案"""
         return f"{self.reasoning}{self.answer}"
 
     def to_summary_json(self):
@@ -130,7 +203,7 @@ class ProblemSolution:
         return {
             "id": self.id,
             "question": self.question,
-            "decomposition": self.decomposition.to_dict(),
+            "decomposition": self.decomposition.to_simple_dict(),
             "answer": self.answer,
         }
 

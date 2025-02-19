@@ -11,14 +11,16 @@ import logger
 
 submit_dir = "results"
 solution_dir = "solutions"
-# 测试模式
-splice_index = True
-question_path = "../assets/test.jsonl"
-vote_times = 1
-# 运行模式
-# splice_index = False
-# question_path = "../assets/question.jsonl"
-# vote_times=3
+# 模式选择
+mode = "test"
+if mode == "test":
+    splice_index = True
+    question_path = "../assets/test.jsonl"
+    vote_times = 1
+else:
+    splice_index = False
+    question_path = "../assets/question.jsonl"
+    vote_times = 3
 
 
 def handle_question(query):
@@ -69,7 +71,7 @@ def main():
     os.makedirs(solution_dir, exist_ok=True)
     date_str = time.strftime("%Y-%m-%d", time.localtime())
     submit_path = os.path.join(submit_dir, "result_" + date_str + ".jsonl")
-    solution_path = os.path.join(solution_dir, "solution_" + date_str + ".jsonl")
+    solution_path = os.path.join(solution_dir, "solution_" + date_str + ".json")
 
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
@@ -91,8 +93,11 @@ def save_submit_result(submit_result_list, submit_path):
 def save_solutions(vote_results: list[VoteResult], result_path):
     vote_results.sort(key=lambda x: x.id)
     with open(result_path, "w", encoding="utf-8") as f:
-        for vote_res in vote_results:
-            f.write(json.dumps(vote_res.to_dict(), ensure_ascii=False) + "\n")
+        f.write(
+            json.dumps(
+                [vote_res.to_dict() for vote_res in vote_results], ensure_ascii=False
+            )
+        )
 
 
 if __name__ == "__main__":

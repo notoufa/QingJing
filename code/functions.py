@@ -2,6 +2,7 @@
 
 import json
 import traceback
+from datetime import datetime
 import pandas as pd
 
 action_table_configs = {
@@ -82,6 +83,7 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=None, statu
     dict: 包含指定列名和对应值的字典，或错误信息
     """
     metadata = {
+        "function_name": "get_data_by_time_range",
         "table_name": table_name,
         "start_time": start_time,
         "end_time": end_time,
@@ -196,6 +198,11 @@ def get_actions_by_time_range(start_time, end_time):
     返回:
     dict: 包含设备状态变化的时间点和对应状态的字典，或错误信息
     """
+    metadata = {
+        "function_name": "get_actions_by_time_range",
+        "start_time": start_time,
+        "end_time": end_time,
+    }
 
     # 确保两个时间的差值至少是一分钟，如果小于一分钟，则end_time为start_time后一分钟
     start_time_dt = pd.to_datetime(start_time)
@@ -225,7 +232,7 @@ def get_actions_by_time_range(start_time, end_time):
         except FileNotFoundError:
             return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
-        df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")  # 假设时间戳是纳秒级别
+        df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")
 
         filtered_data = df[
             (df["csvTime"] >= start_time_dt)
@@ -247,7 +254,8 @@ def get_actions_by_time_range(start_time, end_time):
 
         status_changes = filtered_data[["csvTime", "status"]].copy()
 
-        status_changes.loc[:, "csvTime"] = status_changes["csvTime"].dt.strftime(
+        # 将csvTime列转换为"%Y-%m-%d %H:%M:%S"
+        status_changes["csvTime"] = status_changes["csvTime"].dt.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -266,7 +274,7 @@ def get_actions_by_time_range(start_time, end_time):
 
     return {
         "result": results,
-        "metadata": {"start_time": start_time, "end_time": end_time},
+        "metadata": metadata,
     }
 
 
@@ -276,10 +284,16 @@ def get_device_parameter_by_name(parameter_name_cn):
     :param device_name: 参数中文名
     :return: 返回包含参数信息的字典
     """
+    metadata = {
+        "function_name": "get_device_parameter_by_name",
+        "parameter_name_cn": parameter_name_cn,
+    }
+
     df = pd.read_csv("data/设备参数详情表.csv")
     if not df["Channel_Text_CN"].str.contains(parameter_name_cn).any():
         return {
             "error": f"未找到包含 '{parameter_name_cn}' 的参数中文名",
+            "metadata": metadata,
         }
 
     parameter_info = df[df["Channel_Text_CN"].str.contains(parameter_name_cn)].iloc[0]
@@ -296,7 +310,10 @@ def get_device_parameter_by_name(parameter_name_cn):
         "安全保护设定值": parameter_info["Safety_Protection_Set_Value"],
         "附注（达到安全保护设定值时的措施）": parameter_info["Remarks"],
     }
-    return parameter_dict
+    return {
+        "result": parameter_dict,
+        "metadata": metadata,
+    }
 
 
 def load_and_filter_data(file_path, start_time, end_time, power_column):
@@ -345,6 +362,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     :return: 总能耗（kWh，float 类型）
     """
     metadata = {
+        "function_name": "get_total_energy_consumption_by_time_range",
         "start_time": start_time,
         "end_time": end_time,
         "device_name": device_name,
@@ -416,6 +434,7 @@ def get_running_duration_by_time_range(start_time, end_time, type):
     :return: 包含三种格式开机时长的字符串
     """
     metadata = {
+        "function_name": "get_running_duration_by_time_range",
         "start_time": start_time,
         "end_time": end_time,
         "type": type,
@@ -501,6 +520,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     :return: 发电量或燃油消耗量
     """
     metadata = {
+        "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
         "start_time": start_time,
         "end_time": end_time,
         "type": type,
@@ -640,6 +660,7 @@ def calculate_action_proportion(
     :return: 动作在指定时间点前发生的比例，返回百分比
     """
     metadata = {
+        "function_name": "calculate_action_proportion",
         "start_time": start_time,
         "end_time": end_time,
         "action": action,
@@ -671,7 +692,7 @@ def calculate_action_proportion(
     before_count = 0
     total_count = 0
     day_map = {}
-    for res_time in table_data['csvTime']:
+    for res_time in table_data["csvTime"]:
         res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
         res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
         if not day_map.get(res_day):
@@ -720,6 +741,7 @@ def calculate_math_operations(operation, operands):
         ValueError: 如果遇到不支持的运算类型或者在除法中除数为0。
     """
     metadata = {
+        "function_name": "calculate_math_operations",
         "operation": operation,
         "operands": operands,
     }
@@ -766,9 +788,6 @@ def calculate_math_operations(operation, operands):
     }
 
 
-from datetime import datetime
-
-
 def calculate_time_interval(start_time: str, end_time: str):
     """
     计算两个时间点之间的时间间隔。
@@ -782,6 +801,7 @@ def calculate_time_interval(start_time: str, end_time: str):
     """
 
     metadata = {
+        "function_name": "calculate_time_interval",
         "start_time": start_time,
         "end_time": end_time,
     }
@@ -812,6 +832,11 @@ def convert_seconds(seconds):
     :param seconds: 需要转换的时间（单位：秒）
     :return: 包含三种格式的字典
     """
+    metadata = {
+        "function_name": "convert_seconds",
+        "seconds": seconds,
+    }
+
     if seconds < 0:
         raise ValueError("时间不能为负数")
 
@@ -824,11 +849,14 @@ def convert_seconds(seconds):
     demical_hours = seconds / 3600
 
     return {
-        "by_seconds": f"{seconds}秒",
-        "by_minutes": f"{minutes}分钟{remaining_seconds}秒",
-        "by_demical_minutes": f"{demical_minutes}分钟",
-        "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
-        "by_demical_hours": f"{demical_hours}小时",
+        "result": {
+            "by_seconds": f"{seconds}秒",
+            "by_minutes": f"{minutes}分钟{remaining_seconds}秒",
+            "by_demical_minutes": f"{demical_minutes}分钟",
+            "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
+            "by_demical_hours": f"{demical_hours}小时",
+        },
+        "metadata": metadata,
     }
 
 

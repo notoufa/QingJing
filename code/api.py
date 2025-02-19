@@ -3,7 +3,13 @@
 import json
 import traceback
 from zhipuai import ZhipuAI
-from solution import ProblemSolution, Decomposition, Subtask, VoteResult
+from solution import (
+    ProblemSolution,
+    Decomposition,
+    Subtask,
+    VoteResult,
+    ApiResponse,
+)
 import tools
 import functions
 import prompts
@@ -70,8 +76,9 @@ def get_answer(id: str, question: str) -> ProblemSolution:
     获得复杂问题的答案，最终返回文本格式的最终答案
     """
     solution = ProblemSolution(id, question)
-    decomposition = get_task_decomposition(solution.question)
+    decomposition, api_response = get_task_decomposition(solution.question)
     solution.decomposition = decomposition
+    solution.decomposition_api_response = api_response
 
     for task in decomposition.subtasks:
         parent_tasks = []
@@ -83,20 +90,22 @@ def get_answer(id: str, question: str) -> ProblemSolution:
         res_task = get_atomic_answer(decomposition, task)
         task.answer = res_task.answer
         task.function_results = res_task.function_results
-    summary = get_summary(solution)
+        task.api_response = res_task.api_response
+    summary, api_response = get_summary(solution)
     solution.answer = summary.split("问题答案：")[-1]
     solution.reasoning = summary.split("问题答案：")[0]
+    solution.summary_api_response = api_response
     return solution
 
 
-def get_summary(solution: ProblemSolution) -> str:
+def get_summary(solution: ProblemSolution) -> tuple[str, ApiResponse]:
     """
     获得问题总结的答案
 
     :param solution: 问题解答
     :return: 问题总结的答案
     """
-    logger.info("【问题总结】", solution)
+    logger.info("【问题总结】", solution.to_dict())
     messages = [
         {
             "role": "user",
@@ -104,10 +113,10 @@ def get_summary(solution: ProblemSolution) -> str:
         },
     ]
     response = get_completion(messages)
-    return response.choices[0].message.content
+    return response.choices[0].message.content, ApiResponse(messages, response)
 
 
-def get_task_decomposition(question: str) -> Decomposition:
+def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     """
     获得问题的分解结果
 
@@ -122,8 +131,8 @@ def get_task_decomposition(question: str) -> Decomposition:
     response = get_completion(messages)
     res = json.loads(parse_res(response.choices[0].message.content))
     decomposition = Decomposition.from_dict(res)
-    logger.success("【问题分解结果】", decomposition.to_dict())
-    return decomposition
+    logger.success("【问题分解结果】", decomposition.to_simple_dict())
+    return decomposition, ApiResponse(messages, response)
 
 
 def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
@@ -173,12 +182,14 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
             messages.append(response.choices[0].message.model_dump())
         else:
             break
+    api_response = ApiResponse(messages, response)
     answer = parse_res(response.choices[0].message.content)
     logger.success("【原子问题答案】", answer)
     res_task = task.clone()
     res_task.answer = answer
     res_task.function_results = function_results
     res_task.parent_tasks = None
+    res_task.api_response = api_response
     return res_task
 
 
