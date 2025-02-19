@@ -6,11 +6,12 @@ import os
 import traceback
 import api
 import time
-from solution import ProblemSolution, VoteResult
+from solution import VoteResult
 import logger
 
 submit_dir = "results"
 solution_dir = "solutions"
+export_api_response = False
 # 模式选择
 mode = "test"
 if mode == "test":
@@ -95,7 +96,7 @@ def save_solutions(vote_results: list[VoteResult], result_path):
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(
             json.dumps(
-                [vote_res.to_dict() for vote_res in vote_results], ensure_ascii=False
+                [vote_res.to_dict(export_api_response) for vote_res in vote_results], ensure_ascii=False
             )
         )
 

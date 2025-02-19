@@ -51,18 +51,20 @@ class Subtask:
             parent_ids=data["parent_ids"],
         )
 
-    def to_dict(self):
+    def to_dict(self, export_api_response: bool = True):
         """返回一个字典表示，用于数据存储或转换"""
-        return {
+        res = {
             "task_id": self.task_id,
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
             "function_results": self.function_results,
-            "api_response": (
-                self.api_response.to_dict() if self.api_response is not None else None
-            ),
         }
+        if export_api_response:
+            res["api_response"] = (
+                self.api_response.to_dict() if self.api_response is not None else None
+            )
+        return res
 
     def to_simple_dict(self):
         """返回一个字典表示，不包含api_response"""
@@ -123,13 +125,15 @@ class Decomposition:
             subtasks=subtasks,
         )
 
-    def to_dict(self):
+    def to_dict(self, export_api_response: bool = True):
         """返回一个字典表示，用于数据存储或转换"""
         return {
             "contains_time": self.contains_time,
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
-            "subtasks": [subtask.to_dict() for subtask in self.subtasks],
+            "subtasks": [
+                subtask.to_dict(export_api_response) for subtask in self.subtasks
+            ],
         }
 
     def to_simple_dict(self):
@@ -165,26 +169,28 @@ class ProblemSolution:
     def __repr__(self):
         return f"ProblemSolution(ID={self.id}, Question={self.question})"
 
-    def to_dict(self):
+    def to_dict(self, export_api_response: bool = True):
         """返回一个字典表示，用于数据存储或转换"""
-        return {
+        res = {
             "id": self.id,
             "question": self.question,
             "initial_decomposition": self.decomposition.get_initial_dict(),
-            "decomposition_api_response": (
-                self.decomposition_api_response.to_dict()
-                if self.decomposition_api_response
-                else None
-            ),
-            "decomposition": self.decomposition.to_dict(),
-            "summary_api_response": (
-                self.summary_api_response.to_dict()
-                if self.summary_api_response
-                else None
-            ),
+            "decomposition": self.decomposition.to_dict(export_api_response),
             "reasoning": self.reasoning,
             "answer": self.answer,
         }
+        if export_api_response:
+            res["decomposition_api_response"] = (
+                self.decomposition_api_response.to_dict()
+                if self.decomposition_api_response
+                else None
+            )
+            res["summary_api_response"] = (
+                self.summary_api_response.to_dict()
+                if self.summary_api_response
+                else None
+            )
+        return res
 
     def to_submit_json(self):
         """返回一个字典表示，用于提交"""
@@ -227,13 +233,19 @@ class VoteResult:
             f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_answer})"
         )
 
-    def to_dict(self):
-        """返回一个字典表示，用于数据存储或转换"""
+    def to_dict(self, export_api_response: bool = True):
+        """
+        返回一个字典表示，用于数据存储或转换
+
+        :param export_api_response: 是否导出api_response
+        """
         return {
             "id": self.id,
             "question": self.question,
             "vote_times": self.vote_times,
-            "solutions": [solution.to_dict() for solution in self.solutions],
+            "solutions": [
+                solution.to_dict(export_api_response) for solution in self.solutions
+            ],
             "final_answer": self.final_answer,
         }
 

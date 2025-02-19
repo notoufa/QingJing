@@ -53,7 +53,7 @@ def get_prompt_vote(question: str) -> str:
     :return: 投票模板
     """
     return f"""
-    以下是针对问题 "{question}" 的多个回答结果，请评估并选择出现次数最多的答案：
+    以下是针对问题<{question}>的多个回答结果，请评估并选择出现次数最多的答案：
     请返回最优答案的思考过程和最终答案，问题答案中无需返回投票过程、选择理由：
     回答格式示例（严格遵循）：
     思考过程：
@@ -85,7 +85,7 @@ def get_prompt_atomic_question(
     {f"假设条件：{str(assumption)}" if assumption else ""}
     已知信息：{str(task.get_parent_tasks_desc())}
     
-    请回答问题：{question}，并严格遵守以下要求：
+    请回答问题：<{question}>，并严格遵守以下要求：
     - 不得杜撰时间、数据或关键动作，不得假设或猜测任何传入函数的参数值；
     - 回答中设备的关键动作不得拆开，用【】包裹，例如：【A架开机】；
     - 数值格式要求
@@ -109,7 +109,7 @@ def get_prompt_summary_question(summary: dict) -> str:
     :return: 问题总结模板
     """
     return f"""
-    请根据问题解答过程{summary}，给出最终答案，并严格遵守以下要求：
+    请根据问题解答过程<{summary}>，给出最终答案，并严格遵守以下要求：
     - 评估验证解答过程的正确性，若存在错误，请尝试修正；
     - 回答中设备的关键动作不得拆开，用【】包裹，例如：【A架开机】；
     - 数值格式要求
@@ -157,7 +157,7 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     {f"假设条件：{str(assumption)}" if assumption else ""}
     已知信息：{str(task.get_parent_tasks_desc())}
     
-    请基于数据表、工具和已知条件回答以下问题：{task.question}：
+    请基于数据表、工具和已知条件回答以下问题：<{task.question}>：
     要求：
     - 分析解决该问题所必需的数据表和工具；  
     - 涉及数值计算时，返回的工具列表中应包含数学计算函数'calculate_math_operations'；
