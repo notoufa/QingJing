@@ -1,4 +1,36 @@
+"""
+定义投票、问题、子问题、分解、API响应等类
+"""
+
 import copy
+
+
+class FunctionResult:
+    """
+    函数调用结果
+    """
+
+    def __init__(self, function_name, args):
+        self.function_name = function_name
+        self.args = args
+        self.result = None
+        self.error = None
+
+    def __repr__(self):
+        return (
+            f"FunctionResult(FunctionName={self.function_name}, Result={self.result})"
+        )
+
+    def to_dict(self):
+        return {
+            "function_name": self.function_name,
+            "args": self.args,
+            "result": self.result,
+            "error": self.error,
+        }
+
+    def clone(self):
+        return copy.deepcopy(self)
 
 
 class ApiResponse:

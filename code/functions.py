@@ -309,9 +309,12 @@ def get_device_parameter_by_name(parameter_name_cn):
         "安全保护设定值": parameter_info["Safety_Protection_Set_Value"],
         "附注（达到安全保护设定值时的措施）": parameter_info["Remarks"],
     }
-    
-    parameter_dict = {key: (None if pd.isna(value) else value) for key, value in parameter_dict.items()}
-    
+
+    parameter_dict = {
+        key: (None if pd.isna(value) else value)
+        for key, value in parameter_dict.items()
+    }
+
     return {
         "result": parameter_dict,
         "metadata": metadata,

@@ -3,6 +3,9 @@
 import json
 import traceback
 from zhipuai import ZhipuAI
+from zhipuai.core import StreamResponse
+from zhipuai.types.chat.chat_completion import Completion
+from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from solution import (
     ProblemSolution,
     Decomposition,
@@ -19,7 +22,7 @@ from utils import parse_res
 from collections import Counter
 
 
-def check_api_key():
+def check_api_key() -> str:
     api_key = os.getenv("ZHIPUAI_API_KEY")
     if not api_key:
         raise RuntimeError(
@@ -73,7 +76,11 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
 
 def get_answer(id: str, question: str) -> ProblemSolution:
     """
-    获得复杂问题的答案，最终返回文本格式的最终答案
+    获得复杂问题的答案，返回最终答案
+
+    :param id: 问题 ID
+    :param question: 问题
+    :return: 问题解答
     """
     solution = ProblemSolution(id, question)
     decomposition, api_response = get_task_decomposition(solution.question)
@@ -87,10 +94,7 @@ def get_answer(id: str, question: str) -> ProblemSolution:
             if parent_task:
                 parent_tasks.append(parent_task)
         task.parent_tasks = parent_tasks
-        res_task = get_atomic_answer(decomposition, task)
-        task.answer = res_task.answer
-        task.function_results = res_task.function_results
-        task.api_response = res_task.api_response
+        task = get_atomic_answer(decomposition, task)
     summary, api_response = get_summary(solution)
     solution.answer = summary.split("问题答案：")[-1]
     solution.reasoning = summary.split("问题答案：")[0]
@@ -185,15 +189,15 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
     api_response = ApiResponse(messages, response)
     answer = parse_res(response.choices[0].message.content)
     logger.success("【原子问题答案】", answer)
-    res_task = task.clone()
-    res_task.answer = answer
-    res_task.function_results = function_results
-    res_task.parent_tasks = None
-    res_task.api_response = api_response
-    return res_task
+    task.answer = answer
+    task.function_results = function_results
+    task.api_response = api_response
+    return task
 
 
-def get_table_meta_and_tool(decomposition: Decomposition, task: Subtask) -> tuple:
+def get_table_meta_and_tool(
+    decomposition: Decomposition, task: Subtask
+) -> tuple[list, list]:
     """
     获得问题所需的数据表的元信息和所需工具
 
@@ -227,7 +231,9 @@ def get_table_meta_and_tool(decomposition: Decomposition, task: Subtask) -> tupl
     return table_meta_list, tool_list
 
 
-def get_completion(messages, tools=[], model="glm-4-plus"):
+def get_completion(
+    messages: list[dict], tools: list[dict] = [], model: str = "glm-4-plus"
+) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
 
