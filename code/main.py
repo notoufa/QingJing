@@ -15,7 +15,7 @@ export_api_response = False
 # 模式选择
 mode = "test"
 if mode == "test":
-    splice_index = True
+    splice_index = False
     question_path = "../assets/test.jsonl"
     vote_times = 1
 else:
@@ -79,7 +79,7 @@ def main():
         for future in cf.as_completed(future_list):
             vote_res = future.result()
             vote_results.append(vote_res)
-            submit_result_list.append(vote_res.to_submit_json())
+            submit_result_list.append(vote_res.to_submit_json() if isinstance(vote_res, VoteResult) else vote_res)
             save_submit_result(submit_result_list, submit_path)
             save_solutions(vote_results, solution_path)
 
