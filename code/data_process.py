@@ -160,10 +160,10 @@ for i in range(1, df.shape[0]):
 
     # 电流检测条件
     # 有电流：前一时刻有一个或全部为0，下一刻均不为0
-    if (prev_ajia3 == 0 or prev_ajia5 == 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
+    if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
         df.loc[i, 'check_current_presence'] = '有电流'
     # 无电流：前一时刻均不为0，下一刻有一个或全部为0
-    elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 == 0 or curr_ajia5 == 0):
+    elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
         df.loc[i, 'check_current_presence'] = '无电流'
 
 #（Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
@@ -299,7 +299,7 @@ def find_first_increasing_value(data):
     return 50
 
 
-def find_stable_value(data, peak1, peak2):
+def find_stable_value(data1,data2, peak1, peak2):
     """
     找到两个峰值之间的数据中，回落到稳定值的第一个值。
     假设稳定值在 50 到 60 之间。
@@ -314,17 +314,18 @@ def find_stable_value(data, peak1, peak2):
     """
     # 找到峰值之间的数据
     try:
-        start_index = data.index(peak1)
-        end_index = data.index(peak2)
+        start_index = data1.index(peak1)
+        end_index = data1.index(peak2)
     except ValueError:
         # 如果峰值不在列表中，返回 None
         return None
 
-    between_peaks = data[start_index:end_index + 1]
+    between_peaks1 = data1[start_index:end_index + 1]
+    between_peaks2 = data2[start_index:end_index + 1]
 
     # 找到回落到稳定值的第一个值（假设稳定值在 50 到 60 之间）
-    for value in between_peaks:
-        if 50 <= value <= 60:
+    for index, value in enumerate(between_peaks1):
+        if 50 <= value <= 60 and 50 <= between_peaks2[index] <= 60:
             return value
 
     # 如果未找到稳定值，返回 None
@@ -434,6 +435,7 @@ for segment in segments:
                         end_event_time = events.iloc[3]['csvTime']
                         between_events = df[(df['csvTime'] >= start_event_time) & (df['csvTime'] <= end_event_time)]
                         data1 = list(between_events['Ajia-5_v'])
+                        data2 = list(between_events['Ajia-3_v'])
                         print(data1)
                         len_peaks, peak_L = find_peaks(data1)
                         if len_peaks == 2:
@@ -441,7 +443,7 @@ for segment in segments:
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '征服者起吊'
 
-                            value_11 = find_stable_value(data1, peak_L[0], peak_L[1])
+                            value_11 = find_stable_value(data1,data2, peak_L[0], peak_L[1])
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '缆绳解除'
                             previous_indices = [idx - 1 for idx in indices if idx > 0]
@@ -470,13 +472,14 @@ for segment in segments:
                         end_event_time = events.iloc[1]['csvTime']
                         between_events = df[(df['csvTime'] >= start_event_time) & (df['csvTime'] <= end_event_time)]
                         data1 = list(between_events['Ajia-5_v'])
+                        data2 = list(between_events['Ajia-3_v'])
                         len_peaks, peak_L = find_peaks(data1)
                         if len_peaks == 2:
                             value_11 = find_first_increasing_value(data1)
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '征服者起吊'
 
-                            value_11 = find_stable_value(data1, peak_L[0], peak_L[1])
+                            value_11 = find_stable_value(data1,data2, peak_L[0], peak_L[1])
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '缆绳解除'
                             previous_indices = [idx - 1 for idx in indices if idx > 0]
@@ -506,6 +509,7 @@ for segment in segments:
                         end_event_time = events.iloc[3]['csvTime']
                         between_events = df[(df['csvTime'] >= start_event_time) & (df['csvTime'] <= end_event_time)]
                         data1 = list(between_events['Ajia-5_v'])
+                        data2 = list(between_events['Ajia-3_v'])
                         print(data1)
                         len_peaks, peak_L = find_peaks(data1)
                         if len_peaks == 3:
@@ -513,7 +517,7 @@ for segment in segments:
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '征服者起吊'
 
-                            value_11 = find_stable_value(data1, peak_L[1], peak_L[2])
+                            value_11 = find_stable_value(data1, data2,peak_L[1], peak_L[2])
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '缆绳解除'
                             previous_indices = [idx - 1 for idx in indices if idx > 0]
@@ -542,13 +546,14 @@ for segment in segments:
                         end_event_time = events.iloc[5]['csvTime']
                         between_events = df[(df['csvTime'] >= start_event_time) & (df['csvTime'] <= end_event_time)]
                         data1 = list(between_events['Ajia-5_v'])
+                        data2 = list(between_events['Ajia-3_v'])
 
                         len_peaks, peak_L = find_peaks(data1)
                         if len_peaks == 3:
                             value_11 = find_first_increasing_value(data1)
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '征服者起吊'
-                            value_11 = find_stable_value(data1, peak_L[1], peak_L[2])
+                            value_11 = find_stable_value(data1,data2, peak_L[1], peak_L[2])
                             indices = between_events.index[between_events['Ajia-5_v'] == value_11].tolist()
                             df.loc[indices, 'status'] = '缆绳解除'
                             previous_indices = [idx - 1 for idx in indices if idx > 0]
