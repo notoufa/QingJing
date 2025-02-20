@@ -415,7 +415,7 @@ for segment in segments:
     LLLL.append(events_1.shape[0])
     # if start=='2024-08-24 07:55:08':
 
-    if L4 == [0, 2]:
+    if L4 == [0, 2] or L4 == [0, 0, 2]:
         events = df[(df['csvTime'] >= start) & (df['csvTime'] <= end) & (
             df['check_current_presence'].isin(['有电流', '无电流']))]
         if events.shape[0] % 2 == 0:
@@ -431,8 +431,12 @@ for segment in segments:
                 if len_peaks == 0:
                     if events.iloc[2]['check_current_presence'] == '有电流' and events.iloc[3][
                         'check_current_presence'] == '无电流':
-                        start_event_time = events.iloc[2]['csvTime']
-                        end_event_time = events.iloc[3]['csvTime']
+                        if L4 == [0, 2]:
+                            start_event_time = events.iloc[2]['csvTime']
+                            end_event_time = events.iloc[3]['csvTime']
+                        elif L4 == [0, 0, 2]:
+                            start_event_time = events.iloc[4]['csvTime']
+                            end_event_time = events.iloc[5]['csvTime']
                         between_events = df[(df['csvTime'] >= start_event_time) & (df['csvTime'] <= end_event_time)]
                         data1 = list(between_events['Ajia-5_v'])
                         data2 = list(between_events['Ajia-3_v'])
