@@ -346,12 +346,15 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
     try:
         df = pd.read_csv(file_path)
     except FileNotFoundError:
-        raise FileNotFoundError(f"文件 {file_path} 未找到")
-
+        return {
+            "error": f"文件 {file_path} 未找到",
+        }
     try:
         df["csvTime"] = pd.to_datetime(df["csvTime"])
     except Exception as e:
-        raise ValueError(f"时间列转换失败: {e}")
+        return {
+            "error": f"时间列转换失败: {e}",
+        }
 
     filtered_data = df[
         (df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)
@@ -421,7 +424,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
                     total_energy += energy
             except Exception as e:
                 print(f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}")
-        result = round(total_energy, 2)
+        result = total_energy
     else:
         table_name, power_column = device_config[device_name]
         file_path = f"data/{table_name}.csv"
@@ -432,7 +435,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
             if filtered_data is None:
                 result = None
             total_energy_kWh = filtered_data["energy_kWh"].sum()
-            result = round(total_energy_kWh, 2)
+            result = total_energy_kWh
         except Exception as e:
             print(f"计算设备 {device_name} 能耗时出错: {e}")
     return {
@@ -486,7 +489,10 @@ def get_running_duration_by_time_range(start_time, end_time, type):
     }
 
     if type not in device_config:
-        raise ValueError(f"未知的类型: {type}")
+        return {
+            "error": f"未知的类型: {type}",
+            "metadata": metadata,
+        }
 
     file_path, check_field_name, start_status, end_status = device_config[type]
 
@@ -631,8 +637,8 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
                     total_mj_energy += mj_energy
             except Exception as e:
                 print(f"计算设备 {sub_device} {type}时出错: {e}")
-        result = round(total_energy, 2)
-        mj_result = round(total_mj_energy, 2)
+        result = total_energy
+        mj_result = total_mj_energy
     else:
         file_name, field_name = device_config[type][device_name]
         file_path = f"data/{file_name}.csv"
@@ -644,14 +650,14 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
                 result = None
             total_energy_kWh = filtered_data["energy_kWh"].sum()
             if type == "理论发电量":
-                result = round(
-                    total_energy_kWh * diesel_density * diesel_calorific_value / 3.6, 2
+                result = (
+                    total_energy_kWh * diesel_density * diesel_calorific_value / 3.6
                 )
-                mj_result = round(
-                    total_energy_kWh * diesel_density * diesel_calorific_value, 2
-                )
+
+                mj_result = total_energy_kWh * diesel_density * diesel_calorific_value
+
             else:
-                result = round(total_energy_kWh, 2)
+                result = total_energy_kWh
 
         except Exception as e:
             print(f"计算设备 {device_name} {type}时出错: {e}")
@@ -738,7 +744,7 @@ def calculate_action_proportion(
 
     proportion = (before_count / total_count) * 100
     return {
-        "result": round(proportion, 2),
+        "result": proportion,
         "unit": "%",
         "metadata": metadata,
     }
@@ -784,7 +790,10 @@ def calculate_math_operations(operation, operands):
         result = operands[0]
         for num in operands[1:]:
             if num == 0:
-                raise ValueError("除法错误：除数不能为0")
+                return {
+                    "error": "除法错误：除数不能为0",
+                    "metadata": metadata,
+                }
             result /= num
     elif operation == "求和":
         result = sum(operands)
@@ -856,8 +865,9 @@ def convert_seconds(seconds):
     }
 
     if seconds < 0:
-        raise ValueError("时间不能为负数")
-
+        return {
+            "error": "时间不能为负数",
+        }
     minutes = seconds // 60
     demical_minutes = seconds / 60
     remaining_seconds = seconds % 60
