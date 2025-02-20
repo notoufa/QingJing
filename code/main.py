@@ -13,7 +13,7 @@ submit_dir = "results"
 solution_dir = "solutions"
 export_api_response = False
 # 模式选择
-mode = "testss"
+mode = "test"
 if mode == "test":
     splice_index = True
     question_path = "../assets/test.jsonl"

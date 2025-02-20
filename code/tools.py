@@ -128,7 +128,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "get_running_duration_by_time_range",
-            "description": "查询指定时间段内折臂吊车开机时长、A架开机时长、A架实际运行时长或作业时长。返回三种格式（秒，分，时）的时长结果。",
+            "description": "查询指定时间段内折臂吊车运行时长、A架运行时长、A架实际运行时长或作业时长。返回三种格式（秒，分，时）的时长结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -144,10 +144,10 @@ tools = [
                     },
                     "type": {
                         "type": "string",
-                        "description": "查询类型，支持以下值：'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'。",
+                        "description": "查询类型，支持以下值：'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'。",
                         "enum": [
-                            "折臂吊车开机时长",
-                            "A架开机时长",
+                            "折臂吊车运行时长",
+                            "A架运行时长",
                             "A架实际运行时长",
                             "作业时长",
                         ],
@@ -329,7 +329,7 @@ tools_description = [
     },
     {
         "function_name": "get_running_duration_by_time_range",
-        "description": "输入：开始时间、结束时间、查询类型('折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长')，     输出：从开始时间到结束时间内动作类型的时长结果（秒、分、时）。",
+        "description": "输入：开始时间、结束时间、查询类型('折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长')，     输出：从开始时间到结束时间内动作类型的时长结果（秒、分、时）。",
     },
     {
         "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
