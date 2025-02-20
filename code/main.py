@@ -13,7 +13,7 @@ submit_dir = "results"
 solution_dir = "solutions"
 export_api_response = False
 # 模式选择
-mode = "test"
+mode = "testss"
 if mode == "test":
     splice_index = True
     question_path = "../assets/test.jsonl"
@@ -21,7 +21,7 @@ if mode == "test":
 else:
     splice_index = False
     question_path = "../assets/question.jsonl"
-    vote_times = 3
+    vote_times = 1
 
 
 def handle_question(query):
