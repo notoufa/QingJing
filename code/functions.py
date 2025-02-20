@@ -787,6 +787,11 @@ def calculate_math_operations(operation, operands):
         for num in operands:
             result *= num
     elif operation == "除法":
+        if len(operands) == 1:
+            return {
+                "error": "除法错误：操作数至少为2个",
+                "metadata": metadata,
+            }
         result = operands[0]
         for num in operands[1:]:
             if num == 0:
