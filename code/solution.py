@@ -5,6 +5,44 @@
 import copy
 
 
+class ReasoningAnswer:
+    """
+    带有推理过程的答案
+    """
+
+    def __init__(self):
+        self.reasoning: str = None
+        self.correct: str = None
+        self.answer: str = None
+        self.vote: str = None
+
+    def __repr__(self):
+        return f"ReasoningAnswer(Reasoning={self.reasoning}, Answer={self.answer})"
+
+    def to_dict(self):
+        return {
+            "reasoning": self.reasoning,
+            "correct": self.correct,
+            "answer": self.answer,
+            "vote": self.vote,
+        }
+
+    def __json__(self):
+        return self.to_dict()
+
+    @classmethod
+    def from_dict(cls, data):
+        instance = cls()
+        instance.reasoning = data.get("reasoning", None)
+        instance.correct = data.get("correct", None)
+        instance.answer = data.get("answer", None)
+        instance.vote = data.get("vote", None)
+        return instance
+
+    def clone(self):
+        return copy.deepcopy(self)
+
+
 class FunctionResult:
     """
     函数调用结果
@@ -125,7 +163,9 @@ class Subtask:
 
 
 class Decomposition:
-    def __init__(self, contains_time, format_requirement, assumption, subtasks, chain_of_subtasks):
+    def __init__(
+        self, contains_time, format_requirement, assumption, subtasks, chain_of_subtasks
+    ):
         self.contains_time: bool = contains_time
         self.format_requirement: str = format_requirement
         self.assumption: str = assumption
@@ -196,8 +236,7 @@ class ProblemSolution:
         self.id: str = problem_id
         self.question: str = question
         self.decomposition: Decomposition = None
-        self.reasoning: str = None
-        self.answer: str = None
+        self.reasoning_answer: ReasoningAnswer = None
         self.error_message: str = None
         self.traceback: str = None
         self.decomposition_api_response: ApiResponse = None
@@ -213,8 +252,7 @@ class ProblemSolution:
             "question": self.question,
             "initial_decomposition": self.decomposition.get_initial_dict(),
             "decomposition": self.decomposition.to_dict(export_api_response),
-            "reasoning": self.reasoning,
-            "answer": self.answer,
+            "reasoning_answer": self.reasoning_answer.to_dict(),
         }
         if export_api_response:
             res["decomposition_api_response"] = (
@@ -234,12 +272,8 @@ class ProblemSolution:
         return {
             "id": self.id,
             "question": self.question,
-            "answer": self.get_submit_answer(),
+            "answer": self.reasoning_answer.answer,
         }
-
-    def get_submit_answer(self) -> str:
-        """返回用于提交的答案"""
-        return f"{self.reasoning}{self.answer}"
 
     def to_summary_json(self):
         """返回一个字典表示，用于问题总结"""
@@ -247,7 +281,6 @@ class ProblemSolution:
             "id": self.id,
             "question": self.question,
             "decomposition": self.decomposition.to_simple_dict(),
-            "answer": self.answer,
         }
 
     def is_error(self) -> bool:
@@ -263,12 +296,10 @@ class VoteResult:
         self.question: str = question
         self.vote_times: int = vote_times
         self.solutions: list[ProblemSolution] = []
-        self.final_answer: str = None
+        self.final_reasoning_answer: ReasoningAnswer = None
 
     def __repr__(self):
-        return (
-            f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_answer})"
-        )
+        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_reasoning_answer.answer})"
 
     def to_dict(self, export_api_response: bool = True):
         """
@@ -283,11 +314,11 @@ class VoteResult:
             "solutions": [
                 solution.to_dict(export_api_response) for solution in self.solutions
             ],
-            "final_answer": self.final_answer,
+            "final_reasoning_answer": self.final_reasoning_answer.to_dict(),
         }
 
     def get_answers(self) -> list[str]:
-        return [solution.answer for solution in self.solutions]
+        return [solution.final_reasoning_answer.answer for solution in self.solutions]
 
     def clone(self):
         return copy.deepcopy(self)
@@ -296,5 +327,5 @@ class VoteResult:
         return {
             "id": self.id,
             "question": self.question,
-            "answer": self.final_answer,
+            "answer": self.final_reasoning_answer.answer,
         }

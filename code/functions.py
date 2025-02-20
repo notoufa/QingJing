@@ -447,12 +447,12 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
 
 def get_running_duration_by_time_range(start_time, end_time, type):
     """
-    根据开始时间和结束时间，查询设备在指定时间范围内的'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'。
+    根据开始时间和结束时间，查询设备在指定时间范围内的'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'。
 
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
-    :param type: 查询类型，'折臂吊车开机时长'、'A架开机时长'、'A架实际运行时长'、'作业时长'
-    :return: 包含三种格式开机时长的字符串
+    :param type: 查询类型，'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'
+    :return: 包含三种格式运行时长的字符串
     """
     metadata = {
         "function_name": "get_running_duration_by_time_range",
@@ -462,13 +462,13 @@ def get_running_duration_by_time_range(start_time, end_time, type):
     }
 
     device_config = {
-        "折臂吊车开机时长": (
+        "折臂吊车运行时长": (
             "data/device_13_11_meter_1311.csv",
             "status",
             "折臂吊车开机",
             "折臂吊车关机",
         ),
-        "A架开机时长": (
+        "A架运行时长": (
             "data/Ajia_plc_1.csv",
             "status",
             "A架开机",

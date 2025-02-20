@@ -12,6 +12,7 @@ from solution import (
     Subtask,
     VoteResult,
     ApiResponse,
+    ReasoningAnswer,
 )
 import tools
 import functions
@@ -19,7 +20,6 @@ import prompts
 import logger
 import os
 from utils import parse_res
-from collections import Counter
 
 
 def check_api_key() -> str:
@@ -48,13 +48,15 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             logger.info(f"【开始第{i+1}次获取问题答案】")
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
-            logger.special(f"【第{i+1}次得到的最终答案】: \n{solution.get_submit_answer()}")
+            logger.special(
+                f"【第{i+1}次得到的最终答案】: \n{solution.reasoning_answer.to_dict()}"
+            )
         except Exception as e:
             logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
             logger.error(traceback.format_exc())
 
     if len(vote_res.solutions) == 1:
-        vote_res.final_answer = vote_res.solutions[0].get_submit_answer()
+        vote_res.final_reasoning_answer = vote_res.solutions[0].reasoning_answer
         return vote_res
 
     logger.info(f"【开始投票】")
@@ -68,8 +70,9 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
         {"role": "user", "content": answer_content},
     ]
 
-    best_answer = get_completion(messages)
-    vote_res.final_answer = best_answer.choices[0].message.content
+    response = get_completion(messages)
+    best_answer = json.loads(parse_res(response.choices[0].message.content))
+    vote_res.final_reasoning_answer = ReasoningAnswer.from_dict(best_answer)
 
     return vote_res
 
@@ -95,14 +98,13 @@ def get_answer(id: str, question: str) -> ProblemSolution:
                 parent_tasks.append(parent_task)
         task.parent_tasks = parent_tasks
         task = get_atomic_answer(decomposition, task)
-    summary, api_response = get_summary(solution)
-    solution.answer = summary.split("最终答案：")[-1]
-    solution.reasoning = summary.split("最终答案：")[0]
+    reasoning_answer, api_response = get_summary(solution)
+    solution.reasoning_answer = reasoning_answer
     solution.summary_api_response = api_response
     return solution
 
 
-def get_summary(solution: ProblemSolution) -> tuple[str, ApiResponse]:
+def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
     """
     获得问题总结的答案
 
@@ -117,7 +119,11 @@ def get_summary(solution: ProblemSolution) -> tuple[str, ApiResponse]:
         },
     ]
     response = get_completion(messages)
-    return response.choices[0].message.content, ApiResponse(messages, response)
+    res = json.loads(parse_res(response.choices[0].message.content))
+    return (
+        ReasoningAnswer.from_dict(res),
+        ApiResponse(messages, response),
+    )
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
@@ -154,7 +160,10 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
-                task, decomposition.assumption, decomposition.chain_of_subtasks, table_meta_list
+                task,
+                decomposition.assumption,
+                decomposition.chain_of_subtasks,
+                table_meta_list,
             ),
         },
     ]
