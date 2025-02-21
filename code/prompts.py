@@ -80,13 +80,17 @@ def get_prompt_atomic_question(
     question = task.question
     knowledge_list = get_knowledge_by_question(question)
     return f"""
+    {f"当前需要解决的问题为：子任务{task.task_id} {question}"}
+    {f"子任务链：{str(chain_of_subtasks)}" if len(chain_of_subtasks) > 0 else ""}
     {f"已知数据表结构：{str(table_meta_list)}" if len(table_meta_list) > 0 else ""}
     {f"已知知识：{str(knowledge_list)}" if len(knowledge_list) > 0 else ""}
     {f"假设条件：{str(assumption)}" if assumption else ""}
-    {f"子任务链：{str(chain_of_subtasks)}" if len(chain_of_subtasks) > 0 else ""}
-    已知信息：{str(task.get_parent_tasks_desc())}
+    
+    已知上游任务执行结果：{str(task.get_parent_tasks_desc())}
     
     请回答问题：<{question}>，并严格遵守以下要求：
+    - 求解当前子任务时充分利用子任务链中依赖的上游子任务的答案；
+    - 返回的当前子任务答案需满足子任务链中下游任务的需求；
     - 不得杜撰时间、数据或关键动作，不得假设或猜测任何传入函数的参数值；
     - 回答中设备的关键动作不得拆开，用【】包裹，例如：【A架开机】；
     - 数值格式要求
