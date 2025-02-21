@@ -1,4 +1,4 @@
-"""函数调用列表的描述信息"""
+"""支持的函数调用的描述信息"""
 
 tools = [
     {
@@ -369,5 +369,5 @@ tools_description = [
     {
         "function_name": "calculate_action_proportion",
         "description": "输入：开始时间、结束时间、动作名称、时间点，     输出：指定时间段内指定动作在指定时间点前发生的比例（%）。",
-    }
+    },
 ]

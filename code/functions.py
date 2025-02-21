@@ -1,4 +1,4 @@
-"""定义与tools.py中的函数对应的API接口，用于返回函数调用的结果"""
+"""实现函数调用对应的API接口，接收调用参数，返回函数调用的结果"""
 
 import json
 import traceback

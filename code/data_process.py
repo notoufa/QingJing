@@ -97,12 +97,10 @@ def merge_csv_files(folder_path, out_path):
         merged_df = pd.concat((pd.read_csv(file) for file in file_list), ignore_index=True)
         output_file = os.path.join(out_path, f'{prefix}.csv')
 
-        print('-----------')
         print(output_file)
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         merged_df.to_csv(output_file, index=False)
-        print('---完成---')
-        print(f'Merged files with prefix "{prefix}" into {output_file}')
+        print(f'合并前缀为"{prefix}"的文件到{output_file}')
 
     # Convert Excel to CSV
     os.makedirs('data', exist_ok=True)

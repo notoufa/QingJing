@@ -12,7 +12,7 @@ import logger
 submit_dir = "results"
 solution_dir = "solutions"
 export_api_response = False
-# 模式选择
+
 mode = "test"
 if mode == "test":
     splice_index = True
@@ -41,7 +41,9 @@ def process_one(line: dict) -> VoteResult | dict:
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, vote_times).clone()
-        logger.special(f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.answer}")
+        logger.special(
+            f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.answer}"
+        )
         return vote_res
     except Exception as e:
         trace = traceback.format_exc()
@@ -79,7 +81,11 @@ def main():
         for future in cf.as_completed(future_list):
             vote_res = future.result()
             vote_results.append(vote_res)
-            submit_result_list.append(vote_res.to_submit_json() if isinstance(vote_res, VoteResult) else vote_res)
+            submit_result_list.append(
+                vote_res.to_submit_json()
+                if isinstance(vote_res, VoteResult)
+                else vote_res
+            )
             save_submit_result(submit_result_list, submit_path)
             save_solutions(vote_results, solution_path)
 
@@ -96,7 +102,8 @@ def save_solutions(vote_results: list[VoteResult], result_path):
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(
             json.dumps(
-                [vote_res.to_dict(export_api_response) for vote_res in vote_results], ensure_ascii=False
+                [vote_res.to_dict(export_api_response) for vote_res in vote_results],
+                ensure_ascii=False,
             )
         )
 

@@ -1,10 +1,12 @@
 """工具函数"""
 
-def parse_res(res):
+
+def parse_res(response):
     """
     解析结果
     """
     try:
+        res = response.choices[0].message.content
         if "</think>" in res:
             res = res.split("</think>", 1)[1]
         if "```json" in res and "```" in res:

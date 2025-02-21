@@ -71,7 +71,7 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     ]
 
     response = get_completion(messages)
-    best_answer = json.loads(parse_res(response.choices[0].message.content))
+    best_answer = json.loads(parse_res(response))
     vote_res.final_reasoning_answer = ReasoningAnswer.from_dict(best_answer)
 
     return vote_res
@@ -119,7 +119,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
         },
     ]
     response = get_completion(messages)
-    res = json.loads(parse_res(response.choices[0].message.content))
+    res = json.loads(parse_res(response))
     return (
         ReasoningAnswer.from_dict(res),
         ApiResponse(messages, response),
@@ -139,7 +139,7 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
         {"role": "user", "content": question},
     ]
     response = get_completion(messages)
-    res = json.loads(parse_res(response.choices[0].message.content))
+    res = json.loads(parse_res(response))
     decomposition = Decomposition.from_dict(res)
     logger.success("【问题分解结果】", decomposition.to_simple_dict())
     return decomposition, ApiResponse(messages, response)
@@ -196,7 +196,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
         else:
             break
     api_response = ApiResponse(messages, response)
-    answer = parse_res(response.choices[0].message.content)
+    answer = parse_res(response)
     logger.success("【原子问题答案】", answer)
     task.answer = answer
     task.function_results = function_results
@@ -224,7 +224,7 @@ def get_table_meta_and_tool(
         },
     ]
     response = get_completion(messages)
-    res = json.loads(parse_res(response.choices[0].message.content))
+    res = json.loads(parse_res(response))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
     # if "能耗" in question:
@@ -251,13 +251,21 @@ def get_completion(
     :param model: 模型
     :return: 对话结果
     """
-    client = ZhipuAI(api_key=check_api_key())
-    logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
-    response = client.chat.completions.create(
-        model=model,
-        stream=False,
-        messages=messages,
-        tools=tools,
-    )
-    logger.trace("【回答结果】", str(response))
-    return response
+    try:
+        client = ZhipuAI(api_key=check_api_key())
+        logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
+        response = client.chat.completions.create(
+            model=model,
+            stream=False,
+            messages=messages,
+            tools=tools,
+        )
+        logger.trace("【回答结果】", str(response))
+        return response
+    except Exception as e:
+        logger.error(f"【请求回答出错】: {e}")
+        logger.error(traceback.format_exc())
+        raise {
+            "error_message": e,
+            "traceback": traceback.format_exc(),
+        }

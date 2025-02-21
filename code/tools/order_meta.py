@@ -1,15 +1,17 @@
 import json
 import re
 
+input_file = "meta.json"
+output_file = "sorted_meta.json"
+
 
 def natural_key(text):
-    """自然排序的 key 生成函数，保证 '10' 在 '9' 之后"""
     parts = re.split(r"(\d+)", text.lower())
     return [int(part) if part.isdigit() else part for part in parts]
 
 
 def read_meta():
-    with open("meta.json", "r", encoding="utf-8") as f:
+    with open(input_file, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -30,12 +32,8 @@ def process_meta(meta):
 
 
 def write_meta(meta):
-    with open("sorted_meta.json", "w", encoding="utf-8") as f:
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=4)
 
 
-if __name__ == "__main__":
-    meta = read_meta()
-    process_meta(meta)
-    write_meta(meta)
-    print("字段排序完成，结果已保存至 sorted_meta.json")
+write_meta(process_meta(read_meta()))

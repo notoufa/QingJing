@@ -88,7 +88,10 @@ class ApiResponse:
         usage = self.response.usage
         choices = self.response.choices
         return {
-            "messages": self.messages,
+            "messages": [
+                str(message) if message is not None else None
+                for message in self.messages
+            ],
             "response": [str(choice) for choice in choices],
             "prompt_tokens": usage.prompt_tokens,
             "completion_tokens": usage.completion_tokens,
