@@ -11,3 +11,5 @@ solutions/**
 manual/**
 tests/**
 questions/test.jsonl
+test_data/**
+tmps_data/**
