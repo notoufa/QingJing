@@ -733,10 +733,10 @@ df['status'] = 'False'
 for i in range(1, df.shape[0]):
     # 开机
     if df.loc[i - 1, 'P3_33'] == 0 and df.loc[i, 'P3_33'] > 0:
-        df.loc[i, 'status'] = 'ON_DP'
+        df.loc[i, 'status'] = 'ON DP'
     # 关机
     if df.loc[i - 1, 'P3_33'] > 0 and df.loc[i, 'P3_33'] == 0:
-        df.loc[i, 'status'] = 'OFF_DP'
+        df.loc[i, 'status'] = 'OFF DP'
 # 保存结果
 df.to_csv('data/Port3_ksbg_9.csv', index=False)
 # In[5]:
