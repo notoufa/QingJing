@@ -6,8 +6,11 @@ results/**
 test.py
 logs/**
 tmp_data/**
+tmps_data/**
+test_data/**
 tmp/**
 solutions/**
 manual/**
 tests/**
+old_data/**
 questions/test.jsonl
