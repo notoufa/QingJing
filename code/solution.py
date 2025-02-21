@@ -324,6 +324,7 @@ class VoteResult:
         return copy.deepcopy(self)
 
     def to_submit_json(self):
+        """返回一个字典表示，用于提交"""
         return {
             "id": self.id,
             "question": self.question,
