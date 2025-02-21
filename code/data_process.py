@@ -830,6 +830,7 @@ def find_most_frequent_number(lst):
     most_common_number = counter.most_common(1)[0][0]
     return most_common_number
 
+df['csvTime'] = pd.to_datetime(df['csvTime'], errors='coerce')
 
 # 提取每个区段内的“由待机进入工作”和“由工作进入待机”事件
 for segment in segments:
@@ -841,6 +842,15 @@ for segment in segments:
     if events.shape[0]>0 and events.iloc[0]['csvTime'] == start:
         events = events[2:]
         events_2 = events_2[2:]
+    if events.shape[0] == 8:
+       # 计算时间差
+        time_diffs = (events['csvTime'].iloc[1::2].values - events['csvTime'].iloc[::2].values).astype('timedelta64[s]')
+        
+        # 找到最小时间差的位置
+        min_idx = time_diffs.argmin() * 2
+        
+        # 直接 drop 对应索引
+        events = events.drop(events.index[[min_idx, min_idx + 1]])
     if events.shape[0] == 6:
         print(f"开机时间: {start}, 关机时间: {end}")
         print(f"事件数量: {events.shape[0]}")
