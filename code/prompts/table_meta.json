@@ -801,7 +801,7 @@
     },
     {
         "table_name": "Port3_ksbg_9",
-        "table_desc": "记录艏推系统关键参数，包括螺距命令/反馈、功率反馈/允许；标注了一系列DP动作，包括OFF_DP、ON_DP",
+        "table_desc": "记录艏推系统关键参数，包括螺距命令/反馈、功率反馈/允许；标注了一系列DP动作，包括OFF DP、ON DP",
         "columns": [
             {
                 "name": "csvTime",
@@ -825,7 +825,7 @@
             },
             {
                 "name": "status",
-                "desc": "DP动作,包括OFF_DP、ON_DP"
+                "desc": "DP动作,包括OFF DP、ON DP"
             }
         ]
     },

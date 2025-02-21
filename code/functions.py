@@ -8,7 +8,6 @@ import pandas as pd
 action_table_configs = {
     "A架开机": "Ajia_plc_1",
     "ON DP": "Port3_ksbg_9",
-    "ON_DP": "Port3_ksbg_9",
     "征服者起吊": "Ajia_plc_1",
     "征服者入水": "Ajia_plc_1",
     "缆绳解除": "Ajia_plc_1",
@@ -16,7 +15,6 @@ action_table_configs = {
     "小艇落座": "device_13_11_meter_1311",
     "A架关机": "Ajia_plc_1",
     "OFF DP": "Port3_ksbg_9",
-    "OFF_DP": "Port3_ksbg_9",
     "折臂吊车开机": "device_13_11_meter_1311",
     "A架摆出": "Ajia_plc_1",
     "小艇检查完毕": "device_13_11_meter_1311",
@@ -477,8 +475,8 @@ def get_running_duration_by_time_range(start_time, end_time, type):
         "作业时长": (
             "data/Port3_ksbg_9.csv",
             "status",
-            "ON_DP",
-            "OFF_DP",
+            "ON DP",
+            "OFF DP",
         ),
         "A架实际运行时长": (
             "data/Ajia_plc_1.csv",
