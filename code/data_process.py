@@ -811,6 +811,7 @@ for i in range(1, df.shape[0]):
         df.at[df.index[i], 'action'] = '由待机进入工作'
     if df.iloc[i - 1]['13-11-6_v_new'] > 10 and df.iloc[i]['13-11-6_v_new'] < 10:
         df.at[df.index[i], 'action'] = '由工作进入待机'
+    
     # 遍历DataFrame
 for index, row in df.iterrows():
     if row['status'] == '折臂吊车开机':
@@ -837,6 +838,9 @@ for segment in segments:
         (df['csvTime'] >= start) & (df['csvTime'] <= end) & (df['action'].isin(['由待机进入工作', '由工作进入待机']))]
     events_2 = df[(df['csvTime'] >= start) & (df['csvTime'] <= end)]
     # 检查事件数量是否为偶数且等于6
+    if events.shape[0]>0 and events.iloc[0]['csvTime'] == start:
+        events = events[2:]
+        events_2 = events_2[2:]
     if events.shape[0] == 6:
         print(f"开机时间: {start}, 关机时间: {end}")
         print(f"事件数量: {events.shape[0]}")
@@ -891,7 +895,7 @@ for segment in segments:
 
                     # 根据事件对的顺序更新status
 
-                    if last_index is not None and df.loc[last_index, 'status'] == "FALSE":
+                    if last_index is not None and df.loc[last_index, 'status'] == "False":
                         if i == 0:
                             df.loc[last_index, 'status'] = '小艇入水'
                         elif i == 2:
@@ -899,7 +903,7 @@ for segment in segments:
                 else:
                     print("列表中没有大于 9 的值")
                 # 保存结果
-df = df.drop(columns=['action'])
-df = df.drop(columns=['13-11-6_v_new'])
+# df = df.drop(columns=['action'])
+# df = df.drop(columns=['13-11-6_v_new'])
 
 df.to_csv('data/device_13_11_meter_1311.csv', index=False)
