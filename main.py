@@ -41,6 +41,7 @@ def handle_question(query):
     replace_dict = {
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
+        "开机时长": "运行时长",
     }
     for key, value in replace_dict.items():
         query = query.replace(key, value)

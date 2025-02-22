@@ -476,7 +476,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
     :param type: 查询类型，'理论发电量'、'实际发电量'、'燃油消耗量'
-    :param device_name: 设备名称，'一号柴油发电机'、'二号柴油发电机'、'三号柴油发电机'、'四号柴油发电机'、'柴油发电机组'
+    :param device_name: 设备名称，'一号柴油发电机'、'二号柴油发电机'、'三号柴油发电机'、'四号柴油发电机'、'整个柴油发电机组'
     :param diesel_density: 柴油密度，单位kg/L
     :param diesel_calorific_value: 柴油热值，单位MJ/kg
     :return: 发电量或燃油消耗量
@@ -497,7 +497,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             "二号柴油发电机": ("Port1_ksbg_1", "P1_25"),
             "三号柴油发电机": ("Port2_ksbg_1", "P2_3"),
             "四号柴油发电机": ("Port2_ksbg_1", "P2_25"),
-            "柴油发电机组": [
+            "整个柴油发电机组": [
                 "一号柴油发电机",
                 "二号柴油发电机",
                 "三号柴油发电机",
@@ -509,7 +509,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             "二号柴油发电机": ("Port1_ksbg_3", "P1_75"),
             "三号柴油发电机": ("Port2_ksbg_2", "P2_51"),
             "四号柴油发电机": ("Port2_ksbg_3", "P2_60"),
-            "柴油发电机组": [
+            "整个柴油发电机组": [
                 "一号柴油发电机",
                 "二号柴油发电机",
                 "三号柴油发电机",
@@ -521,7 +521,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             "二号柴油发电机": ("Port1_ksbg_1", "P1_25"),
             "三号柴油发电机": ("Port2_ksbg_1", "P2_3"),
             "四号柴油发电机": ("Port2_ksbg_1", "P2_25"),
-            "柴油发电机组": [
+            "整个柴油发电机组": [
                 "一号柴油发电机",
                 "二号柴油发电机",
                 "三号柴油发电机",

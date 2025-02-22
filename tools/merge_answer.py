@@ -4,8 +4,8 @@ import pandas as pd
 from pathlib import Path
 
 input_files = [
-    "submits/2025-02-21-第1次-87.73.jsonl",
-    "results/result_2025-02-21.jsonl",
+    "submits/2025-02-22-第1次-89.73.jsonl",
+    "results/result_2025-02-23.jsonl",
 ]
 output_file = "tmp/compare.csv"
 
