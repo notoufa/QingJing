@@ -110,7 +110,7 @@ def get_prompt_summary(summary: dict) -> str:
     res = res.replace(
         "<<knowledge>>", str(get_knowledge_by_question(summary["question"]))
     )
-    res = res.replace("<<summary>>", summary)
+    res = res.replace("<<summary>>", str(summary))
     return res
 
 
