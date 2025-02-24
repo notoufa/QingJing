@@ -6,7 +6,10 @@ from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
 
-def get_data_by_time_range(table_name, start_time, end_time, columns=None, status=None):
+
+def get_data_by_time_range(
+    table_name, start_time: str, end_time: str, columns=None, status=None
+):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
 
@@ -38,6 +41,9 @@ def get_data_by_time_range(table_name, start_time, end_time, columns=None, statu
         }
 
     df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")
+
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
 
     start_time = pd.to_datetime(start_time)
     end_time = pd.to_datetime(end_time)
@@ -143,6 +149,9 @@ def get_actions_by_time_range(start_time, end_time):
     }
 
     # 确保两个时间的差值至少是一分钟，如果小于一分钟，则end_time为start_time后一分钟
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
+    
     start_time_dt = pd.to_datetime(start_time)
     end_time_dt = pd.to_datetime(end_time)
     if (end_time_dt - start_time_dt).total_seconds() < 60:
@@ -437,6 +446,9 @@ def get_running_duration_by_time_range(start_time, end_time, type):
     df = pd.read_csv(file_path)
 
     df["csvTime"] = pd.to_datetime(df["csvTime"])
+    
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
 
     start_time = pd.to_datetime(start_time)
     end_time = pd.to_datetime(end_time)
