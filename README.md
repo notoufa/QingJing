@@ -28,12 +28,12 @@
 ```plaintext
 根目录
 ├── data/               预处理后的数据集
-├── prompts/            提示词、外部知识、表格元信息
+├── knowledge/          外部知识、表格元信息、函数调用的定义
+├── prompts/            提示词
 ├── questions/          问题数据
 ├── results/            运行结果
 ├── solutions/          运行结果对应的解决方案
 ├── submits/            最终提交结果
-├── tests/              提交测试的中间结果
 ├── tmp/                临时文件夹
 ├── tools/              工具代码
 |
