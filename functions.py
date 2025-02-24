@@ -81,10 +81,7 @@ def get_data_by_time_range(
             }
 
     if check_current_presence is not None and check_current_presence != "不筛选":
-        filtered_data = filtered_data[
-            filtered_data["check_current_presence"]
-            in check_current_presence_map[check_current_presence]
-        ]
+        filtered_data = filtered_data[filtered_data["check_current_presence"].isin(check_current_presence_map[check_current_presence])]
         if filtered_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
