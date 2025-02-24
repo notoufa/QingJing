@@ -236,7 +236,9 @@ def aggregate_data(
                 }
 
             if operator == "==":
-                filtered_data = filtered_data[filtered_data[cond_col] == cond_value]
+                filtered_data = filtered_data[
+                    (filtered_data[cond_col] == cond_value) | (filtered_data[cond_col].astype(str) == str(cond_value))
+                ]
             elif operator == "!=":
                 filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
             elif operator == ">":
@@ -286,7 +288,7 @@ def aggregate_data(
         "metadata": metadata,
     }
 
-
+# print(aggregate_data("Ajia_plc_1", "2024-05-19 00:00:00", "2024-05-19 23:59:59", "ajia_0_v_extremes", "count",[{"column": "ajia_0_v_extremes", "operator": "==", "value": "1"}]))
 def get_actions_by_time_range(start_time, end_time):
     """
     根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备动作列表。
