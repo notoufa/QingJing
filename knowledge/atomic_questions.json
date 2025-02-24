@@ -1,8 +1,7 @@
 [
     {
         "question": "XX时间段XX设备的进行XX关键动作的时间",
-        "example": "2024/8/19 下午A架的开机时间",
-        "output_format": "XX:XX"
+        "example": "2024/8/19 下午A架的开机时间（输出为XX:XX）"
     },
     {
         "question": "XX时间段内哪些设备在进行什么关键动作",
