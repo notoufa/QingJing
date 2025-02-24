@@ -61,8 +61,8 @@ tools = [
     {
         "type": "function",
         "function": {
-            "name": "count_data_by_time_range",
-            "description": "根据数据表名、开始时间、结束时间统计指定时间范围内的数据条数。返回值为数据条数和缺失的数据条数。",
+            "name": "aggregate_data",
+            "description": "根据数据表名、时间范围、列名和聚合方法计算指定列的聚合结果。支持计算平均值、最大值、最小值、众数、总和和数据条数等聚合操作。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -80,8 +80,23 @@ tools = [
                         "format": "date-time",
                         "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。",
                     },
+                    "column": {
+                        "type": "string",
+                        "description": "需要进行聚合计算的列名。",
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": ["avg", "max", "min", "mode", "sum", "count"],
+                        "description": "聚合方法，支持 'avg'（平均值）、'max'（最大值）、'min'（最小值）、'mode'（众数）、'sum'（总和）、'count'（数据条数）。",
+                    },
                 },
-                "required": ["table_name", "start_time", "end_time"],
+                "required": [
+                    "table_name",
+                    "start_time",
+                    "end_time",
+                    "column",
+                    "method",
+                ],
             },
         },
     },
@@ -362,8 +377,8 @@ tools_description = [
         "description": "输入：数据表名、开始时间、结束时间、列名（可选）和状态（可选）。输出：指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）。",
     },
     {
-        "function_name": "count_data_by_time_range",
-        "description": "输入：数据表名、开始时间、结束时间。输出：指定时间范围内的数据条数。",
+        "function_name": "aggregate_data",
+        "description": "输入：数据表名、开始时间、结束时间、列名和聚合方法。输出：指定时间范围内对指定列进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、总和和数据条数。【注意】如果要查询实际数据条数，请调用aggregate_data，**不要**调用get_data_by_time_range",
     },
     {
         "function_name": "get_actions_by_time_range",

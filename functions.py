@@ -132,25 +132,40 @@ def get_meta_by_table_columns(table_name, columns):
     return column_desc
 
 
-def count_data_by_time_range(table_name, start_time: str, end_time: str):
+import pandas as pd
+
+
+def aggregate_data(
+    table_name: str, start_time: str, end_time: str, column: str, method: str
+):
     """
-    根据数据表名、开始时间、结束时间统计符合条件的数据条数。
-    
-    参数:
+    根据数据表名、开始时间、结束时间对指定列进行聚合操作。
+
+    参数：
     table_name (str): 数据表名
     start_time (str): 开始时间，格式为 'YYYY-MM-DD HH:MM:SS'
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
+    column (str): 需要进行聚合计算的列名
+    method (str): 聚合方法，可选：
+        - "avg"（平均值）
+        - "max"（最大值）
+        - "min"（最小值）
+        - "mode"（众数）
+        - "sum"（总和）
+        - "count"（数据条数）
 
-    返回:
-    dict: 包含数据条数的字典，或错误信息
+    返回：
+    dict: 包含聚合结果的字典，或错误信息
     """
     metadata = {
-        "function_name": "count_data_entries",
+        "function_name": "aggregate_data",
         "table_name": table_name,
         "start_time": start_time,
         "end_time": end_time,
+        "column": column,
+        "method": method,
     }
-    
+
     try:
         df = pd.read_csv(f"data/{table_name}.csv")
     except FileNotFoundError:
@@ -158,15 +173,15 @@ def count_data_by_time_range(table_name, start_time: str, end_time: str):
             "error": f"数据表 {table_name} 不存在",
             "metadata": metadata,
         }
-    
+
     df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")
-    
+
     start_time = start_time.replace("24:00:00", "23:59:59")
     end_time = end_time.replace("24:00:00", "23:59:59")
-    
+
     start_time = pd.to_datetime(start_time)
     end_time = pd.to_datetime(end_time)
-    
+
     if (
         start_time.minute == end_time.minute
         and start_time.hour == end_time.hour
@@ -174,11 +189,37 @@ def count_data_by_time_range(table_name, start_time: str, end_time: str):
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-    
+
     filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
-    
+
+    if column not in filtered_data.columns:
+        return {
+            "error": f"列 {column} 不存在于数据表 {table_name}",
+            "metadata": metadata,
+        }
+
+    values = filtered_data[column].dropna()
+
+    if method == "avg":
+        result = values.mean()
+    elif method == "max":
+        result = values.max()
+    elif method == "min":
+        result = values.min()
+    elif method == "mode":
+        result = values.mode()[0] if not values.mode().empty else None
+    elif method == "sum":
+        result = values.sum()
+    elif method == "count":
+        result = len(values)
+    else:
+        return {
+            "error": f"不支持的聚合方法: {method}",
+            "metadata": metadata,
+        }
+
     return {
-        "count": len(filtered_data),
+        f"{column}_{method}": round(result, 2) if isinstance(result, float) else result,
         "metadata": metadata,
     }
 
@@ -202,7 +243,7 @@ def get_actions_by_time_range(start_time, end_time):
     # 确保两个时间的差值至少是一分钟，如果小于一分钟，则end_time为start_time后一分钟
     start_time = start_time.replace("24:00:00", "23:59:59")
     end_time = end_time.replace("24:00:00", "23:59:59")
-    
+
     start_time_dt = pd.to_datetime(start_time)
     end_time_dt = pd.to_datetime(end_time)
     if (end_time_dt - start_time_dt).total_seconds() < 60:
@@ -497,7 +538,7 @@ def get_running_duration_by_time_range(start_time, end_time, type):
     df = pd.read_csv(file_path)
 
     df["csvTime"] = pd.to_datetime(df["csvTime"])
-    
+
     start_time = start_time.replace("24:00:00", "23:59:59")
     end_time = end_time.replace("24:00:00", "23:59:59")
 
@@ -905,4 +946,5 @@ function_map: dict[str, callable] = {
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
+    "aggregate_data": aggregate_data,
 }
