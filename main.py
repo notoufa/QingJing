@@ -18,7 +18,7 @@ test_input_path = "questions/test.jsonl"
 
 production_vote_times = 1
 production_splice_index = False
-production_input_path = "questions/question.jsonl"
+production_input_path = "questions/question_B.jsonl"
 
 
 def parse_args():
@@ -103,14 +103,18 @@ def main():
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
-            vote_results.append(vote_res)
-            submit_result_list.append(
-                vote_res.to_submit_json()
-                if isinstance(vote_res, VoteResult)
-                else vote_res
-            )
-            save_submit_result(submit_result_list, submit_path)
-            save_solutions(vote_results, solution_path)
+            if isinstance(vote_res, VoteResult):
+                vote_results.append(vote_res)
+                submit_result_list.append(
+                    vote_res.to_submit_json()
+                    if isinstance(vote_res, VoteResult)
+                    else vote_res
+                )
+                save_submit_result(submit_result_list, submit_path)
+                save_solutions(vote_results, solution_path)
+            else:
+                submit_result_list.append(vote_res)
+                save_submit_result(submit_result_list, submit_path)
 
 
 def save_submit_result(submit_result_list, submit_path):

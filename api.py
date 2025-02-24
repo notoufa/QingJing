@@ -265,7 +265,4 @@ def get_completion(
     except Exception as e:
         logger.error(f"【请求回答出错】: {e}")
         logger.error(traceback.format_exc())
-        raise {
-            "error_message": e,
-            "traceback": traceback.format_exc(),
-        }
+        raise e
