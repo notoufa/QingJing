@@ -6,6 +6,8 @@ from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
 
+table_meta_file = "knowledge/table_meta.json"
+
 
 def get_data_by_time_range(
     table_name,
@@ -81,7 +83,11 @@ def get_data_by_time_range(
             }
 
     if check_current_presence is not None and check_current_presence != "不筛选":
-        filtered_data = filtered_data[filtered_data["check_current_presence"].isin(check_current_presence_map[check_current_presence])]
+        filtered_data = filtered_data[
+            filtered_data["check_current_presence"].isin(
+                check_current_presence_map[check_current_presence]
+            )
+        ]
         if filtered_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
@@ -128,7 +134,7 @@ def get_meta_by_table_columns(table_name, columns):
     dict: 包含列名和对应元信息的字典，或错误信息
     """
 
-    with open("prompts/table_meta.json", "r", encoding="utf-8") as file:
+    with open(table_meta_file, "r", encoding="utf-8") as file:
         raw_table_data = json.load(file)
 
     table_meta = None

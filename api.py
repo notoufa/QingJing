@@ -115,7 +115,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     messages = [
         {
             "role": "user",
-            "content": prompts.get_prompt_summary_question(solution.to_summary_json()),
+            "content": prompts.get_prompt_summary(solution.to_summary_json()),
         },
     ]
     response = get_completion(messages)

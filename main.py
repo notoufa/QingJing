@@ -8,6 +8,7 @@ import argparse
 from solution import VoteResult
 import logger
 import utils
+from tools import load_tools
 
 submit_dir = "results"
 solution_dir = "solutions"
@@ -73,6 +74,7 @@ def main():
     global vote_times
 
     logger.init()
+    load_tools()
 
     os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
