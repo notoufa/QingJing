@@ -7,6 +7,7 @@ import time
 import argparse
 from solution import VoteResult
 import logger
+import utils
 
 submit_dir = "results"
 solution_dir = "solutions"
@@ -62,11 +63,7 @@ def process_one(line: dict) -> VoteResult | dict:
         trace = traceback.format_exc()
         logger.error(f"【获取问题{id}的答案出错】: {e}")
         logger.error(trace)
-        return {
-            "id": id,
-            "question": question,
-            "answer": str(e)
-        }
+        return {"id": id, "question": question, "answer": str(e)}
 
 
 def main():
@@ -74,7 +71,7 @@ def main():
     is_test = args.test
 
     global vote_times
-    
+
     logger.init()
 
     os.makedirs(submit_dir, exist_ok=True)
@@ -132,6 +129,7 @@ def save_solutions(vote_results: list[VoteResult], result_path):
             json.dumps(
                 [vote_res.to_dict(export_api_response) for vote_res in vote_results],
                 ensure_ascii=False,
+                default=utils.custom_serializer,
             )
         )
 

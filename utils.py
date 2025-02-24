@@ -1,6 +1,9 @@
 """工具函数"""
 
 
+import numpy as np
+
+
 def parse_res(response):
     """
     解析结果
@@ -16,3 +19,9 @@ def parse_res(response):
         return res
     except Exception:
         return res
+    
+def custom_serializer(obj):
+    if isinstance(obj, np.int64):
+        return int(obj)
+    raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+    

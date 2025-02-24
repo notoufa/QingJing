@@ -53,6 +53,16 @@ tools = [
                         ],
                         "default": "",
                     },
+                    "check_current_presence": {
+                        "type": "string",
+                        "description": "是否筛选电流状态。可选值：不筛选、有电流、无电流。",
+                        "enum": [
+                            "不筛选",
+                            "有电流",
+                            "无电流",
+                        ],
+                        "default": "不筛选",
+                    },
                 },
                 "required": ["table_name", "start_time", "end_time"],
             },
@@ -378,7 +388,7 @@ tools_description = [
     },
     {
         "function_name": "aggregate_data",
-        "description": "输入：数据表名、开始时间、结束时间、列名和聚合方法。输出：指定时间范围内对指定列进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、总和和数据条数。【注意】如果要查询实际数据条数，请调用aggregate_data，**不要**调用get_data_by_time_range",
+        "description": "输入：数据表名、开始时间、结束时间、列名和聚合方法。输出：指定时间范围内对指定列进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、总和和数据条数。【注意】如果要查询实际数据条数/计算参数的平均值或最值，请调用aggregate_data，**不要**调用get_data_by_time_range",
     },
     {
         "function_name": "get_actions_by_time_range",
