@@ -165,6 +165,7 @@ for i in range(1, df.shape[0]):
         df.loc[i, "check_current_presence"] = "无电流"
 
 
+
 # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
 def compute_angle_range(row):
     if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
@@ -173,6 +174,30 @@ def compute_angle_range(row):
 
 
 df["angle_range"] = df.apply(compute_angle_range, axis=1)
+
+
+# 定义函数来检查Ajia-0_v摆动至最小值和最大值
+def check_ajia_0_v_extremes(df):
+    flag = False
+    extremes = [0] * len(df)
+    for i in range(0, len(df)):
+        if df.loc[i, "Ajia-0_v"] == "error":
+            extremes[i] = 0
+            continue
+        curr_ajia_0_v = float(df.loc[i, "Ajia-0_v"])
+        if -44 <= curr_ajia_0_v <= -42 and flag == True:
+            flag = False
+            extremes[i] = -1
+        elif 34 <= curr_ajia_0_v <= 36 and flag == False:
+            flag = True
+            extremes[i] = 1
+        else :
+            extremes[i] = 0
+    return extremes
+
+# 应用函数到数据框
+df["ajia_0_v_extremes"] = check_ajia_0_v_extremes(df)
+
 
 
 def is_mostly_fifty(L_):
