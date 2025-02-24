@@ -132,6 +132,8 @@ df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
 # 初始化 status 列，默认值为 'False'
 df["status"] = "False"
 df["check_current_presence"] = "False"
+have_current = -1
+not_have_current = -1
 # 遍历每一行，判断设备状态
 for i in range(1, df.shape[0]):
     # 取当前行和前一行的数据
@@ -158,21 +160,29 @@ for i in range(1, df.shape[0]):
 
     # 电流检测条件
     # 有电流：前一时刻有一个或全部为0，下一刻均不为0
+    
     if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
         df.loc[i, "check_current_presence"] = "有电流"
+        have_current = i
     # 无电流：前一时刻均不为0，下一刻有一个或全部为0
     elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
         df.loc[i, "check_current_presence"] = "无电流"
+        not_have_current = i
+    if have_current != -1 and not_have_current != -1 and have_current < not_have_current:
+        for j in range(have_current+1, not_have_current):
+            df.loc[j, "check_current_presence"] = "电流持续中"
+        have_current = -1
+        not_have_current = -1
 
 
-# （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
-def compute_angle_range(row):
-    if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
-        return "error"
-    return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
+# # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
+# def compute_angle_range(row):
+#     if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
+#         return "error"
+#     return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
 
 
-df["angle_range"] = df.apply(compute_angle_range, axis=1)
+# df["angle_range"] = df.apply(compute_angle_range, axis=1)
 
 
 def is_mostly_fifty(L_):
