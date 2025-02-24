@@ -24,7 +24,10 @@ def get_knowledge_by_question(question: str) -> list[str]:
     for item in knowledge_list:
         for key in item["keys"]:
             if key in question:
-                knowledge_set.add(item["knowledge"])
+                knowledge = item["knowledge"]
+                if item.get("example"):
+                    knowledge += f"（示例：{item['example']}）"
+                knowledge_set.add(knowledge)
     logger.info("【背景知识】", str(list(knowledge_set)))
     return list(knowledge_set)
 

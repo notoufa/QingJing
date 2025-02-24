@@ -8,7 +8,12 @@ from actions import action_table_configs
 
 
 def get_data_by_time_range(
-    table_name, start_time: str, end_time: str, columns=None, status=None
+    table_name,
+    start_time: str,
+    end_time: str,
+    columns=None,
+    status=None,
+    check_current_presence="不筛选",
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -19,6 +24,7 @@ def get_data_by_time_range(
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
     status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
+    check_current_presence (str): 需要筛选的电流状态
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -30,6 +36,11 @@ def get_data_by_time_range(
         "end_time": end_time,
         "columns": columns,
         "status": status,
+    }
+
+    check_current_presence_map = {
+        "有电流": ["有电流", "电流持续中"],
+        "无电流": ["无电流"],
     }
 
     try:
@@ -66,6 +77,14 @@ def get_data_by_time_range(
         if filtered_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到状态为 {status} 的数据",
+                "metadata": metadata,
+            }
+
+    if check_current_presence is not None and check_current_presence != "不筛选":
+        filtered_data = filtered_data[filtered_data["check_current_presence"].isin(check_current_presence_map[check_current_presence])]
+        if filtered_data.empty:
+            return {
+                "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
                 "metadata": metadata,
             }
 
