@@ -61,6 +61,33 @@ tools = [
     {
         "type": "function",
         "function": {
+            "name": "count_data_by_time_range",
+            "description": "根据数据表名、开始时间、结束时间统计指定时间范围内的数据条数。返回值为数据条数和缺失的数据条数。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "数据表名，例如 'device_logs'。",
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "查询的开始时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 00:00:00'。",
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。",
+                    },
+                },
+                "required": ["table_name", "start_time", "end_time"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_actions_by_time_range",
             "description": "根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备及动作列表。",
             "parameters": {
@@ -333,6 +360,10 @@ tools_description = [
     {
         "function_name": "get_data_by_time_range",
         "description": "输入：数据表名、开始时间、结束时间、列名（可选）和状态（可选）。输出：指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）。",
+    },
+    {
+        "function_name": "count_data_by_time_range",
+        "description": "输入：数据表名、开始时间、结束时间。输出：指定时间范围内的数据条数。",
     },
     {
         "function_name": "get_actions_by_time_range",

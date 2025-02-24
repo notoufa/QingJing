@@ -65,8 +65,7 @@ def process_one(line: dict) -> VoteResult | dict:
         return {
             "id": id,
             "question": question,
-            "error_message": str(e),
-            "traceback": trace,
+            "answer": str(e)
         }
 
 

@@ -195,11 +195,11 @@ class Decomposition:
             else []
         )
         return cls(
-            contains_time=data["contains_time"],
-            format_requirement=data["format_requirement"],
-            assumption=data["assumption"],
+            contains_time=data.get("contains_time", False),
+            format_requirement=data.get("format_requirement", ""),
+            assumption=data.get("assumption", ""),
             subtasks=subtasks,
-            chain_of_subtasks=data["chain_of_subtasks"],
+            chain_of_subtasks=data.get("chain_of_subtasks", ""),
         )
 
     def to_dict(self, export_api_response: bool = True):

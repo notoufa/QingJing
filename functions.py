@@ -132,6 +132,57 @@ def get_meta_by_table_columns(table_name, columns):
     return column_desc
 
 
+def count_data_by_time_range(table_name, start_time: str, end_time: str):
+    """
+    根据数据表名、开始时间、结束时间统计符合条件的数据条数。
+    
+    参数:
+    table_name (str): 数据表名
+    start_time (str): 开始时间，格式为 'YYYY-MM-DD HH:MM:SS'
+    end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
+
+    返回:
+    dict: 包含数据条数的字典，或错误信息
+    """
+    metadata = {
+        "function_name": "count_data_entries",
+        "table_name": table_name,
+        "start_time": start_time,
+        "end_time": end_time,
+    }
+    
+    try:
+        df = pd.read_csv(f"data/{table_name}.csv")
+    except FileNotFoundError:
+        return {
+            "error": f"数据表 {table_name} 不存在",
+            "metadata": metadata,
+        }
+    
+    df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")
+    
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
+    
+    start_time = pd.to_datetime(start_time)
+    end_time = pd.to_datetime(end_time)
+    
+    if (
+        start_time.minute == end_time.minute
+        and start_time.hour == end_time.hour
+        and start_time.day == end_time.day
+    ):
+        start_time = start_time.replace(second=0)
+        end_time = end_time.replace(second=59)
+    
+    filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
+    
+    return {
+        "count": len(filtered_data),
+        "metadata": metadata,
+    }
+
+
 def get_actions_by_time_range(start_time, end_time):
     """
     根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备动作列表。
