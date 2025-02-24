@@ -905,4 +905,5 @@ function_map: dict[str, callable] = {
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
+    "count_data_by_time_range": count_data_by_time_range
 }
