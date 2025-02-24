@@ -75,6 +75,8 @@ def main():
     is_test = args.test
 
     global vote_times
+    
+    logger.init()
 
     os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
