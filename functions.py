@@ -6,6 +6,8 @@ from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
 
+table_meta_file = "knowledge/table_meta.json"
+
 
 def get_data_by_time_range(
     table_name,
@@ -81,7 +83,11 @@ def get_data_by_time_range(
             }
 
     if check_current_presence is not None and check_current_presence != "不筛选":
-        filtered_data = filtered_data[filtered_data["check_current_presence"].isin(check_current_presence_map[check_current_presence])]
+        filtered_data = filtered_data[
+            filtered_data["check_current_presence"].isin(
+                check_current_presence_map[check_current_presence]
+            )
+        ]
         if filtered_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
@@ -128,7 +134,7 @@ def get_meta_by_table_columns(table_name, columns):
     dict: 包含列名和对应元信息的字典，或错误信息
     """
 
-    with open("prompts/table_meta.json", "r", encoding="utf-8") as file:
+    with open(table_meta_file, "r", encoding="utf-8") as file:
         raw_table_data = json.load(file)
 
     table_meta = None
@@ -152,13 +158,19 @@ def get_meta_by_table_columns(table_name, columns):
 
 
 import pandas as pd
+from typing import List, Dict
 
 
 def aggregate_data(
-    table_name: str, start_time: str, end_time: str, column: str, method: str
+    table_name: str,
+    start_time: str,
+    end_time: str,
+    column: str,
+    method: str,
+    conditions: List[Dict[str, str]] = None,
 ):
     """
-    根据数据表名、开始时间、结束时间对指定列进行聚合操作。
+    根据数据表名、开始时间、结束时间对指定列进行聚合操作，并支持按条件过滤。
 
     参数：
     table_name (str): 数据表名
@@ -172,6 +184,10 @@ def aggregate_data(
         - "mode"（众数）
         - "sum"（总和）
         - "count"（数据条数）
+    conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
+        - "column": 过滤列名
+        - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+        - "value": 过滤值
 
     返回：
     dict: 包含聚合结果的字典，或错误信息
@@ -183,33 +199,64 @@ def aggregate_data(
         "end_time": end_time,
         "column": column,
         "method": method,
+        "conditions": conditions,
     }
 
     try:
         df = pd.read_csv(f"data/{table_name}.csv")
     except FileNotFoundError:
-        return {
-            "error": f"数据表 {table_name} 不存在",
-            "metadata": metadata,
-        }
+        return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
+
+    if "csvTime" not in df.columns:
+        return {"error": "数据表缺少 csvTime 时间列", "metadata": metadata}
 
     df["csvTime"] = pd.to_datetime(df["csvTime"], unit="ns")
 
-    start_time = start_time.replace("24:00:00", "23:59:59")
-    end_time = end_time.replace("24:00:00", "23:59:59")
+    start_time = pd.to_datetime(start_time.replace("24:00:00", "23:59:59"))
+    end_time = pd.to_datetime(end_time.replace("24:00:00", "23:59:59"))
 
-    start_time = pd.to_datetime(start_time)
-    end_time = pd.to_datetime(end_time)
-
-    if (
-        start_time.minute == end_time.minute
-        and start_time.hour == end_time.hour
-        and start_time.day == end_time.day
-    ):
+    if start_time == end_time:
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
 
     filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
+
+    if conditions:
+        for condition in conditions:
+            cond_col, operator, cond_value = (
+                condition["column"],
+                condition["operator"],
+                condition["value"],
+            )
+
+            if cond_col not in filtered_data.columns:
+                return {
+                    "error": f"条件列 {cond_col} 不存在于数据表 {table_name}",
+                    "metadata": metadata,
+                }
+
+            if operator == "==":
+                filtered_data = filtered_data[filtered_data[cond_col] == cond_value]
+            elif operator == "!=":
+                filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
+            elif operator == ">":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) > float(cond_value)
+                ]
+            elif operator == "<":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) < float(cond_value)
+                ]
+            elif operator == ">=":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) >= float(cond_value)
+                ]
+            elif operator == "<=":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) <= float(cond_value)
+                ]
+            else:
+                return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
 
     if column not in filtered_data.columns:
         return {
@@ -232,10 +279,7 @@ def aggregate_data(
     elif method == "count":
         result = len(values)
     else:
-        return {
-            "error": f"不支持的聚合方法: {method}",
-            "metadata": metadata,
-        }
+        return {"error": f"不支持的聚合方法: {method}", "metadata": metadata}
 
     return {
         f"{column}_{method}": round(result, 2) if isinstance(result, float) else result,
