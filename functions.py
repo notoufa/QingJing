@@ -423,7 +423,7 @@ def get_device_parameter_by_name(parameter_name_cn):
 
     for key, value in parameter_dict.items():
         str_value = str(value).strip()
-        if "↑" in str_value:
+        if "↑" in str_value :
             parameter_dict[key] = "若超过 " + str_value.replace("↑", " 则触发 ")
         if "↓" in str_value:
             parameter_dict[key] = "若低于 " + str_value.replace("↓", " 则触发 ")
@@ -433,6 +433,8 @@ def get_device_parameter_by_name(parameter_name_cn):
         and parameter_info["Remarks"] is not None
     ):
         parameter_dict["安全保护设定值"] += parameter_info["Remarks"]
+    if(parameter_dict["报警值"] is not None): 
+        parameter_dict["报警值"] += "报警" 
 
     return {
         "result": parameter_dict,
