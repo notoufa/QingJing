@@ -4,6 +4,8 @@
 
 import copy
 
+import logger
+
 
 class ReasoningAnswer:
     """
@@ -104,8 +106,9 @@ class ApiResponse:
 
 
 class Subtask:
-    def __init__(self, task_id, question, parent_ids):
+    def __init__(self, task_id, level, question, parent_ids):
         self.task_id: int = task_id
+        self.level: int = level
         self.question: str = question
         self.parent_ids: list[int] = parent_ids
         self.answer: str = None
@@ -118,10 +121,14 @@ class Subtask:
     def __repr__(self):
         return f"Subtask(ID={self.task_id}, Question={self.question}, ParentIDs={self.parent_ids})"
 
+    def completed(self) -> bool:
+        return self.answer is not None
+
     @classmethod
     def from_dict(cls, data):
         return cls(
             task_id=data["task_id"],
+            level=data["level"],
             question=data["question"],
             parent_ids=data["parent_ids"],
         )
@@ -130,6 +137,7 @@ class Subtask:
         """返回一个字典表示，用于数据存储或转换"""
         res = {
             "task_id": self.task_id,
+            "level": self.level,
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
@@ -147,10 +155,21 @@ class Subtask:
         """返回一个字典表示，不包含api_response"""
         return {
             "task_id": self.task_id,
+            "level": self.level,
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
             "function_results": self.function_results,
+        }
+
+    def to_update_dict(self):
+        """返回一个字典表示，不包含api_response，用于更新任务分解树"""
+        return {
+            "task_id": self.task_id,
+            "level": self.level,
+            "question": self.question,
+            "parent_ids": self.parent_ids,
+            "answer": self.answer,
         }
 
     def get_parent_tasks_desc(self) -> str:
@@ -164,6 +183,7 @@ class Subtask:
     def get_initial_dict(self) -> dict:
         return {
             "task_id": self.task_id,
+            "level": self.level,
             "question": self.question,
             "parent_ids": self.parent_ids,
         }
@@ -220,6 +240,16 @@ class Decomposition:
             "need_tools": self.need_tools,
         }
 
+    def to_update_dict(self):
+        """返回一个字典表示，不包含api_response"""
+        return {
+            "contains_time": self.contains_time,
+            "format_requirement": self.format_requirement,
+            "assumption": self.assumption,
+            "subtasks": [subtask.to_update_dict() for subtask in self.subtasks],
+            "chain_of_subtasks": self.chain_of_subtasks,
+        }
+
     def to_simple_dict(self):
         """返回一个字典表示，不包含api_response"""
         return {
@@ -239,6 +269,43 @@ class Decomposition:
             "subtasks": [subtask.get_initial_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
         }
+
+    def draw_table(self):
+        """以表格形式打印任务分解"""
+        from texttable import Texttable
+
+        table = Texttable()
+        table.set_deco(Texttable.HEADER)
+        table.set_cols_align(["c", "c", "c", "c", "l", "l"])
+        table.set_cols_width([5, 5, 10, 10, 68, 68])
+        table.add_row(
+            [
+                "ID",
+                "Level",
+                "Parent IDs",
+                "Completed",
+                "Question",
+                "Answer",
+            ]
+        )
+        for task in self.subtasks:
+            table.add_row(
+                [
+                    task.task_id,
+                    task.level,
+                    str(task.parent_ids),
+                    task.completed(),
+                    task.question,
+                    task.answer,
+                ]
+            )
+        logger.special(
+            "\n",
+            f"假设条件：{self.assumption}\n",
+            f"格式要求：{self.format_requirement}",
+            "\n",
+            table.draw(),
+        )
 
 
 class ProblemSolution:

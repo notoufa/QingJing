@@ -24,7 +24,7 @@
     },
     {
         "function_name": "get_total_energy_consumption_by_time_range",
-        "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车等）。",
+        "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）。",
         "output": "该设备在指定时间范围内的总能耗（单位：kWh）。"
     },
     {
@@ -51,7 +51,8 @@
     {
         "function_name": "calculate_time_interval",
         "input": "两个时间点（开始时间、结束时间）。",
-        "output": "时间间隔（单位：秒、分钟、小时）。"
+        "output": "时间间隔（单位：秒、分钟、小时）。",
+        "notice": "calculate_time_interval函数用于计算两个时间点之间的时间间隔，而求时间范围需要找到开始时间和结束时间"
     },
     {
         "function_name": "convert_seconds",

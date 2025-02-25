@@ -5,8 +5,36 @@ import traceback
 from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
+from texttable import Texttable
+
+import logger
 
 table_meta_file = "knowledge/table_meta.json"
+
+
+def get_text_table(result: dict) -> str:
+    if not result:
+        return
+
+    table = Texttable()
+    table.set_deco(Texttable.HEADER)
+
+    column_widths = [
+        10 if header not in ["csvTime", "check_current_presence"] else 20
+        for header in result.keys()
+    ]
+    table.set_cols_width(column_widths)
+
+    table.set_cols_align(["c" for _ in result.keys()])
+
+    headers = list(result.keys())
+    table.add_row(headers)
+
+    rows = zip(*[result[col] for col in headers])
+    for row in rows:
+        table.add_row(row)
+
+    return table.draw()
 
 
 def get_data_by_time_range(
@@ -114,6 +142,8 @@ def get_data_by_time_range(
             )
         else:
             result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
+
+    logger.special("\n", get_text_table(result))
 
     return {
         "result": result,
@@ -423,7 +453,7 @@ def get_device_parameter_by_name(parameter_name_cn):
 
     for key, value in parameter_dict.items():
         str_value = str(value).strip()
-        if "↑" in str_value :
+        if "↑" in str_value:
             parameter_dict[key] = "若超过 " + str_value.replace("↑", " 则触发 ")
         if "↓" in str_value:
             parameter_dict[key] = "若低于 " + str_value.replace("↓", " 则触发 ")
@@ -433,8 +463,8 @@ def get_device_parameter_by_name(parameter_name_cn):
         and parameter_info["Remarks"] is not None
     ):
         parameter_dict["安全保护设定值"] += parameter_info["Remarks"]
-    if(parameter_dict["报警值"] is not None): 
-        parameter_dict["报警值"] += "报警" 
+    if parameter_dict["报警值"] is not None:
+        parameter_dict["报警值"] += "报警"
 
     return {
         "result": parameter_dict,
@@ -1024,8 +1054,13 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    for table in ['Ajia_plc_1','Jiaoche_plc_1','Port1_ksbg_1']:
+    for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
         for day in range(17, 31):
             date = f"2024-05-{day:02d}"
-            missing_count = 1440 - aggregate_data(table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count")["csvTime_count"]
-            print(table,date,":",missing_count,missing_count/1400*100,"%")
+            missing_count = (
+                1440
+                - aggregate_data(
+                    table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count"
+                )["csvTime_count"]
+            )
+            print(table, date, ":", missing_count, missing_count / 1400 * 100, "%")
