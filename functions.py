@@ -424,9 +424,9 @@ def get_device_parameter_by_name(parameter_name_cn):
     for key, value in parameter_dict.items():
         str_value = str(value).strip()
         if "↑" in str_value:
-            parameter_dict[key] = "超过 " + str_value.replace("↑", " 触发 ")
+            parameter_dict[key] = "若超过 " + str_value.replace("↑", " 则触发 ")
         if "↓" in str_value:
-            parameter_dict[key] = "低于 " + str_value.replace("↓", " 触发 ")
+            parameter_dict[key] = "若低于 " + str_value.replace("↓", " 则触发 ")
 
     if (
         parameter_dict["安全保护设定值"] is not None
