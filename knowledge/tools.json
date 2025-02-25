@@ -185,7 +185,7 @@
         "type": "function",
         "function": {
             "name": "get_device_parameter_by_name",
-            "description": "根据参数中文名称查询设备参数信息，包括参数上下限范围、何时触发何种机制/事件。返回包含参数信息的字典。",
+            "description": "根据参数中文名称查询设备参数信息，包括参数上下限范围、何时触发何种机制/事件（如报警值、安全保护设定值及对应措施），返回包含参数信息的字典。",
             "parameters": {
                 "type": "object",
                 "properties": {
