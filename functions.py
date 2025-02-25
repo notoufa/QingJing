@@ -584,13 +584,14 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     }
 
 
-def get_running_duration_by_time_range(start_time, end_time, type):
+def get_running_duration_by_time_range(start_time, end_time, type, index=None):
     """
     根据开始时间和结束时间，查询设备在指定时间范围内的'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'。
 
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
     :param end_time: 查询的结束时间（字符串或 datetime 类型）
     :param type: 查询类型，'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'
+    :param index: 查询第几次
     :return: 包含三种格式运行时长的字符串
     """
     metadata = {
@@ -649,19 +650,27 @@ def get_running_duration_by_time_range(start_time, end_time, type):
 
     total_duration = pd.Timedelta(0)
     start_uptime = None
+    current_index = 0
+    current_duration = pd.Timedelta(0)
+    index_map = {}
 
-    for index, row in df_filtered.iterrows():
+    for _, row in df_filtered.iterrows():
         if row[check_field_name] == start_status:
             start_uptime = row["csvTime"]
         elif row[check_field_name] == end_status and start_uptime is not None:
             end_uptime = row["csvTime"]
-            total_duration += end_uptime - start_uptime
+            current_index += 1
+            current_duration = end_uptime - start_uptime
+            if current_index == index:
+                index_map[f"第{current_index}次{type}"] = convert_seconds(current_duration.total_seconds())
+            total_duration += current_duration
             start_uptime = None
 
-    seconds = total_duration.total_seconds()
+    if not index:
+        index_map[f"总{type}"] = convert_seconds(total_duration.total_seconds())
 
     return {
-        "result": convert_seconds(seconds),
+        "result": index_map,
         "metadata": metadata,
     }
 

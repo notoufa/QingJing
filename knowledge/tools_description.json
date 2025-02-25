@@ -4,7 +4,7 @@
         "input": "数据表名、开始时间、结束时间、列名、过滤条件和聚合方法",
         "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、求和、数据条数",
         "notice": "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数",
-        "example": "2024年9月8日一号舵桨转舵A-Ua电压的平均值、和是多少？"
+        "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？"
     },
     {
         "function_name": "get_data_by_time_range",
@@ -14,8 +14,8 @@
     {
         "function_name": "get_actions_by_time_range",
         "input": "开始时间、结束时间。",
-        "output": "指定时间范围内正在执行的设备及其动作列表",
-        "notice": "如要查询某关键动作发生的时间，请调用get_data_by_time_range函数"
+        "output": "指定时间范围内发生的所有关键动作",
+        "notice": "如要查询某具体的关键动作发生的时间，请调用get_data_by_time_range函数"
     },
     {
         "function_name": "get_device_parameter_by_name",
@@ -29,9 +29,9 @@
     },
     {
         "function_name": "get_running_duration_by_time_range",
-        "input": "开始时间、结束时间、查询类型（如折臂吊车运行时长、A架运行时长、A架实际运行时长、作业时长等）",
-        "output": "该类型的累计运行时长（单位：秒、分钟、小时）",
-        "notice": "如要查询某设备的运行时长，请调用get_running_duration_by_time_range函数"
+        "input": "开始时间、结束时间、查询类型（某设备的运行时长，如折臂吊车运行时长、A架运行时长、A架实际运行时长、作业时长等）、第几次运行",
+        "output": "该类型的第X次或总运行时长（单位：秒、分钟、小时）",
+        "example": "2022/01/01 A架的第二次开机时长为多少？"
     },
     {
         "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
