@@ -905,65 +905,73 @@ def calculate_math_operations(operation, operands):
     异常:
         ValueError: 如果遇到不支持的运算类型或者在除法中除数为0。
     """
-    metadata = {
-        "function_name": "calculate_math_operations",
-        "operation": operation,
-        "operands": operands,
-    }
-
-    if not operands:
-        return {
-            "error": "操作数不能为空",
-            "metadata": metadata,
+    try:
+        metadata = {
+            "function_name": "calculate_math_operations",
+            "operation": operation,
+            "operands": operands,
         }
 
-    if operation == "加法":
-        result = sum(operands)
-    elif operation == "减法":
-        result = operands[0]
-        for num in operands[1:]:
-            result -= num
-    elif operation == "乘法":
-        if len(operands) == 1:
+        if not operands:
             return {
-                "error": "乘法错误：操作数至少为2个",
+                "error": "操作数不能为空",
                 "metadata": metadata,
             }
-        result = 1
-        for num in operands:
-            result *= num
-    elif operation == "除法":
-        if len(operands) == 1:
-            return {
-                "error": "除法错误：操作数至少为2个",
-                "metadata": metadata,
-            }
-        result = operands[0]
-        for num in operands[1:]:
-            if num == 0:
+
+        if operation == "加法":
+            result = sum(operands)
+        elif operation == "减法":
+            result = operands[0]
+            for num in operands[1:]:
+                result -= num
+        elif operation == "乘法":
+            if len(operands) == 1:
                 return {
-                    "error": "除法错误：除数不能为0",
+                    "error": "乘法错误：操作数至少为2个",
                     "metadata": metadata,
                 }
-            result /= num
-    elif operation == "求和":
-        result = sum(operands)
-    elif operation == "求平均值":
-        result = sum(operands) / len(operands)
-    elif operation == "求最大值":
-        result = max(operands)
-    elif operation == "求最小值":
-        result = min(operands)
-    else:
+            result = 1
+            for num in operands:
+                result *= num
+        elif operation == "除法":
+            if len(operands) == 1:
+                return {
+                    "error": "除法错误：操作数至少为2个",
+                    "metadata": metadata,
+                }
+            result = operands[0]
+            for num in operands[1:]:
+                if num == 0:
+                    return {
+                        "error": "除法错误：除数不能为0",
+                        "metadata": metadata,
+                    }
+                result /= num
+        elif operation == "求和":
+            result = sum(operands)
+        elif operation == "求平均值":
+            result = sum(operands) / len(operands)
+        elif operation == "求最大值":
+            result = max(operands)
+        elif operation == "求最小值":
+            result = min(operands)
+        else:
+            return {
+                "error": "不支持的运算类型: {}".format(operation),
+                "metadata": metadata,
+            }
+
         return {
-            "error": "不支持的运算类型: {}".format(operation),
+            "result": result,
             "metadata": metadata,
         }
-
-    return {
-        "result": result,
-        "metadata": metadata,
-    }
+    except Exception as e:
+        logger.error(e)
+        logger.error(traceback.format_exc())
+        return {
+            "error": str(e),
+            "metadata": metadata,
+        }
 
 
 def calculate_time_interval(start_time: str, end_time: str):
@@ -1015,10 +1023,11 @@ def convert_seconds(seconds):
         "seconds": seconds,
     }
 
+    is_negative = False
+
     if seconds < 0:
-        return {
-            "error": "时间不能为负数",
-        }
+        is_negative = True
+        seconds = -seconds
     minutes = seconds // 60
     demical_minutes = seconds / 60
     remaining_seconds = seconds % 60
@@ -1034,6 +1043,7 @@ def convert_seconds(seconds):
             "by_demical_minutes": f"{demical_minutes}分钟",
             "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
             "by_demical_hours": f"{demical_hours}小时",
+            "is_negative": is_negative,
         },
         "metadata": metadata,
     }
