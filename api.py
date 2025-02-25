@@ -107,6 +107,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     for level in sorted(tasks_by_level.keys()):
         level_tasks = tasks_by_level[level]
 
+        if len(level_tasks) > 5:
+            max_workers = max(max_workers, 5)
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = []
             for task in level_tasks:
@@ -250,7 +253,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     messages.append(response.choices[0].message.model_dump())
     # 循环调用函数
     function_results = []
-    max_iterations = 3
+    max_iterations = 6
     for _ in range(max_iterations):
         if response.choices[0].message.tool_calls:
             for tool_call in response.choices[0].message.tool_calls:
@@ -327,8 +330,6 @@ def get_table_meta_and_tool(
     res = json.loads(parse_res(response))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
-    # if "能耗" in question:
-    #     need_tools=['get_total_energy_consumption_by_time_range']
     if not decomposition.contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
     logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
