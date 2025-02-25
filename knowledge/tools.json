@@ -420,7 +420,7 @@
         "type": "function",
         "function": {
             "name": "calculate_time_interval",
-            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
+            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔和两个时间的先后顺序。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -436,6 +436,44 @@
                 "required": [
                     "start_time",
                     "end_time"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sort_datetime",
+            "description": "对日期列表进行排序，可选择升序或降序。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "input_list": {
+                        "type": "array",
+                        "items": {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        "description": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                    },
+                    "order": {
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "description": "排序方式，'asc' 表示升序，'desc' 表示降序。"
+                    },
+                    "only_order_time": {
+                        "type": "bool",
+                        "description": "true表示仅排序时间，false表示排序日期和时间",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "input_list",
+                    "order",
+                    "only_order_time"
                 ]
             }
         }

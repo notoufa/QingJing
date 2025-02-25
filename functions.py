@@ -69,7 +69,6 @@ def get_data_by_time_range(
         "Operational_Status": Operational_Status,
     }
 
-
     try:
         df = pd.read_csv(f"data/{table_name}.csv")
     except FileNotFoundError:
@@ -109,7 +108,7 @@ def get_data_by_time_range(
 
     if Operational_Status is not None and Operational_Status != "不筛选":
         filtered_data = filtered_data[
-            filtered_data["Operational_Status"]==Operational_Status
+            filtered_data["Operational_Status"] == Operational_Status
         ]
         if filtered_data.empty:
             return {
@@ -657,7 +656,9 @@ def get_running_duration_by_time_range(start_time, end_time, type, index=None):
             current_index += 1
             current_duration = end_uptime - start_uptime
             if current_index == index:
-                index_map[f"第{current_index}次{type}"] = convert_seconds(current_duration.total_seconds())
+                index_map[f"第{current_index}次{type}"] = convert_seconds(
+                    current_duration.total_seconds()
+                )
             total_duration += current_duration
             start_uptime = None
 
@@ -1005,10 +1006,54 @@ def calculate_time_interval(start_time: str, end_time: str):
         return {
             "result": convert_seconds(seconds),
             "metadata": metadata,
+            "desc": (
+                f"{start_time}在{end_time}之前"
+                if seconds > 0
+                else f"{start_time}在{end_time}之后"
+            ),
         }
     except ValueError as e:
         return {
             "error": f"时间格式错误或无效输入: {e}",
+            "metadata": metadata,
+        }
+
+
+def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
+    """
+    对列表进行排序，支持日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），可选择升序或降序。
+
+    :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
+    :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
+    :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
+
+    :return: 排序后的列表及相关信息。
+    """
+
+    metadata = {
+        "function_name": "sort_datetime",
+        "input_list": input_list,
+        "order": order,
+        "only_order_time": only_order_time,
+    }
+
+    try:
+
+        def parse_value(value):
+            """解析日期字符串，确保可以正确排序"""
+            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            return dt.time() if only_order_time else dt
+
+        sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
+
+        return {
+            "result": sorted_list,
+            "metadata": metadata,
+            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序",
+        }
+    except ValueError as e:
+        return {
+            "error": f"排序失败: {e}",
             "metadata": metadata,
         }
 
@@ -1066,6 +1111,7 @@ function_map: dict[str, callable] = {
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
+    "sort_datetime": sort_datetime,
 }
 
 if __name__ == "__main__":
