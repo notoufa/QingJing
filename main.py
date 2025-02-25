@@ -31,6 +31,9 @@ def parse_args():
     parser.add_argument(
         "-p", "--production", action="store_true", help="Run in production mode"
     )
+    parser.add_argument(
+        "-m", "--max_workers", action="store_true", help="Max workers", default=20
+    )
     args = parser.parse_args()
 
     if not args.test and not args.production:
@@ -70,6 +73,7 @@ def process_one(line: dict) -> VoteResult | dict:
 def main():
     args = parse_args()
     is_test = args.test
+    max_workers = args.max_workers
 
     global vote_times
 
@@ -99,7 +103,7 @@ def main():
     vote_results = []
     submit_result_list = []
 
-    with cf.ThreadPoolExecutor(max_workers=20) as executor:
+    with cf.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
