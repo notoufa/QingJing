@@ -61,7 +61,7 @@ def process_one(line: dict) -> VoteResult | dict:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, vote_times).clone()
         logger.success(
-            f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.answer}"
+            f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.get_correct_answer()}"
         )
         return vote_res
     except Exception as e:

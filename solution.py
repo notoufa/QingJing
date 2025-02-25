@@ -14,19 +14,27 @@ class ReasoningAnswer:
 
     def __init__(self):
         self.reasoning: str = None
-        self.correct: str = None
         self.answer: str = None
-        self.vote: str = None
+        self.corrected_reasoning: str = None
+        self.corrected_answer: str = None
+        self.correct: str = None
+
+    def get_correct_answer(self) -> str:
+        return self.corrected_answer if self.corrected_answer else self.answer
+
+    def get_correct_reasoning(self) -> str:
+        return self.corrected_reasoning if self.corrected_reasoning else self.reasoning
 
     def __repr__(self):
-        return f"思维过程：{self.reasoning}\n\n纠错步骤：\n{self.correct}\n\n最终答案：\n{self.answer}"
+        return f"思维过程：\n{self.get_correct_reasoning()}\n纠错步骤：\n{self.correct}\n最终答案：\n{self.get_correct_answer()}"
 
     def to_dict(self):
         return {
             "reasoning": self.reasoning,
-            "correct": self.correct,
             "answer": self.answer,
-            "vote": self.vote,
+            "correct": self.correct,
+            "corrected_reasoning": self.corrected_reasoning,
+            "corrected_answer": self.corrected_answer,
         }
 
     def __json__(self):
@@ -38,7 +46,8 @@ class ReasoningAnswer:
         instance.reasoning = data.get("reasoning", None)
         instance.correct = data.get("correct", None)
         instance.answer = data.get("answer", None)
-        instance.vote = data.get("vote", None)
+        instance.corrected_answer = data.get("corrected_answer", None)
+        instance.corrected_reasoning = data.get("corrected_reasoning", None)
         return instance
 
     def clone(self):
@@ -159,7 +168,6 @@ class Subtask:
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
-            "function_results": self.function_results,
         }
 
     def to_update_dict(self):
@@ -258,7 +266,6 @@ class Decomposition:
             "assumption": self.assumption,
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
-            "need_tools": self.need_tools,
         }
 
     def get_initial_dict(self) -> dict:
@@ -318,6 +325,7 @@ class ProblemSolution:
         self.traceback: str = None
         self.decomposition_api_response: ApiResponse = None
         self.summary_api_response: ApiResponse = None
+        self.correct_api_response: ApiResponse = None
 
     def __repr__(self):
         return f"ProblemSolution(ID={self.id}, Question={self.question})"
@@ -342,6 +350,11 @@ class ProblemSolution:
                 if self.summary_api_response
                 else None
             )
+            res["correct_api_response"] = (
+                self.correct_api_response.to_dict()
+                if self.correct_api_response
+                else None
+            )
         return res
 
     def to_submit_json(self):
@@ -349,7 +362,7 @@ class ProblemSolution:
         return {
             "id": self.id,
             "question": self.question,
-            "answer": self.reasoning_answer.answer,
+            "answer": self.reasoning_answer.get_correct_answer(),
         }
 
     def to_summary_json(self):
@@ -358,6 +371,16 @@ class ProblemSolution:
             "id": self.id,
             "question": self.question,
             "decomposition": self.decomposition.to_simple_dict(),
+        }
+
+    def to_correct_json(self):
+        """返回一个字典表示，用于问题纠错"""
+        return {
+            "question": self.question,
+            "reasoning": (
+                self.reasoning_answer.reasoning if self.reasoning_answer else None
+            ),
+            "answer": self.reasoning_answer.answer if self.reasoning_answer else None,
         }
 
     def is_error(self) -> bool:
@@ -376,7 +399,7 @@ class VoteResult:
         self.final_reasoning_answer: ReasoningAnswer = None
 
     def __repr__(self):
-        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_reasoning_answer.answer})"
+        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_reasoning_answer.get_correct_answer()})"
 
     def to_dict(self, export_api_response: bool = True):
         """
@@ -395,7 +418,10 @@ class VoteResult:
         }
 
     def get_answers(self) -> list[str]:
-        return [solution.final_reasoning_answer.answer for solution in self.solutions]
+        return [
+            solution.final_reasoning_answer.get_correct_answer()
+            for solution in self.solutions
+        ]
 
     def clone(self):
         return copy.deepcopy(self)
@@ -405,5 +431,5 @@ class VoteResult:
         return {
             "id": self.id,
             "question": self.question,
-            "answer": self.final_reasoning_answer.answer,
+            "answer": self.final_reasoning_answer.get_correct_answer(),
         }
