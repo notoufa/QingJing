@@ -53,14 +53,10 @@
                         ],
                         "default": ""
                     },
-                    "Operational_Status": {
-                        "type": "string",
-                        "description": "是否只筛选工作状态为‘开机工作中’状态的数据。可选值：开机工作中、不筛选。A架、征服者、小艇、DP、折臂吊车等相关动作均发生在‘开机工作中’状态",
-                        "enum": [
-                            "开机工作中",
-                            "不筛选"
-                        ],
-                        "default": "不筛选"
+                    "filter_work_status": {
+                        "type": "boolean",
+                        "description": "是否只筛选‘开机工作中’状态的数据。true 表示筛选 ‘开机工作中’，false 表示不过滤。",
+                        "default": false
                     }
                 },
                 "required": [

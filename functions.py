@@ -43,7 +43,7 @@ def get_data_by_time_range(
     end_time: str,
     columns=None,
     status=None,
-    Operational_Status="不筛选",
+    filter_work_status=False,
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -54,7 +54,7 @@ def get_data_by_time_range(
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
     status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
-    Operational_Status (str): 需要筛选的工作状态
+    filter_work_status (bool): 是否只筛选‘开机工作中’状态的数据
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -66,7 +66,7 @@ def get_data_by_time_range(
         "end_time": end_time,
         "columns": columns,
         "status": status,
-        "Operational_Status": Operational_Status,
+        "filter_work_status": filter_work_status,
     }
 
 
@@ -107,13 +107,13 @@ def get_data_by_time_range(
                 "metadata": metadata,
             }
 
-    if Operational_Status is not None and Operational_Status != "不筛选":
+    if filter_work_status:
         filtered_data = filtered_data[
-            filtered_data["Operational_Status"]==Operational_Status
+            filtered_data["Operational_Status"]=="开机工作中"
         ]
         if filtered_data.empty:
             return {
-                "error": f"在数据表 {table_name} 中未找到工作状态为 {Operational_Status} 的数据",
+                "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中' 的数据",
                 "metadata": metadata,
             }
 
