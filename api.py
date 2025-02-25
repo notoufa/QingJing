@@ -359,6 +359,7 @@ def get_completion(
             stream=False,
             messages=messages,
             tools=tools,
+            temperature=0,
         )
         logger.trace("【回答结果】", str(response))
         return response
