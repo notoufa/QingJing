@@ -2,6 +2,7 @@
 
 import json
 import traceback
+import concurrent
 from zhipuai import ZhipuAI
 from zhipuai.core import StreamResponse
 from zhipuai.types.chat.chat_completion import Completion
@@ -23,6 +24,9 @@ from utils import parse_res
 
 
 def check_api_key() -> str:
+    """
+    检查API_KEY是否设定
+    """
     api_key = os.getenv("ZHIPUAI_API_KEY")
     if not api_key:
         raise RuntimeError(
@@ -77,12 +81,13 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     return vote_res
 
 
-def get_answer(id: str, question: str) -> ProblemSolution:
+def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     """
     获得复杂问题的答案，返回最终答案
 
     :param id: 问题 ID
     :param question: 问题
+    :param max_workers: 子任务线程数
     :return: 问题解答
     """
     solution = ProblemSolution(id, question)
@@ -90,18 +95,46 @@ def get_answer(id: str, question: str) -> ProblemSolution:
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
 
+    tasks_by_level = {}
     for task in decomposition.subtasks:
-        parent_tasks = []
-        for parent_id in task.parent_ids:
-            parent_task = decomposition.get_task_by_id(parent_id)
-            if parent_task:
-                parent_tasks.append(parent_task)
-        task.parent_tasks = parent_tasks
-        task = get_atomic_answer(decomposition, task)
+        if task.level not in tasks_by_level:
+            tasks_by_level[task.level] = []
+        tasks_by_level[task.level].append(task)
+
+    for level in sorted(tasks_by_level.keys()):
+        level_tasks = tasks_by_level[level]
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = []
+            for task in level_tasks:
+                if not task.completed():
+                    futures.append(executor.submit(handle_task, task, decomposition))
+
+            for future in concurrent.futures.as_completed(futures):
+                future.result()
+
+        update_decomposition(question, decomposition)
+
     reasoning_answer, api_response = get_summary(solution)
     solution.reasoning_answer = reasoning_answer
     solution.summary_api_response = api_response
     return solution
+
+
+def handle_task(task: Subtask, decomposition: Decomposition):
+    """
+    在单独的线程中处理每个子任务
+
+    :param task: 子任务
+    :param decomposition: 分解结果
+    """
+    parent_tasks = []
+    for parent_id in task.parent_ids:
+        parent_task = decomposition.get_task_by_id(parent_id)
+        if parent_task:
+            parent_tasks.append(parent_task)
+    task.parent_tasks = parent_tasks
+    get_atomic_answer(decomposition, task)
 
 
 def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
@@ -146,18 +179,52 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     res = json.loads(parse_res(response))
     decomposition = Decomposition.from_dict(res)
     decomposition.need_tools = [tool["function_name"] for tool in tool_list]
-    logger.success("【问题分解结果】", decomposition.to_simple_dict())
+    decomposition.draw_table()
     return decomposition, ApiResponse(messages, response)
 
 
-def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
+def update_decomposition(question: str, decomposition: Decomposition) -> Decomposition:
+    """
+    询问 LLM 是否需要更新任务分解树
+
+    :param decomposition: 问题的分解结果
+    :return: 是否需要更新任务分解树
+    """
+    logger.info("【询问是否需要更新任务分解树】")
+    messages = [
+        {
+            "role": "system",
+            "content": prompts.get_prompt_update_decomposition(question),
+        },
+        {
+            "role": "user",
+            "content": str(decomposition.to_update_dict()),
+        },
+    ]
+    response = get_completion(messages)
+    res = json.loads(parse_res(response))
+    res_decomposition = Decomposition.from_dict(res)
+    for subtask in res_decomposition.subtasks:
+        init_task = decomposition.get_task_by_id(subtask.task_id)
+        if init_task.completed():
+            subtask.answer = init_task.answer
+            subtask.need_tools = init_task.need_tools
+            subtask.need_tables = init_task.need_tables
+            subtask.function_results = init_task.function_results
+            subtask.parent_tasks = init_task.parent_tasks
+            subtask.api_response = init_task.api_response
+    res_decomposition.need_tools = decomposition.need_tools
+    decomposition = res_decomposition
+    decomposition.draw_table()
+
+
+def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     获得原子问题的答案
 
     :param decomposition: 问题的分解结果
     :param task: 原子问题
     :param parent_tasks: 父任务
-    :return: 原子问题的答案
     """
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
@@ -202,13 +269,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
             break
     api_response = ApiResponse(messages, response)
     answer = parse_res(response)
-    logger.success("【原子问题答案】", answer)
+    logger.special("【原子问题答案】", answer)
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
     task.need_tools = tool_list
     task.need_tables = [table["table_name"] for table in table_meta_list]
-    return task
 
 
 def get_tool(question: str) -> list:
