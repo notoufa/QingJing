@@ -24,4 +24,18 @@ def custom_serializer(obj):
     if isinstance(obj, np.int64):
         return int(obj)
     raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+
+def parse_code(response):
+    """
+    解析代码
+    """
+    try:
+        res = response.choices[0].message.content
+        if "```" in res:
+            res = res.split("```python", 1)[1]
+            res = res.split("```", 1)[0]
+        res = res.strip().replace("\n", "")
+        return res
+    except Exception:
+        return res
     
