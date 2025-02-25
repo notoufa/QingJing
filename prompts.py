@@ -14,6 +14,7 @@ prompt_vote_file = "prompts/vote.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
 prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
+prompt_get_tool_file = "prompts/get_tool.md"
 
 
 def get_knowledge_by_question(question: str) -> list[str]:
@@ -47,7 +48,7 @@ def get_atomic_questions():
     return atomic_questions
 
 
-def get_prompt_task_decomposition(question: str) -> str:
+def get_prompt_task_decomposition(question: str, tool_list: list[dict]) -> str:
     """
     获得任务分解模板
 
@@ -58,8 +59,8 @@ def get_prompt_task_decomposition(question: str) -> str:
         res = file.read()
     atomic_questions = get_atomic_questions()
     res = res.replace("<<atomic_questions>>", str(atomic_questions))
-    res = res.replace("<<function_calls>>", str(tools.tools_description))
-    res = res.replace("<<known_conditions>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<function_calls>>", str(tool_list))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 
 
@@ -111,6 +112,21 @@ def get_prompt_summary(summary: dict) -> str:
         "<<knowledge>>", str(get_knowledge_by_question(summary["question"]))
     )
     res = res.replace("<<summary>>", str(summary))
+    return res
+
+
+def get_prompt_get_tool(question: str) -> str:
+    """
+    生成可能所需的工具的 Prompt
+
+    :param question: 问题
+    :return: Prompt
+    """
+    with open(prompt_get_tool_file, "r", encoding="utf-8") as file:
+        res = file.read()
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<tools>>", str(str(tools.tools_description)))
+    res = res.replace("<<question>>", f"{question}")
     return res
 
 

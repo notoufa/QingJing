@@ -134,13 +134,18 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     :return: 问题的分解结果
     """
     logger.info("【获取问题分解结果】", question)
+    tool_list = get_tool(question)
     messages = [
-        {"role": "system", "content": prompts.get_prompt_task_decomposition(question)},
+        {
+            "role": "system",
+            "content": prompts.get_prompt_task_decomposition(question, tool_list),
+        },
         {"role": "user", "content": question},
     ]
     response = get_completion(messages)
     res = json.loads(parse_res(response))
     decomposition = Decomposition.from_dict(res)
+    decomposition.need_tools = [tool["function_name"] for tool in tool_list]
     logger.success("【问题分解结果】", decomposition.to_simple_dict())
     return decomposition, ApiResponse(messages, response)
 
@@ -201,7 +206,33 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
+    task.need_tools = tool_list
+    task.need_tables = [table["table_name"] for table in table_meta_list]
     return task
+
+
+def get_tool(question: str) -> list:
+    """
+    获得问题所需的工具
+
+    :param question: 问题
+    :return: 所需工具
+    """
+    logger.info("【开始获取初始问题所需工具】", question)
+    messages = [
+        {
+            "role": "user",
+            "content": prompts.get_prompt_get_tool(question),
+        },
+    ]
+    response = get_completion(messages)
+    need_tools = json.loads(parse_res(response))
+    logger.success("【问题所需工具】", need_tools)
+    tool_list = []
+    for tool in tools.tools_description:
+        if tool["function_name"] in need_tools:
+            tool_list.append(tool)
+    return tool_list
 
 
 def get_table_meta_and_tool(
