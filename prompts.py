@@ -49,7 +49,7 @@ def get_atomic_questions():
     return atomic_questions
 
 
-def get_prompt_task_decomposition(question: str, tool_list: list[dict]) -> str:
+def get_prompt_task_decomposition(question: str, tool_names: list[str]) -> str:
     """
     获得任务分解模板
 
@@ -60,7 +60,9 @@ def get_prompt_task_decomposition(question: str, tool_list: list[dict]) -> str:
         res = file.read()
     atomic_questions = get_atomic_questions()
     res = res.replace("<<atomic_questions>>", str(atomic_questions))
-    res = res.replace("<<function_calls>>", str(tool_list))
+    res = res.replace(
+        "<<function_calls>>", tools.tools_description_str_by_names(tool_names)
+    )
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 
@@ -140,7 +142,7 @@ def get_prompt_get_tool(question: str) -> str:
     with open(prompt_get_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-    res = res.replace("<<tools>>", str(str(tools.tools_description)))
+    res = res.replace("<<tools>>", str(str(tools.tools_description_str())))
     res = res.replace("<<question>>", f"{question}")
     return res
 
@@ -153,25 +155,12 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     :param assumption: 假设条件
     :return: Prompt
     """
-    with open(table_meta_file, "r", encoding="utf-8") as file:
-        raw_table_data = json.load(file)
-
-    table_data = [
-        {"表名": item["table_name"], "表的描述信息": item["table_desc"]}
-        for item in raw_table_data
-    ]
-    table_data_str = "\n".join(
-        [
-            f"{idx + 1}. 表名: {item['表名']}, 表的描述信息: {item['表的描述信息']}"
-            for idx, item in enumerate(table_data)
-        ]
-    )
     with open(prompt_get_table_meta_and_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
     question = task.question
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-    res = res.replace("<<tools>>", str(str(tools.tools_description)))
-    res = res.replace("<<table_data>>", str(table_data_str))
+    res = res.replace("<<tools>>", tools.tools_description_str())
+    res = res.replace("<<table_desc>>", get_table_desc_str())
     res = res.replace("<<assumption>>", assumption)
     res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
     res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
@@ -189,3 +178,25 @@ def get_table_meta_by_table_names(table_names: list[str]) -> list[dict]:
         table_data = json.load(file)
     table_meta_list = [item for item in table_data if item["table_name"] in table_names]
     return table_meta_list
+
+
+def get_table_desc_str() -> str:
+    """
+    获得数据表描述字符串
+
+    :return: 数据表描述字符串
+    """
+    with open(table_meta_file, "r", encoding="utf-8") as file:
+        raw_table_data = json.load(file)
+
+    table_data = [
+        {"表名": item["table_name"], "表的描述信息": item["table_desc"]}
+        for item in raw_table_data
+    ]
+    table_data_str = "\n".join(
+        [
+            f"{idx + 1}. 表名: {item['表名']}, 表的描述信息: {item['表的描述信息']}"
+            for idx, item in enumerate(table_data)
+        ]
+    )
+    return table_data_str

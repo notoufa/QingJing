@@ -174,18 +174,18 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     :return: 问题的分解结果
     """
     logger.info("【获取问题分解结果】", question)
-    tool_list = get_tool(question)
+    tool_names = get_tool(question)
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_task_decomposition(question, tool_list),
+            "content": prompts.get_prompt_task_decomposition(question, tool_names),
         },
         {"role": "user", "content": question},
     ]
     response = get_completion(messages)
     res = json.loads(parse_res(response))
     decomposition = Decomposition.from_dict(res)
-    decomposition.need_tools = [tool["function_name"] for tool in tool_list]
+    decomposition.need_tools = tool_names
     decomposition.draw_table()
     return decomposition, ApiResponse(messages, response)
 
@@ -289,7 +289,7 @@ def get_tool(question: str) -> list:
     获得问题所需的工具
 
     :param question: 问题
-    :return: 所需工具
+    :return: 所需工具的名称列表
     """
     logger.info("【开始获取初始问题所需工具】", question)
     messages = [
@@ -299,13 +299,9 @@ def get_tool(question: str) -> list:
         },
     ]
     response = get_completion(messages)
-    need_tools = json.loads(parse_res(response))
-    logger.success("【问题所需工具】", need_tools)
-    tool_list = []
-    for tool in tools.tools_description:
-        if tool["function_name"] in need_tools:
-            tool_list.append(tool)
-    return tool_list
+    tool_names = json.loads(parse_res(response))
+    logger.success("【问题所需工具】", tool_names)
+    return tool_names
 
 
 def get_table_meta_and_tool(

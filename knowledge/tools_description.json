@@ -1,62 +1,62 @@
 [
     {
         "function_name": "aggregate_data",
-        "input": "数据表名、开始时间、结束时间、列名、过滤条件和聚合方法。",
-        "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、总和和数据条数。",
-        "notice": "如果要查询实际数据条数/计算参数的平均值或最值，请调用aggregate_data，**不要**调用get_data_by_time_range函数。",
-        "task_decomposition_notice": "在求平均值、最大值、最小值、众数、总和和数据条数等数据时，无需再查询所有数据，一步即可完成。"
+        "input": "数据表名、开始时间、结束时间、列名、过滤条件和聚合方法",
+        "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、总和和数据条数",
+        "notice": "如果要查询实际数据条数/计算参数的平均值或最值，请调用aggregate_data，**不要**调用get_data_by_time_range函数",
+        "example": "2024年9月8日一号舵桨转舵A-Ua电压的平均值是多少？"
     },
     {
         "function_name": "get_data_by_time_range",
-        "input": "数据表名、开始时间、结束时间、列名（可选）和状态（可选）。",
-        "output": "指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）。"
+        "input": "数据表名、开始时间、结束时间、列名（可选）和状态（可选）",
+        "output": "指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）"
     },
     {
         "function_name": "get_actions_by_time_range",
         "input": "开始时间、结束时间。",
-        "output": "指定时间范围内正在执行的设备及其动作列表。",
+        "output": "指定时间范围内正在执行的设备及其动作列表",
         "notice": "如要查询某关键动作发生的时间，请调用get_data_by_time_range函数"
     },
     {
         "function_name": "get_device_parameter_by_name",
         "input": "设备参数的中文名称。",
-        "output": "该参数的上下限范围及触发的机制或事件（如报警值、安全保护设定值及对应措施）。"
+        "output": "该参数的上下限范围及触发的机制或事件（如报警值、安全保护设定值及对应措施）"
     },
     {
         "function_name": "get_total_energy_consumption_by_time_range",
-        "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）。",
-        "output": "该设备在指定时间范围内的总能耗（单位：kWh）。"
+        "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）",
+        "output": "该设备在指定时间范围内的总能耗（单位：kWh）"
     },
     {
         "function_name": "get_running_duration_by_time_range",
-        "input": "开始时间、结束时间、查询类型（如折臂吊车运行时长、A架运行时长、A架实际运行时长、作业时长等）。",
-        "output": "该类型的累计运行时长（单位：秒、分钟、小时）。",
+        "input": "开始时间、结束时间、查询类型（如折臂吊车运行时长、A架运行时长、A架实际运行时长、作业时长等）",
+        "output": "该类型的累计运行时长（单位：秒、分钟、小时）",
         "notice": "如要查询某设备的运行时长，请调用get_running_duration_by_time_range函数"
     },
     {
         "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
-        "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组）、查询类型（理论发电量、实际发电量、燃油消耗量）。",
-        "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）。"
+        "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组）、查询类型（理论发电量、实际发电量、燃油消耗量）",
+        "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）"
     },
     {
         "function_name": "calculate_action_proportion",
-        "input": "时间范围（开始时间、结束时间）、指定动作、时间点（如 09:00）。",
-        "output": "指定动作在该时间点前发生的比例（%）。"
+        "input": "时间范围（开始时间、结束时间）、指定动作、时间点（如 09:00）",
+        "output": "指定动作在该时间点前发生的比例（%）"
     },
     {
         "function_name": "calculate_math_operations",
-        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值）、操作数列表。",
-        "output": "运算结果。"
+        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值）、操作数列表",
+        "output": "运算结果"
     },
     {
         "function_name": "calculate_time_interval",
-        "input": "两个时间点（开始时间、结束时间）。",
-        "output": "时间间隔（单位：秒、分钟、小时）。",
+        "input": "两个时间点（开始时间、结束时间）",
+        "output": "时间间隔（单位：秒、分钟、小时）",
         "notice": "calculate_time_interval函数用于计算两个时间点之间的时间间隔，而求时间范围需要找到开始时间和结束时间"
     },
     {
         "function_name": "convert_seconds",
-        "input": "时间间隔（秒）。",
-        "output": "对应的分钟和小时数。"
+        "input": "时间间隔（秒）",
+        "output": "对应的分钟和小时数"
     }
 ]
