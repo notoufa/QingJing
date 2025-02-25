@@ -206,7 +206,7 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
     res_decomposition = Decomposition.from_dict(res)
     for subtask in res_decomposition.subtasks:
         init_task = decomposition.get_task_by_id(subtask.task_id)
-        if init_task.completed():
+        if init_task and init_task.completed():
             subtask.answer = init_task.answer
             subtask.need_tools = init_task.need_tools
             subtask.need_tables = init_task.need_tables
