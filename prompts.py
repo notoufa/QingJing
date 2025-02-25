@@ -91,7 +91,8 @@ def get_prompt_atomic_question(
     with open(prompt_atomic_question_file, "r", encoding="utf-8") as file:
         res = file.read()
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-    res = res.replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+    if str(chain_of_subtasks) != "None":
+        res = res.replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
     res = res.replace("<<table_meta_list>>", str(table_meta_list))
     res = res.replace("<<assumption>>", assumption)
     res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
