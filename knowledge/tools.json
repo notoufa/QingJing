@@ -276,6 +276,11 @@
                             "A架实际运行时长",
                             "作业时长"
                         ]
+                    },
+                    "index": {
+                        "type": "number",
+                        "format": "date-time",
+                        "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。"
                     }
                 },
                 "required": [

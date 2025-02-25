@@ -156,10 +156,12 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     with open(table_meta_file, "r", encoding="utf-8") as file:
         raw_table_data = json.load(file)
 
-    table_data = [
-        {"table_name": item["table_name"], "table_desc": item["table_desc"]}
-        for item in raw_table_data
-    ]
+    table_data = "\n".join(
+        [
+            "表名：{table_name}，表描述：{table_desc}".format(**item)
+            for item in raw_table_data
+        ]
+    )
 
     with open(prompt_get_table_meta_and_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
