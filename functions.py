@@ -147,6 +147,7 @@ def get_data_by_time_range(
 
     return {
         "result": result,
+        "length": len(filtered_data),
         "column_desc": get_meta_by_table_columns(table_name, columns),
         "metadata": metadata,
     }

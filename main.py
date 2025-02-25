@@ -60,7 +60,7 @@ def process_one(line: dict) -> VoteResult | dict:
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, vote_times).clone()
-        logger.special(
+        logger.success(
             f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.answer}"
         )
         return vote_res

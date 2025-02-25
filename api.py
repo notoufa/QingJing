@@ -53,7 +53,7 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
             logger.special(
-                f"【第{i+1}次得到的最终答案】: \n{solution.reasoning_answer.to_dict()}"
+                f"【第{i+1}次得到的最终答案】: \n{str(solution.reasoning_answer)}"
             )
         except Exception as e:
             logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
@@ -359,6 +359,7 @@ def get_completion(
             stream=False,
             messages=messages,
             tools=tools,
+            temperature=0,
         )
         logger.trace("【回答结果】", str(response))
         return response
