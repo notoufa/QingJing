@@ -135,8 +135,9 @@ df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
 # 初始化 status 列，默认值为 'False'
 df["status"] = "False"
 df["check_current_presence"] = "False"
-have_current = -1
-not_have_current = -1
+df["Operational_Status"]= "未工作"
+have_boot = -1
+not_have_boot = -1
 # 遍历每一行，判断设备状态
 for i in range(1, df.shape[0]):
     # 取当前行和前一行的数据
@@ -152,30 +153,33 @@ for i in range(1, df.shape[0]):
     # A架开机条件：前一时刻 Ajia-3_v == -1，且当前 Ajia-3_v >= 0
     if prev_ajia3 == -1 and curr_ajia3 >= 0:
         df.loc[i, "status"] = "A架开机"
+        have_boot = i
     if prev_ajia5 == -1 and curr_ajia5 >= 0:
         df.loc[i, "status"] = "A架开机"
+        have_boot = i
 
     # A架关机条件：当前 Ajia-3_v == -1，且前一时刻 Ajia-3_v >= 0
     if curr_ajia3 == -1 and prev_ajia3 >= 0:
         df.loc[i, "status"] = "A架关机"
+        not_have_boot = i
     if curr_ajia5 == -1 and prev_ajia5 >= 0:
         df.loc[i, "status"] = "A架关机"
-
+        not_have_boot = i
+    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
+        for j in range(have_boot, not_have_boot+1):
+            df.loc[j, "Operational_Status"] = "开机工作中"
+        have_boot = -1
+        not_have_boot = -1
     # 电流检测条件
     # 有电流：前一时刻有一个或全部为0，下一刻均不为0
     
     if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
         df.loc[i, "check_current_presence"] = "有电流"
-        have_current = i
     # 无电流：前一时刻均不为0，下一刻有一个或全部为0
     elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
         df.loc[i, "check_current_presence"] = "无电流"
-        not_have_current = i
-    if have_current != -1 and not_have_current != -1 and have_current < not_have_current:
-        for j in range(have_current+1, not_have_current):
-            df.loc[j, "check_current_presence"] = "电流持续中"
-        have_current = -1
-        not_have_current = -1
+        
+    
 
 
 # # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
@@ -889,6 +893,7 @@ for segment in segments:
 df = df.drop(columns=["date"])  # 删除 'date' 列
 # df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
 df.to_csv("data/Ajia_plc_1.csv", index=False)
+action_df = df[["csvTime", "status","Ajia-3_v","Ajia-5_v"]]
 # In[4]:
 
 import pandas as pd
@@ -899,14 +904,28 @@ df = pd.read_csv("tmp_data/Port3_ksbg_9.csv")
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
 # 初始化status列
 df["status"] = "False"
+df["Operational_Status"]= "未开机"
+have_boot = -1
+not_have_boot = -1
 # A架开机关机
 for i in range(1, df.shape[0]):
     # 开机
     if df.loc[i - 1, "P3_33"] == 0 and df.loc[i, "P3_33"] > 0:
         df.loc[i, "status"] = "ON DP"
+        have_boot = i
     # 关机
     if df.loc[i - 1, "P3_33"] > 0 and df.loc[i, "P3_33"] == 0:
         df.loc[i, "status"] = "OFF DP"
+        not_have_boot = i
+    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
+        for j in range(have_boot, not_have_boot):
+            df.loc[j, "Operational_Status"] = "开机工作中"
+        have_boot = -1
+        not_have_boot = -1
+    # if df.loc[i, "status"] != "False" and action_df.loc[i, "status"] == "False":
+    #     action_df.loc[i, "status"]=df.loc[i, "status"]
+# action_df["P3_33"]=df["P3_33"]
+# action_df["P3_18"]=df["P3_18"]
 # 保存结果
 table_key = "Port3_ksbg_9"
 df.to_csv(f"data/{table_key}.csv", index=False)
@@ -975,14 +994,24 @@ df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
 # 检测折臂吊车的开机和关机事件
 segments = []
 start_time = None
-
+df["Operational_Status"]= "未工作"
+have_boot = -1
+not_have_boot = -1
 for i in range(1, df.shape[0]):
     # 开机
     if df.iloc[i - 1]["13-11-6_v"] == 0 and df.iloc[i]["13-11-6_v"] > 0:
         df.at[df.index[i], "status"] = "折臂吊车开机"
+        have_boot = i
     # 关机
     if df.iloc[i - 1]["13-11-6_v"] > 0 and df.iloc[i]["13-11-6_v"] == 0:
         df.at[df.index[i], "status"] = "折臂吊车关机"
+        not_have_boot = i
+        
+    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
+        for j in range(have_boot, not_have_boot+1):
+            df.loc[j, "Operational_Status"] = "开机工作中"
+        have_boot = -1
+        not_have_boot = -1
 
     # 检测由待机进入工作和由工作进入待机的事件
     if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] > 10:
@@ -1117,7 +1146,11 @@ for segment in segments:
 table_key = "device_13_11_meter_1311"
 df.to_csv(f"data/{table_key}.csv", index=False)
 df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
-
+# for i in range(1, df.shape[0]):
+#     if df.loc[i, "status"] != "False" and action_df.loc[i, "status"] == "False":
+#             action_df.loc[i, "status"]=df.loc[i, "status"]
+# action_df["13-11-6_v"]=df["13-11-6_v"]
+# df.to_csv("data/action_table.csv", index=False)
 # 移除tmp_data文件夹
 import shutil
 

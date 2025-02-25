@@ -43,7 +43,7 @@ def get_data_by_time_range(
     end_time: str,
     columns=None,
     status=None,
-    check_current_presence="不筛选",
+    Operational_Status="不筛选",
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -54,7 +54,7 @@ def get_data_by_time_range(
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
     status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
-    check_current_presence (str): 需要筛选的电流状态
+    Operational_Status (str): 需要筛选的工作状态
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -66,12 +66,9 @@ def get_data_by_time_range(
         "end_time": end_time,
         "columns": columns,
         "status": status,
+        "Operational_Status": Operational_Status,
     }
 
-    check_current_presence_map = {
-        "有电流": ["有电流", "电流持续中"],
-        "无电流": ["无电流"],
-    }
 
     try:
         df = pd.read_csv(f"data/{table_name}.csv")
@@ -110,15 +107,13 @@ def get_data_by_time_range(
                 "metadata": metadata,
             }
 
-    if check_current_presence is not None and check_current_presence != "不筛选":
+    if Operational_Status is not None and Operational_Status != "不筛选":
         filtered_data = filtered_data[
-            filtered_data["check_current_presence"].isin(
-                check_current_presence_map[check_current_presence]
-            )
+            filtered_data["Operational_Status"]==Operational_Status
         ]
         if filtered_data.empty:
             return {
-                "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
+                "error": f"在数据表 {table_name} 中未找到工作状态为 {Operational_Status} 的数据",
                 "metadata": metadata,
             }
 
