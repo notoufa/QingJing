@@ -7,6 +7,7 @@ import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
 
+
 import logger
 
 table_meta_file = "knowledge/table_meta.json"
@@ -1097,7 +1098,56 @@ def convert_seconds(seconds):
         },
         "metadata": metadata,
     }
+    
+def generate_simple_python_code(task_description: str):
+    """
+    调用大模型生成简单的 Python 代码。
+    
+    :param task_description: str，任务描述，包括输入、输出和注意事项。
+    :return: str，生成的 Python 代码。
+    """
+    
+    from api import get_completion
+    from utils import parse_code
+    
+    metadata = {
+        "function_name": "generate_simple_python_code",
+        "task_description": task_description,
+    }
+    CODE_GENERATE_PROMPT=f"""
+    # 任务描述  
+    {task_description}
 
+    # 约束条件  
+    - todo  
+
+    # 输出要求  
+    适当的思考过程是有益的，但最终必须输出代码。确保输出格式如下，并且只包含一个代码块：
+
+    ```python  
+    你的代码
+    ```
+    """
+    messages = [
+        {"role": "system", "content": "你是一个精通 Python 的编程助手，能够生成简洁且高效准确的 Python 代码。"},
+        {"role": "user", "content": CODE_GENERATE_PROMPT}
+    ]
+    
+    response = get_completion(messages)
+    
+    try:
+        response_data = parse_code(response)
+        return {
+            "result": response_data,
+            "metadata": metadata,
+        }
+    except Exception as e:
+        return {
+            "error": f"生成代码失败: {e}",
+            "metadata": metadata,
+        }
+        
+    
 
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
@@ -1112,6 +1162,7 @@ function_map: dict[str, callable] = {
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
     "sort_datetime": sort_datetime,
+    "generate_simple_python_code": generate_simple_python_code,
 }
 
 if __name__ == "__main__":
