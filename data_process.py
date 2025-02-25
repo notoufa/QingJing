@@ -780,20 +780,15 @@ for segment in segments:
         # 获取第一个值
         first_value = events_2["csvTime"].iloc[0]
 
-        # 定义目标日期
-        target_date = datetime(2024, 8, 19)  # 2024年8月19日   大模型预测测试
-        is_target_date = first_value.date() == target_date.date()
-
-        target_date_1 = datetime(2024, 8, 19)  # 2024年8月19日   大模型预测测试
-        is_target_date_1 = first_value.date() == target_date.date()
+       
 
         # 判断小时是否大于12点
-        is_hour_greater_than_12 = first_value.hour > 17
+        is_hour_greater_than_12 = first_value.hour > 12
         first_start_times, second_start_times = extract_daily_power_on_times(df=df)
 
         if (
-            is_target_date and is_hour_greater_than_12
-        ):  # 全部预测可以去掉is_target_date条件 或者根据问题传入
+            is_hour_greater_than_12
+        ):  
             events_2["new_column"] = events_2.apply(
                 lambda row: (
                     row["Ajia-3_v"]
@@ -825,7 +820,7 @@ for segment in segments:
             df.loc[indices, "status"] = "征服者落座"
 
         elif (
-            first_value in first_start_times and 1 == 0
+            first_value in first_start_times 
         ):  # 去掉1==0由LLM判断状态  默认不开启 给大家分享参考思路。
             events_2["new_column"] = events_2.apply(
                 lambda row: (
@@ -857,7 +852,7 @@ for segment in segments:
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "A架摆回"
 
-        elif first_value in second_start_times and 1 == 0:  # 去掉1==0由LLM判断状态
+        elif first_value in second_start_times :
             events_2["new_column"] = events_2.apply(
                 lambda row: (
                     row["Ajia-3_v"]
