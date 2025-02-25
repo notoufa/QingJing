@@ -400,7 +400,7 @@
                     },
                     "operands": {
                         "type": "array",
-                        "description": "参与运算的数值列表，所有元素必须为数字。减法、除法的操作数至少为2个",
+                        "description": "参与运算的数值列表，所有元素必须为数字。乘法、减法、除法的操作数至少为2个",
                         "items": {
                             "type": "number"
                         }

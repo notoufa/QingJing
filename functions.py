@@ -237,7 +237,8 @@ def aggregate_data(
 
             if operator == "==":
                 filtered_data = filtered_data[
-                    (filtered_data[cond_col] == cond_value) | (filtered_data[cond_col].astype(str) == str(cond_value))
+                    (filtered_data[cond_col] == cond_value)
+                    | (filtered_data[cond_col].astype(str) == str(cond_value))
                 ]
             elif operator == "!=":
                 filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
@@ -285,10 +286,11 @@ def aggregate_data(
 
     return {
         f"{column}_{method}": round(result, 2) if isinstance(result, float) else result,
+        "column_desc": get_meta_by_table_columns(table_name, [column]),
         "metadata": metadata,
     }
 
-# print(aggregate_data("Ajia_plc_1", "2024-05-19 00:00:00", "2024-05-19 23:59:59", "ajia_0_v_extremes", "count",[{"column": "ajia_0_v_extremes", "operator": "==", "value": "1"}]))
+
 def get_actions_by_time_range(start_time, end_time):
     """
     根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备动作列表。
@@ -890,6 +892,11 @@ def calculate_math_operations(operation, operands):
         for num in operands[1:]:
             result -= num
     elif operation == "乘法":
+        if len(operands) == 1:
+            return {
+                "error": "乘法错误：操作数至少为2个",
+                "metadata": metadata,
+            }
         result = 1
         for num in operands:
             result *= num
@@ -1013,3 +1020,10 @@ function_map: dict[str, callable] = {
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
 }
+
+if __name__ == "__main__":
+    for table in ['Ajia_plc_1','Jiaoche_plc_1','Port1_ksbg_1']:
+        for day in range(17, 31):
+            date = f"2024-05-{day:02d}"
+            missing_count = 1440 - aggregate_data(table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count")["csvTime_count"]
+            print(table,date,":",missing_count,missing_count/1400*100,"%")
