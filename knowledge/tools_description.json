@@ -8,8 +8,8 @@
     },
     {
         "function_name": "get_data_by_time_range",
-        "input": "数据表名、开始时间、结束时间、列名（可选）和状态（可选）",
-        "output": "指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）"
+        "input": "数据表名、开始时间、结束时间、列名（可选）和状态（可选）、工作状态（可选）。",
+        "output": "指定时间范围内的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等）。"
     },
     {
         "function_name": "get_actions_by_time_range",
