@@ -5,7 +5,10 @@ import json
 from datetime import datetime
 import json
 
-
+table_name_map={
+    "device_13_11_meter_1311":"折臂吊车与小艇动作表",
+    "Port3_ksbg_9":"艏推系统DP动作表"
+}
 data_path = "assets/初赛数据/"
 
 
@@ -905,7 +908,9 @@ for i in range(1, df.shape[0]):
     if df.loc[i - 1, "P3_33"] > 0 and df.loc[i, "P3_33"] == 0:
         df.loc[i, "status"] = "OFF DP"
 # 保存结果
-df.to_csv("data/Port3_ksbg_9.csv", index=False)
+table_key = "Port3_ksbg_9"
+df.to_csv(f"data/{table_key}.csv", index=False)
+df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
 # In[5]:
 
 
@@ -1109,8 +1114,9 @@ for segment in segments:
                 # 保存结果
 # df = df.drop(columns=['action'])
 # df = df.drop(columns=['13-11-6_v_new'])
-
-df.to_csv("data/device_13_11_meter_1311.csv", index=False)
+table_key = "device_13_11_meter_1311"
+df.to_csv(f"data/{table_key}.csv", index=False)
+df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
 
 # 移除tmp_data文件夹
 import shutil
