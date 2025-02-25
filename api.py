@@ -70,8 +70,8 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     )
 
     messages = [
-        {"role": "system", "content": prompts.get_prompt_vote(question)},
-        {"role": "user", "content": answer_content},
+        {"role": "system", "content": prompts.get_prompt_vote()},
+        {"role": "user", "content": f"问题：{question}\n{answer_content}"},
     ]
 
     response = get_completion(messages)
@@ -125,6 +125,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     reasoning_answer, api_response = get_summary(solution)
     solution.reasoning_answer = reasoning_answer
     solution.summary_api_response = api_response
+    reasoning_answer, api_response = correct(solution)
+    solution.reasoning_answer = reasoning_answer
+    solution.correct_api_response = api_response
     return solution
 
 
@@ -161,12 +164,48 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     response = get_completion(messages)
     try:
         res = json.loads(parse_res(response))
+        res_answer = ReasoningAnswer.from_dict(res)
+        logger.special(f"【问题总结结果】: \n{res_answer}")
         return (
-            ReasoningAnswer.from_dict(res),
+            res_answer,
             ApiResponse(messages, response),
         )
     except Exception as e:
         logger.error(f"【问题总结出错】: {e}")
+        logger.error(traceback.format_exc())
+
+
+def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
+    """
+    获得问题纠错的答案
+
+    :param solution: 问题解答
+    :return: 问题纠错的答案
+    """
+    logger.info("【问题纠错】", solution.to_correct_json())
+    messages = [
+        {
+            "role": "system",
+            "content": prompts.get_prompt_correct(),
+        },
+        {
+            "role": "user",
+            "content": str(solution.to_correct_json()),
+        },
+    ]
+    res_answer = solution.reasoning_answer.clone()
+    response = get_completion(messages)
+    try:
+        res = json.loads(parse_res(response))
+        res_answer.corrected_reasoning = res["corrected_reasoning"]
+        res_answer.corrected_answer = res["corrected_answer"]
+        res_answer.correct = res["correct"]
+        return (
+            res_answer,
+            ApiResponse(messages, response),
+        )
+    except Exception as e:
+        logger.error(f"【问题纠错出错】: {e}")
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
@@ -183,7 +222,10 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
             "role": "system",
             "content": prompts.get_prompt_task_decomposition(question, tool_names),
         },
-        {"role": "user", "content": question},
+        {
+            "role": "user",
+            "content": question,
+        },
     ]
     response = get_completion(messages)
     res = json.loads(parse_res(response))
@@ -283,7 +325,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
-    task.need_tools = [item['function']['name'] for item in tool_list]
+    task.need_tools = [item["function"]["name"] for item in tool_list]
     task.need_tables = [table["table_name"] for table in table_meta_list]
 
 
@@ -363,7 +405,6 @@ def get_completion(
             stream=False,
             messages=messages,
             tools=tools,
-            temperature=temperature,
         )
         logger.trace("【回答结果】", str(response))
         return response

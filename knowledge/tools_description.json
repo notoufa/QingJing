@@ -50,19 +50,20 @@
         "output": "运算结果"
     },
     {
-        "function_name": "calculate_time_interval",
-        "input": "两个时间点（开始时间、结束时间）",
-        "output": "时间间隔（单位：秒、分钟、小时）及时间先后顺序",
-        "notice": "calculate_time_interval函数用于计算两个时间点之间的时间间隔或判断两个时间的先后顺序，而求时间范围需要找到开始时间和结束时间"
-    },
-    {
         "function_name": "convert_seconds",
         "input": "时间间隔（秒）",
         "output": "对应的分钟和小时数"
     },
     {
+        "function_name": "calculate_time_interval",
+        "input": "两个时间点（开始时间、结束时间）",
+        "output": "时间间隔（单位：秒、分钟、小时）",
+        "notice": "calculate_time_interval函数用于计算两个时间点之间的时间间隔，而求时间范围需要找到开始时间和结束时间"
+    },
+    {
         "function_name": "sort_datetime",
         "input": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按日期时间排序或仅排序时间",
-        "output": "排序后的日期列表，按升序或降序排列"
+        "output": "排序后的日期列表，按升序或降序排列",
+        "notice": "判断时间先后顺序必须调用sort_datetime函数"
     }
 ]

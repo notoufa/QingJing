@@ -1,7 +1,7 @@
 """构造Prompt"""
 
 import json
-from solution import Decomposition, Subtask
+from solution import Decomposition, ReasoningAnswer, Subtask
 import tools
 import logger
 
@@ -14,6 +14,7 @@ prompt_update_decomposition_file = "prompts/update_decomposition.md"
 prompt_vote_file = "prompts/vote.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
+prompt_correct_file = "prompts/correct.md"
 prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_get_tool_file = "prompts/get_tool.md"
 
@@ -80,16 +81,14 @@ def get_prompt_update_decomposition(question: str) -> str:
     return res
 
 
-def get_prompt_vote(question: str) -> str:
+def get_prompt_vote() -> str:
     """
     获得投票模板
 
-    :param question: 问题
     :return: 投票模板
     """
     with open(prompt_vote_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<question>>", question)
     return res
 
 
@@ -129,6 +128,17 @@ def get_prompt_summary(summary: dict) -> str:
         "<<knowledge>>", str(get_knowledge_by_question(summary["question"]))
     )
     res = res.replace("<<summary>>", str(summary))
+    return res
+
+
+def get_prompt_correct() -> str:
+    """
+    获得问题纠错模板
+
+    :return: 问题纠错模板
+    """
+    with open(prompt_correct_file, "r", encoding="utf-8") as file:
+        res = file.read()
     return res
 
 
