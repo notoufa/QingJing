@@ -1,7 +1,7 @@
 """构造Prompt"""
 
 import json
-from solution import Subtask
+from solution import Decomposition, Subtask
 import tools
 import logger
 
@@ -10,6 +10,7 @@ knowledge_file = "knowledge/knowledge.json"
 atomic_questions_file = "knowledge/atomic_questions.json"
 
 prompt_task_decomposition_file = "prompts/task_decomposition.md"
+prompt_update_decomposition_file = "prompts/update_decomposition.md"
 prompt_vote_file = "prompts/vote.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
@@ -60,6 +61,19 @@ def get_prompt_task_decomposition(question: str, tool_list: list[dict]) -> str:
     atomic_questions = get_atomic_questions()
     res = res.replace("<<atomic_questions>>", str(atomic_questions))
     res = res.replace("<<function_calls>>", str(tool_list))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    return res
+
+
+def get_prompt_update_decomposition(question: str) -> str:
+    """
+    获得任务分解更新模板
+
+    :param question: 问题
+    :return: 任务分解模板
+    """
+    with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
+        res = file.read()
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 

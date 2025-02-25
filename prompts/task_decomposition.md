@@ -31,9 +31,10 @@
   - contains_time：是否包含时间（true/false）。
   - subtasks：子问题列表，每个子问题均为原子问题，包含以下字段：
     - task_id：唯一标识，原始问题的 ID 固定为 0，子问题 ID 从 1 开始递增。
+    - level：子任务层级，从 1 开始计数。
     - question：子问题描述，不包含假设条件和格式要求。
     - parent_ids：依赖的父问题 ID 列表（无依赖则为[0]）。
-  - chain_of_subtasks：子问题的执行顺序和依赖关系。 
+  - chain_of_subtasks：子问题的执行顺序和依赖关系。
 
 ### 示例：
 #### 输入：
@@ -46,21 +47,25 @@
     "subtasks": [
         {
             "task_id": 1,
+            "level": 1,
             "question": "查询2024/8/23-2024/8/24 【征服者起吊】和【征服者入水】时间",
             "parent_ids": [0]
         },
         {
             "task_id": 2,
+            "level": 2,
             "question": "查询2024/8/23 【征服者起吊】到【征服者入水】的电流状态变化次数",
             "parent_ids": [1]
         },
         {
             "task_id": 3,
+            "level": 2,
             "question": "查询2024/8/24 【征服者起吊】到【征服者入水】的电流状态变化次数",
             "parent_ids": [1]
         },
         {
             "task_id": 4,
+            "level": 3,
             "question": "计算2024/8/23 和 2024/8/24 【征服者起吊】到【征服者入水】的平均电流状态变化次数",
             "parent_ids": [2, 3]
         }

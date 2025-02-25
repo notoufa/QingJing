@@ -87,17 +87,41 @@ def get_answer(id: str, question: str) -> ProblemSolution:
     """
     solution = ProblemSolution(id, question)
     decomposition, api_response = get_task_decomposition(solution.question)
+    decomposition.draw_table()
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
 
-    for task in decomposition.subtasks:
-        parent_tasks = []
-        for parent_id in task.parent_ids:
-            parent_task = decomposition.get_task_by_id(parent_id)
-            if parent_task:
-                parent_tasks.append(parent_task)
-        task.parent_tasks = parent_tasks
-        task = get_atomic_answer(decomposition, task)
+    completed_tasks = set()
+    completed_level = 0
+
+    while len(completed_tasks) < len(decomposition.subtasks):
+        for task in decomposition.subtasks:
+            if not task.completed():
+                parent_tasks = []
+                for parent_id in task.parent_ids:
+                    parent_task = decomposition.get_task_by_id(parent_id)
+                    if parent_task:
+                        parent_tasks.append(parent_task)
+                task.parent_tasks = parent_tasks
+                get_atomic_answer(decomposition, task)
+                completed_tasks.add(task.task_id)
+
+                if len(completed_tasks) == len(decomposition.subtasks):
+                    break
+                else:
+                    tmp_completed_level = task.level
+                    same_level_tasks = [
+                        t
+                        for t in decomposition.subtasks
+                        if t.level == tmp_completed_level
+                    ]
+                    if all(t.task_id in completed_tasks for t in same_level_tasks):
+                        if tmp_completed_level > completed_level:
+                            completed_level = tmp_completed_level
+                            update_decomposition(question, decomposition)
+                            decomposition.draw_table()
+                    break
+
     reasoning_answer, api_response = get_summary(solution)
     solution.reasoning_answer = reasoning_answer
     solution.summary_api_response = api_response
@@ -150,14 +174,48 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     return decomposition, ApiResponse(messages, response)
 
 
-def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
+def update_decomposition(question: str, decomposition: Decomposition) -> Decomposition:
+    """
+    询问 LLM 是否需要更新任务分解树
+
+    :param decomposition: 问题的分解结果
+    :return: 是否需要更新任务分解树
+    """
+    logger.info("【询问是否需要更新任务分解树】")
+    messages = [
+        {
+            "role": "system",
+            "content": prompts.get_prompt_update_decomposition(question),
+        },
+        {
+            "role": "user",
+            "content": str(decomposition.to_update_dict()),
+        },
+    ]
+    response = get_completion(messages)
+    res = json.loads(parse_res(response))
+    res_decomposition = Decomposition.from_dict(res)
+    for subtask in res_decomposition.subtasks:
+        init_task = decomposition.get_task_by_id(subtask.task_id)
+        if init_task.completed():
+            subtask.answer = init_task.answer
+            subtask.need_tools = init_task.need_tools
+            subtask.need_tables = init_task.need_tables
+            subtask.function_results = init_task.function_results
+            subtask.parent_tasks = init_task.parent_tasks
+            subtask.api_response = init_task.api_response
+    res_decomposition.need_tools = decomposition.need_tools
+    decomposition = res_decomposition
+    logger.success("【更新后的任务分解树】", decomposition.to_update_dict())
+
+
+def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     获得原子问题的答案
 
     :param decomposition: 问题的分解结果
     :param task: 原子问题
     :param parent_tasks: 父任务
-    :return: 原子问题的答案
     """
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
@@ -202,13 +260,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask) -> Subtask:
             break
     api_response = ApiResponse(messages, response)
     answer = parse_res(response)
-    logger.success("【原子问题答案】", answer)
+    logger.special("【原子问题答案】", answer)
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
     task.need_tools = tool_list
     task.need_tables = [table["table_name"] for table in table_meta_list]
-    return task
 
 
 def get_tool(question: str) -> list:
