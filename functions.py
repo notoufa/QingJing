@@ -108,7 +108,7 @@ def get_data_by_time_range(
 
     if filter_work_status:
         filtered_data = filtered_data[
-            filtered_data["Operational_Status"]=="开机工作中"
+            filtered_data["Operational_Status"] == "开机工作中"
         ]
         if filtered_data.empty:
             return {
@@ -1019,13 +1019,21 @@ def calculate_time_interval(start_time: str, end_time: str):
         }
 
 
-def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
+def sort_datetime(
+    input_list: list[str],
+    order: str,
+    only_order_time: bool,
+    conditions: List[Dict[str, str]] = None,
+):
     """
     对列表进行排序，支持日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），可选择升序或降序。
 
     :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
     :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
     :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
+    :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
+            - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+            - "value": 过滤值
 
     :return: 排序后的列表及相关信息。
     """
@@ -1035,21 +1043,67 @@ def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
         "input_list": input_list,
         "order": order,
         "only_order_time": only_order_time,
+        "conditions": conditions,
     }
 
     try:
 
         def parse_value(value):
             """解析日期字符串，确保可以正确排序"""
-            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
-            return dt.time() if only_order_time else dt
+            try:
+                dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+                return dt.time() if only_order_time else dt
+            except Exception:
+                dt = datetime.strptime(value, "%H:%M:%S")
+                return dt.time() if only_order_time else dt
 
         sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
 
+        if conditions:
+            for condition in conditions:
+                operator = condition.get("operator")
+                value = condition.get("value")
+                if operator not in ["==", ">", "<", ">=", "<=", "!="]:
+                    return {
+                        "error": f"不支持的操作符: {operator}",
+                        "metadata": metadata,
+                    }
+                if operator == "==":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) == parse_value(value)
+                    ]
+                elif operator == ">":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) > parse_value(value)
+                    ]
+                elif operator == "<":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) < parse_value(value)
+                    ]
+                elif operator == ">=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) >= parse_value(value)
+                    ]
+                elif operator == "<=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) <= parse_value(value)
+                    ]
+                elif operator == "!=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) != parse_value(value)
+                    ]
+
+        dates = sorted(
+            {
+                datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+                for x in sorted_list
+            }
+        )
         return {
             "result": sorted_list,
+            "filted_dates": f"符合筛选条件的所有日期：{dates}",
             "metadata": metadata,
-            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序",
+            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序；并返回",
         }
     except ValueError as e:
         return {

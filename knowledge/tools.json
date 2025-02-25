@@ -440,7 +440,7 @@
         "type": "function",
         "function": {
             "name": "sort_datetime",
-            "description": "对日期列表进行排序，可选择升序或降序。",
+            "description": "对日期列表进行排序，可选择升序或降序，可筛选指定时间段的时间",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -464,6 +464,35 @@
                         "type": "bool",
                         "description": "true表示仅排序时间，false表示排序日期和时间",
                         "default": false
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [
+                                        "==",
+                                        ">",
+                                        "<",
+                                        ">=",
+                                        "<=",
+                                        "!="
+                                    ],
+                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                                }
+                            },
+                            "required": [
+                                "operator",
+                                "value"
+                            ]
+                        }
                     }
                 },
                 "required": [
