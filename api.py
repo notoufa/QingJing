@@ -156,11 +156,14 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
         },
     ]
     response = get_completion(messages)
-    res = json.loads(parse_res(response))
-    return (
-        ReasoningAnswer.from_dict(res),
-        ApiResponse(messages, response),
-    )
+    try:
+        res = json.loads(parse_res(response))
+        return (
+            ReasoningAnswer.from_dict(res),
+            ApiResponse(messages, response),
+        )
+    except Exception as e:
+        logger.error(f"【问题总结出错】: {e}")
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
