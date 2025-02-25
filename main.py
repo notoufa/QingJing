@@ -93,7 +93,7 @@ def main():
     logger.info(f"【问题总数】: {len(q_json_list)}")
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
-    submit_path = os.path.join(submit_dir, f"result_{date_str}.jsonl")
+    submit_path = os.path.join(submit_dir, f"试试又不会怎样_result_{date_str}.jsonl")
     solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
 
     vote_results = []

@@ -143,16 +143,16 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
         raw_table_data = json.load(file)
 
     table_data = [
-        {"table_name": item["table_name"], "table_desc": item["table_desc"]}
+        {"表名": item["table_name"], "表的描述信息": item["table_desc"]}
         for item in raw_table_data
     ]
-
+    table_data_str = "\n".join([f"{idx + 1}. 表名: {item['表名']}, 表的描述信息: {item['表的描述信息']}" for idx, item in enumerate(table_data)])
     with open(prompt_get_table_meta_and_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
     question = task.question
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     res = res.replace("<<tools>>", str(str(tools.tools_description)))
-    res = res.replace("<<table_data>>", str(table_data))
+    res = res.replace("<<table_data>>", str(table_data_str))
     res = res.replace("<<assumption>>", assumption)
     res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
     res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
