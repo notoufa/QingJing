@@ -278,7 +278,7 @@
                     },
                     "index": {
                         "type": "number",
-                        "description": "查询第几次"
+                        "description": "查询第几次运行时长，不填则为时间段内的全部运行时长"
                     }
                 },
                 "required": [

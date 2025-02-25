@@ -53,7 +53,7 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
             logger.special(
-                f"【第{i+1}次得到的最终答案】: \n{solution.reasoning_answer.to_dict()}"
+                f"【第{i+1}次得到的最终答案】: \n{str(solution.reasoning_answer)}"
             )
         except Exception as e:
             logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
@@ -106,6 +106,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
 
     for level in sorted(tasks_by_level.keys()):
         level_tasks = tasks_by_level[level]
+
+        if len(level_tasks) > 5:
+            max_workers = max(max_workers, 5)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = []
@@ -174,18 +177,18 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     :return: 问题的分解结果
     """
     logger.info("【获取问题分解结果】", question)
-    tool_list = get_tool(question)
+    tool_names = get_tool(question)
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_task_decomposition(question, tool_list),
+            "content": prompts.get_prompt_task_decomposition(question, tool_names),
         },
         {"role": "user", "content": question},
     ]
     response = get_completion(messages)
     res = json.loads(parse_res(response))
     decomposition = Decomposition.from_dict(res)
-    decomposition.need_tools = [tool["function_name"] for tool in tool_list]
+    decomposition.need_tools = tool_names
     decomposition.draw_table()
     return decomposition, ApiResponse(messages, response)
 
@@ -250,7 +253,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     messages.append(response.choices[0].message.model_dump())
     # 循环调用函数
     function_results = []
-    max_iterations = 3
+    max_iterations = 6
     for _ in range(max_iterations):
         if response.choices[0].message.tool_calls:
             for tool_call in response.choices[0].message.tool_calls:
@@ -289,7 +292,7 @@ def get_tool(question: str) -> list:
     获得问题所需的工具
 
     :param question: 问题
-    :return: 所需工具
+    :return: 所需工具的名称列表
     """
     logger.info("【开始获取初始问题所需工具】", question)
     messages = [
@@ -299,13 +302,9 @@ def get_tool(question: str) -> list:
         },
     ]
     response = get_completion(messages)
-    need_tools = json.loads(parse_res(response))
-    logger.success("【问题所需工具】", need_tools)
-    tool_list = []
-    for tool in tools.tools_description:
-        if tool["function_name"] in need_tools:
-            tool_list.append(tool)
-    return tool_list
+    tool_names = json.loads(parse_res(response))
+    logger.success("【问题所需工具】", tool_names)
+    return tool_names
 
 
 def get_table_meta_and_tool(
@@ -331,8 +330,6 @@ def get_table_meta_and_tool(
     res = json.loads(parse_res(response))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
-    # if "能耗" in question:
-    #     need_tools=['get_total_energy_consumption_by_time_range']
     if not decomposition.contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
     logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
@@ -345,7 +342,10 @@ def get_table_meta_and_tool(
 
 
 def get_completion(
-    messages: list[dict], tools: list[dict] = [], model: str = "glm-4-plus"
+    messages: list[dict],
+    tools: list[dict] = [],
+    model: str = "glm-4-plus",
+    temperature: float = 0,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -363,6 +363,7 @@ def get_completion(
             stream=False,
             messages=messages,
             tools=tools,
+            temperature=temperature,
         )
         logger.trace("【回答结果】", str(response))
         return response

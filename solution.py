@@ -19,7 +19,7 @@ class ReasoningAnswer:
         self.vote: str = None
 
     def __repr__(self):
-        return f"ReasoningAnswer(Reasoning={self.reasoning}, Answer={self.answer})"
+        return f"思维过程：{self.reasoning}\n\n纠错步骤：\n{self.correct}\n\n最终答案：\n{self.answer}"
 
     def to_dict(self):
         return {
