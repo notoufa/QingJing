@@ -53,15 +53,10 @@
                         ],
                         "default": ""
                     },
-                    "check_current_presence": {
-                        "type": "string",
-                        "description": "是否筛选电流状态。可选值：不筛选、有电流、无电流。",
-                        "enum": [
-                            "不筛选",
-                            "有电流",
-                            "无电流"
-                        ],
-                        "default": "不筛选"
+                    "filter_work_status": {
+                        "type": "boolean",
+                        "description": "是否只筛选‘开机工作中’状态的数据。true 表示筛选 ‘开机工作中’，false 表示不过滤。",
+                        "default": false
                     }
                 },
                 "required": [
@@ -421,7 +416,7 @@
         "type": "function",
         "function": {
             "name": "calculate_time_interval",
-            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
+            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔和两个时间的先后顺序。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -437,6 +432,44 @@
                 "required": [
                     "start_time",
                     "end_time"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sort_datetime",
+            "description": "对日期列表进行排序，可选择升序或降序。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "input_list": {
+                        "type": "array",
+                        "items": {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        "description": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                    },
+                    "order": {
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "description": "排序方式，'asc' 表示升序，'desc' 表示降序。"
+                    },
+                    "only_order_time": {
+                        "type": "bool",
+                        "description": "true表示仅排序时间，false表示排序日期和时间",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "input_list",
+                    "order",
+                    "only_order_time"
                 ]
             }
         }

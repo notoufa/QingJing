@@ -283,7 +283,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
-    task.need_tools = tool_list
+    task.need_tools = [item['function']['name'] for item in tool_list]
     task.need_tables = [table["table_name"] for table in table_meta_list]
 
 

@@ -43,7 +43,7 @@ def get_data_by_time_range(
     end_time: str,
     columns=None,
     status=None,
-    check_current_presence="不筛选",
+    filter_work_status=False,
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -54,7 +54,7 @@ def get_data_by_time_range(
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
     status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
-    check_current_presence (str): 需要筛选的电流状态
+    filter_work_status (bool): 是否只筛选‘开机工作中’状态的数据
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -66,11 +66,7 @@ def get_data_by_time_range(
         "end_time": end_time,
         "columns": columns,
         "status": status,
-    }
-
-    check_current_presence_map = {
-        "有电流": ["有电流", "电流持续中"],
-        "无电流": ["无电流"],
+        "filter_work_status": filter_work_status,
     }
 
     try:
@@ -110,15 +106,13 @@ def get_data_by_time_range(
                 "metadata": metadata,
             }
 
-    if check_current_presence is not None and check_current_presence != "不筛选":
+    if filter_work_status:
         filtered_data = filtered_data[
-            filtered_data["check_current_presence"].isin(
-                check_current_presence_map[check_current_presence]
-            )
+            filtered_data["Operational_Status"]=="开机工作中"
         ]
         if filtered_data.empty:
             return {
-                "error": f"在数据表 {table_name} 中未找到电流状态为 {check_current_presence} 的数据",
+                "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中' 的数据",
                 "metadata": metadata,
             }
 
@@ -662,7 +656,9 @@ def get_running_duration_by_time_range(start_time, end_time, type, index=None):
             current_index += 1
             current_duration = end_uptime - start_uptime
             if current_index == index:
-                index_map[f"第{current_index}次{type}"] = convert_seconds(current_duration.total_seconds())
+                index_map[f"第{current_index}次{type}"] = convert_seconds(
+                    current_duration.total_seconds()
+                )
             total_duration += current_duration
             start_uptime = None
 
@@ -1010,10 +1006,54 @@ def calculate_time_interval(start_time: str, end_time: str):
         return {
             "result": convert_seconds(seconds),
             "metadata": metadata,
+            "desc": (
+                f"{start_time}在{end_time}之前"
+                if seconds > 0
+                else f"{start_time}在{end_time}之后"
+            ),
         }
     except ValueError as e:
         return {
             "error": f"时间格式错误或无效输入: {e}",
+            "metadata": metadata,
+        }
+
+
+def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
+    """
+    对列表进行排序，支持日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），可选择升序或降序。
+
+    :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
+    :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
+    :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
+
+    :return: 排序后的列表及相关信息。
+    """
+
+    metadata = {
+        "function_name": "sort_datetime",
+        "input_list": input_list,
+        "order": order,
+        "only_order_time": only_order_time,
+    }
+
+    try:
+
+        def parse_value(value):
+            """解析日期字符串，确保可以正确排序"""
+            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            return dt.time() if only_order_time else dt
+
+        sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
+
+        return {
+            "result": sorted_list,
+            "metadata": metadata,
+            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序",
+        }
+    except ValueError as e:
+        return {
+            "error": f"排序失败: {e}",
             "metadata": metadata,
         }
 
@@ -1071,6 +1111,7 @@ function_map: dict[str, callable] = {
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
+    "sort_datetime": sort_datetime,
 }
 
 if __name__ == "__main__":
