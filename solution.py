@@ -299,7 +299,13 @@ class Decomposition:
                     task.answer,
                 ]
             )
-        logger.special("\n", table.draw())
+        logger.special(
+            "\n",
+            f"假设条件：{self.assumption}\n",
+            f"格式要求：{self.format_requirement}",
+            "\n",
+            table.draw(),
+        )
 
 
 class ProblemSolution:
