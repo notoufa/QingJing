@@ -341,7 +341,10 @@ def get_table_meta_and_tool(
 
 
 def get_completion(
-    messages: list[dict], tools: list[dict] = [], model: str = "glm-4-plus"
+    messages: list[dict],
+    tools: list[dict] = [],
+    model: str = "glm-4-plus",
+    temperature: float = 0,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -359,7 +362,7 @@ def get_completion(
             stream=False,
             messages=messages,
             tools=tools,
-            temperature=0,
+            temperature=temperature,
         )
         logger.trace("【回答结果】", str(response))
         return response
