@@ -112,6 +112,8 @@ class Subtask:
         self.function_results = None
         self.parent_tasks: list[Subtask] = None
         self.api_response: ApiResponse = None
+        self.need_tables: list[str] = None
+        self.need_tools: list[str] = None
 
     def __repr__(self):
         return f"Subtask(ID={self.task_id}, Question={self.question}, ParentIDs={self.parent_ids})"
@@ -132,6 +134,8 @@ class Subtask:
             "parent_ids": self.parent_ids,
             "answer": self.answer,
             "function_results": self.function_results,
+            "need_tables": self.need_tables,
+            "need_tools": self.need_tools,
         }
         if export_api_response:
             res["api_response"] = (
@@ -174,6 +178,7 @@ class Decomposition:
         self.assumption: str = assumption
         self.subtasks: list[Subtask] = subtasks
         self.chain_of_subtasks: str = chain_of_subtasks
+        self.need_tools: list[str] = None
 
     def __repr__(self):
         return (
@@ -212,6 +217,7 @@ class Decomposition:
                 subtask.to_dict(export_api_response) for subtask in self.subtasks
             ],
             "chain_of_subtasks": self.chain_of_subtasks,
+            "need_tools": self.need_tools,
         }
 
     def to_simple_dict(self):
@@ -222,6 +228,7 @@ class Decomposition:
             "assumption": self.assumption,
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
+            "need_tools": self.need_tools,
         }
 
     def get_initial_dict(self) -> dict:
