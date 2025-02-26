@@ -23,7 +23,8 @@ def parse_res(response):
             res = res.split("```", 1)[0]
         res = res.strip().replace("\n", "")
         return res
-    except Exception:
+    except Exception as e:
+        logger.trace(f"【解析结果出错】: {e}", traceback.format_exc())
         return res
 
 
