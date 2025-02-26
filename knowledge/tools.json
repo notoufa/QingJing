@@ -55,7 +55,7 @@
                     },
                     "filter_work_status": {
                         "type": "boolean",
-                        "description": "是否只筛选‘开机工作中’或布放阶段与回收阶段状态的数据。true 表示筛选 ‘开机工作中’，false 表示不过滤。",
+                        "description": "是否只筛选‘开机工作中’状态或深海作业中（包括布放阶段与回收阶段）的数据。true 表示筛选 ‘开机工作中’，false 表示不过滤。",
                         "default": false
                     }
                 },
