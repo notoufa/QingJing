@@ -449,9 +449,9 @@ for segment in segments:
     L4 = extract_events(df, segment=segment)
     L5.append(L4)
     start, end = segment
-    events_2 = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
+    events_11 = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
     print("-----------------事件--------------------")
-    print(list(events_2["Ajia-5_v"]))
+    print(list(events_11["Ajia-5_v"]))
     print("-----------------事件--------------------")
     events_1 = df[
         (df["csvTime"] >= start)
@@ -782,9 +782,11 @@ for segment in segments:
                             df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
                             df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
     else:
+        if len(L4) == 0:
+            continue
         LLM_predict_count+=1
         LLM_predict_time_range[LLM_predict_count] = [start, end]
-        events_2 = events_2.copy()
+        events_2 = events_11.copy()
         events_2.loc[:, "csvTime"] = pd.to_datetime(events_2["csvTime"])
         # 获取第一个值
         first_value = events_2["csvTime"].iloc[0]
