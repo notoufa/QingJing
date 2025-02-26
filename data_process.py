@@ -916,6 +916,8 @@ df = df.drop(columns=["date"])  # 删除 'date' 列
 # df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
 df.to_csv("data/Ajia_plc_1.csv", index=False)
 action_df = df[["csvTime", "status","Ajia-3_v","Ajia-5_v"]]
+table_key = "Ajia_plc_1"
+df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
 # In[4]:
 
 import pandas as pd
