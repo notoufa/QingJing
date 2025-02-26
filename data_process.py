@@ -7,6 +7,7 @@ import json
 import pandas as pd
 
 table_name_map={
+    "Ajia_plc_1":"A架动作表",
     "device_13_11_meter_1311":"折臂吊车与小艇动作表",
     "Port3_ksbg_9":"艏推系统DP动作表"
 }
