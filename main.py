@@ -15,7 +15,7 @@ solution_dir = "solutions"
 export_api_response = False
 
 test_vote_times = 1
-test_splice_index = False
+test_splice_index = True
 test_input_path = "questions/test.jsonl"
 
 production_vote_times = 1
