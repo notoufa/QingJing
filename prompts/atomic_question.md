@@ -1,11 +1,12 @@
+当前执行的子任务为：<<<question>>>
 已知子任务链：<<chain_of_subtasks>>
+已知上游任务执行结果：<<parent_tasks_desc>>
+
 已知数据表结构：<<table_meta_list>>
 已知背景知识：<<knowledge>>
 假设条件：<<<assumption>>>
 
-已知上游任务执行结果：<<parent_tasks_desc>>
-
-请回答问题：<<<question>>>，并严格遵守以下要求：
+回答问题并严格遵守以下要求：
 
 - 数值要求
   - 时间计算：进行时间减法/除法运算时，应以秒为单位进行计算
