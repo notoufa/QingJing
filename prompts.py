@@ -12,11 +12,12 @@ atomic_questions_file = "knowledge/atomic_questions.json"
 prompt_task_decomposition_file = "prompts/task_decomposition.md"
 prompt_update_decomposition_file = "prompts/update_decomposition.md"
 prompt_vote_file = "prompts/vote.md"
-prompt_get_tool_file = "prompts/get_tool.md"
+prompt_pre_atomic_question_file = "prompts/pre_atomic_question.md"
 prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
 prompt_correct_file = "prompts/correct.md"
+prompt_get_tool_file = "prompts/get_tool.md"
 
 
 def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
@@ -93,6 +94,25 @@ def get_prompt_vote() -> str:
         res = file.read()
     return res
 
+def get_prompt_pre_atomic_question(
+    task: Subtask, assumption: str, chain_of_subtasks: str    
+) -> str:
+    """
+    获得预回答原子问题模板
+
+    :param task: 原子问题
+    :param assumption: 假设条件
+    """
+    question = task.question
+    with open(prompt_pre_atomic_question_file, "r", encoding="utf-8") as file:
+        res = file.read()
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+    res = res.replace("<<assumption>>", assumption)
+    res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+    res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
+    return res
+    
 
 def get_prompt_atomic_question(
     task: Subtask, assumption: str, chain_of_subtasks: str, table_meta_list: list[dict]
