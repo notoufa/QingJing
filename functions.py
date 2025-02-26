@@ -45,8 +45,7 @@ def get_data_by_time_range(
     start_time: str,
     end_time: str,
     columns=None,
-    status=None,
-    filter_work_status=False,
+    conditions: List[Dict[str, str]] = None,
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -56,9 +55,10 @@ def get_data_by_time_range(
     start_time (str): 开始时间，格式为 'YYYY-MM-DD HH:MM:SS'
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
-    status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
-    filter_work_status (bool): 是是否只筛选‘开机工作中’或布放阶段与回收阶段状态的数据
-
+    conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
+        - "column": 过滤列名
+        - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+        - "value": 过滤值
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
     """
@@ -68,8 +68,7 @@ def get_data_by_time_range(
         "start_time": start_time,
         "end_time": end_time,
         "columns": columns,
-        "status": status,
-        "filter_work_status": filter_work_status,
+        "conditions": conditions,
     }
 
     try:
@@ -94,20 +93,59 @@ def get_data_by_time_range(
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
+        
     filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
+    
     if filtered_data.empty:
         return {
             "error": f"在数据表 {table_name} 中未找到时间范围 {start_time} 到 {end_time} 的数据",
             "metadata": metadata,
         }
 
-    if status is not None:
-        filtered_data = filtered_data[filtered_data["status"] == status]
-        if filtered_data.empty:
-            return {
-                "error": f"在数据表 {table_name} 中未找到状态为 {status} 的数据",
-                "metadata": metadata,
-            }
+    filter_work_status=False
+
+    if conditions:
+        for condition in conditions:
+            cond_col, operator, cond_value = (
+                condition["column"],
+                condition["operator"],
+                condition["value"],
+            )
+            if "work_status" == condition["column"]:
+                filter_work_status = True
+                continue
+            if cond_col not in filtered_data.columns:
+                return {
+                    "error": f"条件列 {cond_col} 不存在于数据表 {table_name}",
+                    "metadata": metadata,
+                }
+
+            if operator == "==":
+                filtered_data = filtered_data[
+                    (filtered_data[cond_col] == cond_value)
+                    | (filtered_data[cond_col].astype(str) == str(cond_value))
+                ]
+            elif operator == "!=":
+                filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
+            elif operator == ">":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) > float(cond_value)
+                ]
+            elif operator == "<":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) < float(cond_value)
+                ]
+            elif operator == ">=":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) >= float(cond_value)
+                ]
+            elif operator == "<=":
+                filtered_data = filtered_data[
+                    filtered_data[cond_col].astype(float) <= float(cond_value)
+                ]
+            else:
+                return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
+
 
     if filter_work_status:
         if table_name == "Ajia_plc_1":

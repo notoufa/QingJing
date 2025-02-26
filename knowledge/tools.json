@@ -29,34 +29,39 @@
                         "description": "需要查询的列名列表。如果未提供，则返回所有列。",
                         "default": []
                     },
-                    "status": {
-                        "type": "string",
-                        "description": "需要筛选的状态。如果未提供，则不筛选状态。支持以下值：A架开机、ON DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座",
-                        "enum": [
-                            "A架开机",
-                            "ON DP",
-                            "征服者起吊",
-                            "征服者入水",
-                            "缆绳解除",
-                            "A架摆回",
-                            "小艇落座",
-                            "A架关机",
-                            "OFF DP",
-                            "折臂吊车开机",
-                            "A架摆出",
-                            "小艇检查完毕",
-                            "小艇入水",
-                            "缆绳挂妥",
-                            "征服者出水",
-                            "折臂吊车关机",
-                            "征服者落座"
-                        ],
-                        "default": ""
-                    },
-                    "filter_work_status": {
-                        "type": "boolean",
-                        "description": "是否只筛选‘开机工作中’或布放阶段与回收阶段状态的数据。true 表示筛选 ‘开机工作中’，false 表示不过滤。",
-                        "default": false
+                    "conditions": {
+                        "type": "array",
+                        "description": "可选的过滤条件列表，每个条件包含列名、运算符和值。",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "column": {
+                                    "type": "string",
+                                    "description": "过滤条件的列名。"
+                                },
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [
+                                        "==",
+                                        ">",
+                                        "<",
+                                        ">=",
+                                        "<=",
+                                        "!="
+                                    ],
+                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "用于过滤的值，类型为字符串。"
+                                }
+                            },
+                            "required": [
+                                "column",
+                                "operator",
+                                "value"
+                            ]
+                        }
                     }
                 },
                 "required": [
