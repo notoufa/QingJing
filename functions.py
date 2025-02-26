@@ -70,6 +70,7 @@ def get_data_by_time_range(
         "start_time": start_time,
         "end_time": end_time,
         "columns": columns,
+        "conditions_logic": conditions_logic,
         "conditions": conditions,
     }
 
