@@ -182,9 +182,12 @@ class Subtask:
         }
 
     def get_parent_tasks_desc(self) -> str:
-        if not self.parent_tasks or len(self.parent_tasks) == 0:
+        if not self.has_parent_task():
             return ""
         return [task.to_simple_dict() for task in self.parent_tasks]
+
+    def has_parent_task(self) -> bool:
+        return self.parent_tasks and len(self.parent_tasks) > 0
 
     def clone(self):
         return copy.deepcopy(self)

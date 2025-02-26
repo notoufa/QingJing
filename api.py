@@ -266,7 +266,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
-    if str(task.get_parent_tasks_desc()):
+    if task.has_parent_task():
         system_prompt, user_prompt = prompts.get_prompt_pre_atomic_question(
             task,
             decomposition.assumption,
@@ -280,7 +280,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
             {
                 "role": "user",
                 "content": user_prompt,
-            }
+            },
         ]
         pre_response = get_completion(pre_messages)
 
@@ -295,7 +295,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
             pre_task = json.loads(cleaned_content)
             logger.special("【原子问题预处理】", pre_task)
             is_answer = pre_task["can_answer_directly"]
-            if is_answer.lower() == "true":
+            if is_answer:
                 logger.special("【原子问题答案】", pre_task["response"])
                 task.answer = pre_task["response"]
                 task.api_response = ApiResponse(pre_messages, pre_response)
