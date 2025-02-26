@@ -1,6 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo 正在运行数据预处理...
+jupyter nbconvert --to script data_process.ipynb
 python data_process.py
 if %errorlevel% neq 0 (
     echo 数据预处理失败, 终止运行

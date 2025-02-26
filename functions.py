@@ -59,7 +59,7 @@ def get_data_by_time_range(
     conditions_logic (str): 过滤条件逻辑，支持AND、OR
     conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
         - "column": 过滤列名
-        - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+        - "operator": 过滤操作符（in, ==, >, <, >=, <=, !=）
         - "value": 过滤值
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -143,6 +143,21 @@ def get_data_by_time_range(
                 condition_mask = column_values >= cond_value
             elif operator == "<=":
                 condition_mask = column_values <= cond_value
+            elif operator == "in":
+                if isinstance(cond_value, str):
+                    try:
+                        cond_value = [v.strip() for v in cond_value.split(",")]
+                    except Exception:
+                        return {
+                            "error": f"条件值 {cond_value} 解析失败，应为以逗号分隔的字符串列表（示例：value1,value2,value3）",
+                            "metadata": metadata,
+                        }
+                else:
+                    return {
+                        "error": f"条件值 {cond_value} 格式错误，应为以逗号分隔的字符串列表（示例：value1,value2,value3）",
+                        "metadata": metadata,
+                    }
+                condition_mask = column_values.isin(cond_value)
             else:
                 return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
 
@@ -158,24 +173,6 @@ def get_data_by_time_range(
 
     if filtered_data.empty:
         return {"error": f"所有过滤条件应用后，没有匹配的数据", "metadata": metadata}
-
-    # if filter_work_status:
-    #     if table_name == "A架动作表":
-    #         filtered_data = filtered_data[
-    #             (filtered_data["work_status"] == "布放阶段开始")
-    #             | (filtered_data["work_status"] == "布放阶段结束")
-    #             | (filtered_data["work_status"] == "回收阶段开始")
-    #             | (filtered_data["work_status"] == "回收阶段结束")
-    #             | (filtered_data["work_status"] == "布放阶段中")
-    #             | (filtered_data["work_status"] == "回收阶段中")
-    #         ]
-    #     else:
-    #         filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
-    #     if filtered_data.empty:
-    #         return {
-    #             "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中'或 布放阶段中或回收阶段中的数据",
-    #             "metadata": metadata,
-    #         }
 
     if columns is None:
         columns = filtered_data.columns.tolist()
@@ -270,7 +267,7 @@ def aggregate_data(
     conditions_logic (str): 过滤条件逻辑，支持AND、OR
     conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
         - "column": 过滤列名
-        - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+        - "operator": 过滤操作符（in, ==, >, <, >=, <=, !=）
         - "value": 过滤值
 
     返回：
@@ -341,6 +338,21 @@ def aggregate_data(
                 condition_mask = column_values >= cond_value
             elif operator == "<=":
                 condition_mask = column_values <= cond_value
+            elif operator == "in":
+                if isinstance(cond_value, str):
+                    try:
+                        cond_value = [v.strip() for v in cond_value.split(",")]
+                    except Exception:
+                        return {
+                            "error": f"条件值 {cond_value} 解析失败，应为以逗号分隔的字符串列表（示例：value1,value2,value3）",
+                            "metadata": metadata,
+                        }
+                else:
+                    return {
+                        "error": f"条件值 {cond_value} 格式错误，应为以逗号分隔的字符串列表（示例：value1,value2,value3）",
+                        "metadata": metadata,
+                    }
+                condition_mask = column_values.isin(cond_value)
             else:
                 return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
 
@@ -1126,7 +1138,7 @@ def sort_datetime(
     :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
     :param conditions_logic (str): 过滤条件逻辑，支持AND、OR
     :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
-            - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+            - "operator": 过滤操作符（in, ==, >, <, >=, <=, !=）
             - "value": 过滤值
 
     :return: 排序后的列表及相关信息。
@@ -1168,7 +1180,7 @@ def sort_datetime(
                     condition["value"],
                 )
 
-                if operator not in ["==", ">", "<", ">=", "<=", "!="]:
+                if operator not in ["in", "==", ">", "<", ">=", "<=", "!="]:
                     return {
                         "error": f"不支持的操作符: {operator}",
                         "metadata": metadata,
@@ -1201,7 +1213,17 @@ def sort_datetime(
                         condition_mask.append(parsed_item >= parsed_value)
                     elif operator == "<=":
                         condition_mask.append(parsed_item <= parsed_value)
-
+                    elif operator == "in":
+                        if isinstance(value, str):
+                            value_list = [
+                                parse_value(v.strip()) for v in value.split(",")
+                            ]
+                        else:
+                            return {
+                                "error": f"条件值 {value} 格式错误，in 操作符需要以逗号分隔的字符串",
+                                "metadata": metadata,
+                            }
+                        condition_mask.append(parsed_item in value_list)
                 if logic == "AND":
                     mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
                 else:
@@ -1368,21 +1390,7 @@ function_map: dict[str, callable] = {
 if __name__ == "__main__":
     print(
         get_data_by_time_range(
-            "Ajia_plc_1",
-            "2024-08-24 00:55:08",
-            "2024-08-24 24:03:08",
-            columns=[],
-            status="小艇落座",
-        )
-    )
-    print(
-        get_total_energy_generation_or_fuel_consumption_by_time_range(
-            "2024-05-17 00:00:00",
-            "2024-05-23 00:00:00",
-            "理论发电量",
-            "整个柴油发电机组",
-            0.8,
-            42.76,
+            "2024-05-17 00:00:00", "2024-05-25 00:00:00", "甲板机械设备"
         )
     )
     for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:

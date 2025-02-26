@@ -60,7 +60,7 @@ def process_one(line: dict) -> VoteResult | dict:
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, vote_times).clone()
-        logger.success(
+        logger.special(
             f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.get_correct_answer()}"
         )
         return vote_res
@@ -84,7 +84,7 @@ def main():
     os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
 
-    logger.info(f"【运行模式】: {'测试' if is_test else '生产'}")
+    logger.debug(f"【运行模式】: {'测试' if is_test else '生产'}")
 
     question_path = test_input_path if is_test else production_input_path
     vote_times = test_vote_times if is_test else production_vote_times
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     main()
     end_time = time.time()
     elapsed_time_minutes = (end_time - start_time) / 60
-    logger.special(f"【程序运行时间】 {elapsed_time_minutes:.2f} 分钟")
+    logger.debug(f"【程序运行时间】 {elapsed_time_minutes:.2f} 分钟")
     logger.info(
         "------------------------------【程序结束】------------------------------"
     )

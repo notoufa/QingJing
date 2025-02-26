@@ -7,7 +7,7 @@ import time
 
 LEVELS = ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "SUCCESS", "SPECIAL"]
 
-console_level = "INFO"
+console_level = "DEBUG"
 file_level = "TRACE"
 
 logs_path = "logs"
@@ -26,7 +26,7 @@ COLORS = {
 }
 
 
-def init(log_filename=None, console_log_level="INFO", file_log_level="TRACE"):
+def init(log_filename=None, console_log_level="DEBUG", file_log_level="TRACE"):
     """初始化日志模块"""
     global log_file_path, console_level, file_level
 
@@ -68,12 +68,12 @@ def color_print(level, color, *args, sep=" ", end="\n"):
 # 各级别日志函数
 def trace(*args, sep=" ", end="\n"):
     """打印跟踪信息（灰色）"""
-    color_print("TRACE", "grey", *args, sep=sep, end=end)
+    color_print("TRACE", "white", *args, sep=sep, end=end)
 
 
 def debug(*args, sep=" ", end="\n"):
     """打印调试信息（白色）"""
-    color_print("DEBUG", "white", *args, sep=sep, end=end)
+    color_print("DEBUG", "grey", *args, sep=sep, end=end)
 
 
 def info(*args, sep=" ", end="\n"):

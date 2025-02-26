@@ -1,6 +1,5 @@
 """工具函数"""
 
-
 import numpy as np
 import logger
 from zhipuai import ZhipuAI
@@ -26,11 +25,13 @@ def parse_res(response):
         return res
     except Exception:
         return res
-    
+
+
 def custom_serializer(obj):
     if isinstance(obj, np.int64):
         return int(obj)
     raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+
 
 def parse_code(response):
     """
@@ -46,6 +47,7 @@ def parse_code(response):
     except Exception:
         return res
 
+
 def check_api_key() -> str:
     """
     检查API_KEY是否设定
@@ -57,11 +59,13 @@ def check_api_key() -> str:
         )
     return api_key
 
+
 def get_completion(
     messages: list[dict],
     tools: list[dict] = [],
     model: str = "glm-4-plus",
     temperature: float = 0,
+    json_output: bool = False,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -74,11 +78,17 @@ def get_completion(
     try:
         client = ZhipuAI(api_key=check_api_key())
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
+        if json_output:
+            response_format = {'type': 'json_object'}
+        else:
+            response_format = {'type': 'text'}
         response = client.chat.completions.create(
             model=model,
             stream=False,
             messages=messages,
             tools=tools,
+            response_format=response_format,
+            temperature=temperature,
         )
         logger.trace("【回答结果】", str(response))
         return response
