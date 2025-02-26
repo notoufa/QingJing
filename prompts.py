@@ -96,7 +96,7 @@ def get_prompt_vote() -> str:
 
 def get_prompt_pre_atomic_question(
     task: Subtask, assumption: str, chain_of_subtasks: str    
-) -> str:
+) -> tuple[str, str]:
     """
     获得预回答原子问题模板
 
@@ -105,18 +105,31 @@ def get_prompt_pre_atomic_question(
     """
     question = task.question
     with open(prompt_pre_atomic_question_file, "r", encoding="utf-8") as file:
-        res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-    res = res.replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
-    res = res.replace("<<assumption>>", assumption)
-    res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
-    res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
-    return res
+        system_prompt = file.read()
+    
+    system_prompt = (
+        system_prompt.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+        .replace("<<assumption>>", assumption)
+        .replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+    )
+
+    user_prompt = """
+    当前要求解的子任务为：<<<question>>>
+
+    已知上游任务执行结果：<<parent_tasks_desc>>
+    """
+
+    user_prompt = (
+        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+        .replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
+        
+    )
+    return system_prompt, user_prompt
     
 
 def get_prompt_atomic_question(
     task: Subtask, assumption: str, chain_of_subtasks: str, table_meta_list: list[dict]
-) -> str:
+) -> tuple[str, str]:
     """
     获得原子问题模板
 

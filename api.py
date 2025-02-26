@@ -267,21 +267,31 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
     if str(task.get_parent_tasks_desc()):
+        system_prompt, user_prompt = prompts.get_prompt_pre_atomic_question(
+            task,
+            decomposition.assumption,
+            decomposition.chain_of_subtasks,
+        )
         pre_messages = [
             {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
                 "role": "user",
-                "content": prompts.get_prompt_pre_atomic_question(
-                    task,
-                    decomposition.assumption,
-                    decomposition.chain_of_subtasks,
-                    ),
+                "content": user_prompt,
             }
         ]
         pre_response = get_completion(pre_messages)
 
         try:
             content = pre_response.choices[0].message.content
-            cleaned_content = content.strip().replace('json\n', '').replace('\n', '').replace('```', '')
+            cleaned_content = (
+                content.strip()
+                .replace("json\n", "")
+                .replace("\n", "")
+                .replace("```", "")
+            )
             pre_task = json.loads(cleaned_content)
             logger.special("【原子问题预处理】", pre_task)
             is_answer = pre_task["can_answer_directly"]
@@ -291,13 +301,15 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                 task.api_response = ApiResponse(pre_messages, pre_response)
                 return
             else:
-                logger.special("【重写原子问题】", f"原问题：{task.question}----->重写后的问题：{pre_task['response']}")
+                logger.special(
+                    "【重写原子问题】",
+                    f"原问题：{task.question}----->重写后的问题：{pre_task['response']}",
+                )
                 task.question = pre_task["response"]
         except Exception as e:
             logger.error(f"【原子问题预处理出错】: {e}")
             logger.error(traceback.format_exc())
 
-    
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
         task,
         decomposition.assumption,
