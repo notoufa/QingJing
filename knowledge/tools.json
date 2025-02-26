@@ -36,7 +36,7 @@
                             "OR"
                         ],
                         "default": "AND",
-                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。当对同一个Column组合多个条件时，考虑使用AND还是OR"
+                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。"
                     },
                     "conditions": {
                         "type": "array",
