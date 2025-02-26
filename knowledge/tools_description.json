@@ -59,7 +59,7 @@
         "function_name": "calculate_time_interval",
         "input": "两个时间点（开始时间、结束时间）",
         "output": "时间间隔（单位：秒、分钟、小时）",
-        "notice": "calculate_time_interval函数用于计算两个时间点之间的时间间隔，而求时间范围需要找到开始时间和结束时间"
+        "notice": "该函数用于计算两个时间点之间的时间间隔，【不能用于求时间范围】"
     },
     {
         "function_name": "sort_datetime",

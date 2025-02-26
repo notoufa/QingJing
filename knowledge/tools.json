@@ -417,7 +417,7 @@
         "type": "function",
         "function": {
             "name": "calculate_time_interval",
-            "description": "计算两个时间点之间的时间间隔，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
+            "description": "计算两个时间点之间的时间间隔【而不是时间范围】，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
             "parameters": {
                 "type": "object",
                 "properties": {

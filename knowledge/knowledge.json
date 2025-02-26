@@ -198,7 +198,7 @@
     ]
   },
   {
-    "knowledge": "DP过程指从ON DP到OFF DP的过程；一天内可能存在多次ON DP和OFF DP，每次ON DP到OFF DP均为一个DP过程",
+    "knowledge": "DP过程指从ON DP到OFF DP的过程；一天内可能存在多次ON DP和OFF DP，每次ON DP到OFF DP均为一个DP过程，每个DP过程均需要参与计算",
     "keys": [
       "作业时长",
       "DP过程",
@@ -343,11 +343,20 @@
     ]
   },
   {
-    "knowledge": "MJ和kWh的换算关系：1KWh=3.6MJ，即由MJ转换为Kwh时，使用除法：热值/3.6",
+    "knowledge": "MJ和kWh的换算关系：1kWh=3.6MJ，即由MJ转换为kWh时，使用除法：热值/3.6",
     "keys": [
       "MJ",
       "kWh",
       "换算"
+    ]
+  },
+  {
+    "knowledge": "如果题目中包含“深海作业A过程中“、“深海作业A回收过程中“、“深海作业A布放过程中“，先要确定深海作业过程、回收过程或布放过程的时间范围",
+    "keys": [
+      "深海作业",
+      "回收",
+      "下放",
+      "布放"
     ]
   }
 ]
