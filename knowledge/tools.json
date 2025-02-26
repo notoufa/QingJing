@@ -29,6 +29,15 @@
                         "description": "需要查询的列名列表。如果未提供，则返回所有列。",
                         "default": []
                     },
+                    "conditions_logic": {
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "OR"
+                        ],
+                        "default": "AND",
+                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。"
+                    },
                     "conditions": {
                         "type": "array",
                         "description": "可选的过滤条件列表，每个条件包含列名、运算符和值。",
@@ -109,6 +118,15 @@
                             "count"
                         ],
                         "description": "聚合方法，支持 'avg'（平均值）、'max'（最大值）、'min'（最小值）、'mode'（众数）、'sum'（总和）、'count'（数据条数）。"
+                    },
+                    "conditions_logic": {
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "OR"
+                        ],
+                        "default": "AND",
+                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。"
                     },
                     "conditions": {
                         "type": "array",
@@ -471,9 +489,18 @@
                         "description": "true表示仅排序时间，false表示排序日期和时间",
                         "default": false
                     },
+                    "conditions_logic": {
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "OR"
+                        ],
+                        "default": "AND",
+                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。"
+                    },
                     "conditions": {
                         "type": "array",
-                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间",
+                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间。",
                         "items": {
                             "type": "object",
                             "properties": {

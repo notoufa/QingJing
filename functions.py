@@ -45,6 +45,7 @@ def get_data_by_time_range(
     start_time: str,
     end_time: str,
     columns=None,
+    conditions_logic: str = "AND",
     conditions: List[Dict[str, str]] = None,
 ):
     """
@@ -55,6 +56,7 @@ def get_data_by_time_range(
     start_time (str): 开始时间，格式为 'YYYY-MM-DD HH:MM:SS'
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
+    conditions_logic (str): 过滤条件逻辑，支持AND、OR
     conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
         - "column": 过滤列名
         - "operator": 过滤操作符（==, >, <, >=, <=, !=）
@@ -93,73 +95,86 @@ def get_data_by_time_range(
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-        
+
     filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
-    
+
     if filtered_data.empty:
         return {
             "error": f"在数据表 {table_name} 中未找到时间范围 {start_time} 到 {end_time} 的数据",
             "metadata": metadata,
         }
 
-    filter_work_status=False
+    # filter_work_status = False
 
     if conditions:
+        logic = conditions_logic.upper()
+        if logic not in ["AND", "OR"]:
+            return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
+        mask = None
         for condition in conditions:
             cond_col, operator, cond_value = (
                 condition["column"],
                 condition["operator"],
                 condition["value"],
             )
-            if "work_status" == condition["column"]:
-                filter_work_status = True
-                continue
+
             if cond_col not in filtered_data.columns:
                 return {
                     "error": f"条件列 {cond_col} 不存在于数据表 {table_name}",
                     "metadata": metadata,
                 }
 
+            try:
+                cond_value = float(cond_value)
+                column_values = filtered_data[cond_col].astype(float)
+            except ValueError:
+                column_values = filtered_data[cond_col].astype(str)
+
             if operator == "==":
-                filtered_data = filtered_data[
-                    (filtered_data[cond_col] == cond_value)
-                    | (filtered_data[cond_col].astype(str) == str(cond_value))
-                ]
+                condition_mask = column_values == cond_value
             elif operator == "!=":
-                filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
+                condition_mask = column_values != cond_value
             elif operator == ">":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) > float(cond_value)
-                ]
+                condition_mask = column_values > cond_value
             elif operator == "<":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) < float(cond_value)
-                ]
+                condition_mask = column_values < cond_value
             elif operator == ">=":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) >= float(cond_value)
-                ]
+                condition_mask = column_values >= cond_value
             elif operator == "<=":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) <= float(cond_value)
-                ]
+                condition_mask = column_values <= cond_value
             else:
                 return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
 
+            if mask is None:
+                mask = condition_mask
+            else:
+                mask = (
+                    mask & condition_mask if logic == "AND" else mask | condition_mask
+                )
 
-    if filter_work_status:
-        if table_name == "Ajia_plc_1":
-            filtered_data = filtered_data[
-                (filtered_data["work_status"] == "布放阶段中")
-                | (filtered_data["work_status"] == "回收阶段中")
-            ]
-        else:
-            filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
-        if filtered_data.empty:
-            return {
-                "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中'或 布放阶段中或回收阶段中的数据",
-                "metadata": metadata,
-            }
+        if mask is not None:
+            filtered_data = filtered_data[mask]
+
+    if filtered_data.empty:
+        return {"error": f"所有过滤条件应用后，没有匹配的数据", "metadata": metadata}
+
+    # if filter_work_status:
+    #     if table_name == "A架动作表":
+    #         filtered_data = filtered_data[
+    #             (filtered_data["work_status"] == "布放阶段开始")
+    #             | (filtered_data["work_status"] == "布放阶段结束")
+    #             | (filtered_data["work_status"] == "回收阶段开始")
+    #             | (filtered_data["work_status"] == "回收阶段结束")
+    #             | (filtered_data["work_status"] == "布放阶段中")
+    #             | (filtered_data["work_status"] == "回收阶段中")
+    #         ]
+    #     else:
+    #         filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
+    #     if filtered_data.empty:
+    #         return {
+    #             "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中'或 布放阶段中或回收阶段中的数据",
+    #             "metadata": metadata,
+    #         }
 
     if columns is None:
         columns = filtered_data.columns.tolist()
@@ -233,6 +248,7 @@ def aggregate_data(
     end_time: str,
     column: str,
     method: str,
+    conditions_logic: str = "AND",
     conditions: List[Dict[str, str]] = None,
 ):
     """
@@ -250,6 +266,7 @@ def aggregate_data(
         - "mode"（众数）
         - "sum"（总和）
         - "count"（数据条数）
+    conditions_logic (str): 过滤条件逻辑，支持AND、OR
     conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
         - "column": 过滤列名
         - "operator": 过滤操作符（==, >, <, >=, <=, !=）
@@ -288,6 +305,10 @@ def aggregate_data(
     filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
 
     if conditions:
+        logic = conditions_logic.upper()
+        if logic not in ["AND", "OR"]:
+            return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
+        mask = None
         for condition in conditions:
             cond_col, operator, cond_value = (
                 condition["column"],
@@ -301,31 +322,35 @@ def aggregate_data(
                     "metadata": metadata,
                 }
 
+            try:
+                cond_value = float(cond_value)
+                column_values = filtered_data[cond_col].astype(float)
+            except ValueError:
+                column_values = filtered_data[cond_col].astype(str)
+
             if operator == "==":
-                filtered_data = filtered_data[
-                    (filtered_data[cond_col] == cond_value)
-                    | (filtered_data[cond_col].astype(str) == str(cond_value))
-                ]
+                condition_mask = column_values == cond_value
             elif operator == "!=":
-                filtered_data = filtered_data[filtered_data[cond_col] != cond_value]
+                condition_mask = column_values != cond_value
             elif operator == ">":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) > float(cond_value)
-                ]
+                condition_mask = column_values > cond_value
             elif operator == "<":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) < float(cond_value)
-                ]
+                condition_mask = column_values < cond_value
             elif operator == ">=":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) >= float(cond_value)
-                ]
+                condition_mask = column_values >= cond_value
             elif operator == "<=":
-                filtered_data = filtered_data[
-                    filtered_data[cond_col].astype(float) <= float(cond_value)
-                ]
+                condition_mask = column_values <= cond_value
             else:
                 return {"error": f"不支持的操作符: {operator}", "metadata": metadata}
+
+            if mask is None:
+                mask = condition_mask
+            else:
+                mask = (
+                    mask & condition_mask if logic == "AND" else mask | condition_mask
+                )
+        if mask is not None:
+            filtered_data = filtered_data[mask]
 
     if column not in filtered_data.columns:
         return {
@@ -1089,6 +1114,7 @@ def sort_datetime(
     input_list: list[str],
     order: str,
     only_order_time: bool,
+    conditions_logic: str = "AND",
     conditions: List[Dict[str, str]] = None,
 ):
     """
@@ -1097,6 +1123,7 @@ def sort_datetime(
     :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
     :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
     :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
+    :param conditions_logic (str): 过滤条件逻辑，支持AND、OR
     :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
             - "operator": 过滤操作符（==, >, <, >=, <=, !=）
             - "value": 过滤值
@@ -1126,38 +1153,60 @@ def sort_datetime(
         sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
 
         if conditions:
+            logic = conditions_logic.upper()
+            if logic not in ["AND", "OR"]:
+                return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
+            mask = (
+                [False] * len(sorted_list)
+                if logic == "OR"
+                else [True] * len(sorted_list)
+            )
             for condition in conditions:
-                operator = condition.get("operator")
-                value = condition.get("value")
+                operator, value = (
+                    condition["operator"],
+                    condition["value"],
+                )
+
                 if operator not in ["==", ">", "<", ">=", "<=", "!="]:
                     return {
                         "error": f"不支持的操作符: {operator}",
                         "metadata": metadata,
                     }
-                if operator == "==":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) == parse_value(value)
-                    ]
-                elif operator == ">":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) > parse_value(value)
-                    ]
-                elif operator == "<":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) < parse_value(value)
-                    ]
-                elif operator == ">=":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) >= parse_value(value)
-                    ]
-                elif operator == "<=":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) <= parse_value(value)
-                    ]
-                elif operator == "!=":
-                    sorted_list = [
-                        x for x in sorted_list if parse_value(x) != parse_value(value)
-                    ]
+                try:
+                    parsed_value = parse_value(value)
+                except ValueError as e:
+                    return {
+                        "error": str(e),
+                        "metadata": metadata,
+                    }
+
+                condition_mask = []
+                for item in sorted_list:
+                    try:
+                        parsed_item = parse_value(item)
+                    except ValueError:
+                        condition_mask.append(False)
+                        continue
+
+                    if operator == "==":
+                        condition_mask.append(parsed_item == parsed_value)
+                    elif operator == "!=":
+                        condition_mask.append(parsed_item != parsed_value)
+                    elif operator == ">":
+                        condition_mask.append(parsed_item > parsed_value)
+                    elif operator == "<":
+                        condition_mask.append(parsed_item < parsed_value)
+                    elif operator == ">=":
+                        condition_mask.append(parsed_item >= parsed_value)
+                    elif operator == "<=":
+                        condition_mask.append(parsed_item <= parsed_value)
+
+                if logic == "AND":
+                    mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
+                else:
+                    mask = [m1 | m2 for m1, m2 in zip(mask, condition_mask)]
+
+            sorted_list = [item for item, keep in zip(sorted_list, mask) if keep]
 
         dates = sorted(
             {
