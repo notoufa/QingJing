@@ -1,12 +1,7 @@
 """与GLM的API交互，获得问题答案"""
 
 import json
-import traceback
 import concurrent
-from zhipuai import ZhipuAI
-from zhipuai.core import StreamResponse
-from zhipuai.types.chat.chat_completion import Completion
-from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from solution import (
     ProblemSolution,
     Decomposition,
@@ -19,20 +14,10 @@ import tools
 import functions
 import prompts
 import logger
-import os
-from utils import parse_res
+from utils import *
 
 
-def check_api_key() -> str:
-    """
-    检查API_KEY是否设定
-    """
-    api_key = os.getenv("ZHIPUAI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "ZHIPUAI_API_KEY is not set. Please set the environment variable."
-        )
-    return api_key
+
 
 
 def vote(id: str, question: str, vote_times: int) -> VoteResult:
@@ -383,32 +368,4 @@ def get_table_meta_and_tool(
     return table_meta_list, tool_list
 
 
-def get_completion(
-    messages: list[dict],
-    tools: list[dict] = [],
-    model: str = "glm-4-plus",
-    temperature: float = 0,
-) -> Completion | StreamResponse[ChatCompletionChunk]:
-    """
-    获得对话结果
 
-    :param messages: 对话消息
-    :param tools: 工具
-    :param model: 模型
-    :return: 对话结果
-    """
-    try:
-        client = ZhipuAI(api_key=check_api_key())
-        logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
-        response = client.chat.completions.create(
-            model=model,
-            stream=False,
-            messages=messages,
-            tools=tools,
-        )
-        logger.trace("【回答结果】", str(response))
-        return response
-    except Exception as e:
-        logger.error(f"【请求回答出错】: {e}")
-        logger.error(traceback.format_exc())
-        raise e

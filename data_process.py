@@ -4,6 +4,7 @@ from collections import defaultdict
 import json
 from datetime import datetime
 import json
+import pandas as pd
 
 table_name_map={
     "device_13_11_meter_1311":"折臂吊车与小艇动作表",
@@ -12,43 +13,57 @@ table_name_map={
 data_path = "assets/初赛数据/"
 
 
-XIAFANG = """你非常细心，通过仔细给定观察序列数据电流变化，尽可能正确返回三个值。
-例如：
-电流变化序列数据：
-[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.6478, 56.5133, 60.8637, 56.3751, 56.3777, 56.3601, 61.1564, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 422.499, 56.2896, 66.3951, 60.8928, 57.7813, 56.3871, 66.3077, 62.5263, 56.3937, 58.0826, 90.0969, 87.5592, 83.9934, 56.5033, 59.3441, 58.0018, 56.3027, 56.2845, 56.3666, 101.763, 96.6118, 56.3492, 59.2629, 57.0112, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]
-在这里面寻找三个值返回结果：
-[90.0969,56.5033,101.763]
-返回依据解释：
-第一个值为 最后一段非零数据的第一次达到峰值，同时满足必须为80以上；
-第二个值为 要小于60，峰值回落至小于60的值,并且要在第二个值后面，在第三个值前面；
-第三个值为 重新达到峰值，同时满足必须为90以上。
-三个值均不考虑大于200异常数据
+XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
+
+规则要求：  
+1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 70 以上）。  
+2. 结果应从最后一段非零数据中选择，且满足以下条件：  
+   - 第一个值：该段的第一个峰值，且必须大于 80。  
+   - 第二个值：位于第一个和第三个值之间，必须小于 60。  
+   - 第三个值：重新达到峰值，且必须大于 80。  
+3. 忽略大于 200 的异常数据。  
+4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
+5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
+
+示例：  
+输入：  
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.6478, 56.5133, 60.8637, 56.3751, 56.3777, 56.3601, 61.1564, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 422.499, 56.2896, 66.3951, 60.8928, 57.7813, 56.3871, 66.3077, 62.5263, 56.3937, 58.0826, 90.0969, 87.5592, 83.9934, 56.5033, 59.3441, 58.0018, 56.3027, 56.2845, 56.3666, 101.763, 96.6118, 56.3492, 59.2629, 57.0112, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
+输出：  
+[90.0969, 56.5033, 101.763]  
+
+现有一组新的电流变化序列数据： 
+<<L>>  
+
+请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
 
 
-现有一组新的电流变化序列数据：
-<<L>>
-请参照样例和解释依据，新的电流变化序列数据可能会有一些噪声，你自己仔细思考判断，思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。。"""
+HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
 
-HUISHOU = """你非常细心，通过仔细给定观察序列数据电流变化，尽可能正确返回三个值。
-例如：
-电流变化序列数据：
-[0.0, 0.0, 0.0, 0.0, 0.0, 57.0048, 56.8545, 61.9802, 56.8646, 56.8705, 56.777, 68.3751, 56.5526, 56.6556, 63.1736, 68.4542, 78.2151, 86.3214, 82.7017, 58.9111, 56.632, 56.9142, 56.6583, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.2542, 56.2177, 56.1263, 56.2697, 56.102, 59.5568, 57.5703, 57.6415, 56.9307, 57.0531, 56.9337, 58.582, 58.0159, 104.238, 96.6301, 97.1496, 56.5543, 63.426, 57.6552, 56.6086, 56.6611, 56.5601, 56.6476, 56.68, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]
-在这里面寻找三个值返回结果：
-[86.3214,104.238,56.5543]
-返回依据解释：
-第一个值为 非最后一段非零数据的峰值，同时满足必须为80以上；
-第二个值为后面一段非零数据的峰值，一般要为90以上；
-第三个值 要小于60，峰值回落至小于60的值,并且要在第二个值后面。
-三个值均不考虑大于200异常数据
+规则要求：  
+1. 数据列表应包含至少两段非零数据。  
+2. 结果应满足以下条件：  
+   - 第一个值：来自非最后一段非零数据的峰值，且必须大于 80。  
+   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 90。  
+   - 第三个值：位于第二个值之后，且必须小于 60，即最后一个峰值回落至低于 60 的点。  
+3. 忽略大于 200 的异常数据。  
+4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
+5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
 
+示例：  
+输入：  
+[0.0, 0.0, 0.0, 0.0, 0.0, 57.0048, 56.8545, 61.9802, 56.8646, 56.8705, 56.777, 68.3751, 56.5526, 56.6556, 63.1736, 68.4542, 78.2151, 86.3214, 82.7017, 58.9111, 56.632, 56.9142, 56.6583, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.2542, 56.2177, 56.1263, 56.2697, 56.102, 59.5568, 57.5703, 57.6415, 56.9307, 57.0531, 56.9337, 58.582, 58.0159, 104.238, 96.6301, 97.1496, 56.5543, 63.426, 57.6552, 56.6086, 56.6611, 56.5601, 56.6476, 56.68, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
+输出：  
+[86.3214, 104.238, 56.5543]  
 
-现有一组新的电流变化序列数据：
-<<L>>
-请参照样例和解释依据，新的电流变化序列数据可能会有一些噪声，你自己仔细思考判断，思考完成后，不需要返回思考过程，以列表形式返回三个值,,回答中只有列表。。"""
+现有一组新的电流变化序列数据：  
+<<L>>  
 
+请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
 
+LLM_predict_count = 0
+LLM_predict_time_range={}
 def predict_sequence_by_llm(L_sequence, oper):
-    from api import get_completion
+    from utils import get_completion
 
     if oper == 0:
         context_text = XIAFANG
@@ -59,7 +74,6 @@ def predict_sequence_by_llm(L_sequence, oper):
     messages = [{"role": "user", "content": prompt}]
     response = get_completion(messages)
     return str(response.choices[0].message.content)
-
 
 def get_result(L_sequence, oper):
     try:
@@ -83,7 +97,6 @@ def get_result(L_sequence, oper):
                 return a, b, c
         except:
             return -100, -100, -100
-
 
 def merge_csv_files(folder_path, out_path):
     # Store files by their prefix
@@ -111,87 +124,13 @@ def merge_csv_files(folder_path, out_path):
     df_device.to_csv("tmp_data/设备参数详情表.csv", index=False)
     df_device.to_csv("data/设备参数详情表.csv", index=False)
 
-
-merge_csv_files(data_path, "tmp_data")
-merge_csv_files(data_path, "data")
-
-
-# In[3]:
-# %%
-# Pre2: Status and Events Detection
 # 定义一个函数，将值转换为数值类型，无法转换的返回 -1
 def convert_to_numeric(value):
     try:
         return float(value)
     except ValueError:
         return -1
-
-
-# 读取CSV文件
-df = pd.read_csv("tmp_data/Ajia_plc_1.csv")
-# 将 Ajia-3_v 和 Ajia-5_v 列转换为数值类型，无法转换的设为 -1
-df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
-df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
-# 初始化 status 列，默认值为 'False'
-df["status"] = "False"
-df["check_current_presence"] = "False"
-df["Operational_Status"]= "未工作"
-have_boot = -1
-not_have_boot = -1
-# 遍历每一行，判断设备状态
-for i in range(1, df.shape[0]):
-    # 取当前行和前一行的数据
-    prev_ajia3 = df.loc[i - 1, "Ajia-3_v"]
-    prev_ajia5 = df.loc[i - 1, "Ajia-5_v"]
-    curr_ajia3 = df.loc[i, "Ajia-3_v"]
-    curr_ajia5 = df.loc[i, "Ajia-5_v"]
-
-    # 停电条件：当前 Ajia-5_v == -1，且前一时刻 Ajia-5_v > 0 或 0
-    if curr_ajia5 == -1 and (prev_ajia5 >= 0):
-        df.loc[i, "status"] = "停电"
-
-    # A架开机条件：前一时刻 Ajia-3_v == -1，且当前 Ajia-3_v >= 0
-    if prev_ajia3 == -1 and curr_ajia3 >= 0:
-        df.loc[i, "status"] = "A架开机"
-        have_boot = i
-    if prev_ajia5 == -1 and curr_ajia5 >= 0:
-        df.loc[i, "status"] = "A架开机"
-        have_boot = i
-
-    # A架关机条件：当前 Ajia-3_v == -1，且前一时刻 Ajia-3_v >= 0
-    if curr_ajia3 == -1 and prev_ajia3 >= 0:
-        df.loc[i, "status"] = "A架关机"
-        not_have_boot = i
-    if curr_ajia5 == -1 and prev_ajia5 >= 0:
-        df.loc[i, "status"] = "A架关机"
-        not_have_boot = i
-    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
-        for j in range(have_boot, not_have_boot+1):
-            df.loc[j, "Operational_Status"] = "开机工作中"
-        have_boot = -1
-        not_have_boot = -1
-    # 电流检测条件
-    # 有电流：前一时刻有一个或全部为0，下一刻均不为0
     
-    if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
-        df.loc[i, "check_current_presence"] = "有电流"
-    # 无电流：前一时刻均不为0，下一刻有一个或全部为0
-    elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
-        df.loc[i, "check_current_presence"] = "无电流"
-        
-    
-
-
-# # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
-# def compute_angle_range(row):
-#     if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
-#         return "error"
-#     return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
-
-
-# df["angle_range"] = df.apply(compute_angle_range, axis=1)
-
-
 # 定义函数来检查Ajia-0_v摆动至最小值和最大值
 def check_ajia_0_v_extremes(df):
     flag = False
@@ -211,11 +150,6 @@ def check_ajia_0_v_extremes(df):
             extremes[i] = 0
     return extremes
 
-# 应用函数到数据框
-df["ajia_0_v_extremes"] = check_ajia_0_v_extremes(df)
-
-
-
 def is_mostly_fifty(L_):
     # 去掉列表中0或者超过200的值
     filtered_list = [x for x in L_ if x != 0 and x <= 200]
@@ -231,20 +165,6 @@ def is_mostly_fifty(L_):
         return 0
 
     # 初始化变量
-
-
-start_time = None
-segments = []
-
-# 遍历DataFrame
-for index, row in df.iterrows():
-    if row["status"] == "A架开机":
-        start_time = row["csvTime"]
-    elif row["status"] == "A架关机" and start_time is not None:
-        end_time = row["csvTime"]
-        segments.append((start_time, end_time))
-        start_time = None
-
 
 def extract_daily_power_on_times(df):
     """
@@ -304,7 +224,6 @@ def extract_daily_power_on_times(df):
 
     return first_start_times, second_start_times
 
-
 def find_peaks(data1):
     # 数据预处理
     data = [50 if 50 <= num <= 68 else num for num in data1]
@@ -317,7 +236,6 @@ def find_peaks(data1):
     peaks = [peak for peak in peaks if peak > 80]
     # 返回峰值格式和具体的峰值
     return len(peaks), peaks
-
 
 def find_first_increasing_value(data):
     """
@@ -338,7 +256,6 @@ def find_first_increasing_value(data):
             return value
     # 如果未找到，返回 (None, None)
     return 50
-
 
 def find_stable_value(data1, data2, peak1, peak2):
     """
@@ -372,7 +289,6 @@ def find_stable_value(data1, data2, peak1, peak2):
     # 如果未找到稳定值，返回 None
     return None
 
-
 def find_first_stable_after_peak(data, peak, stable_min=50, stable_max=60):
     """
     从峰值到列表末尾的数据中，找到第一个回落到稳定值的值。
@@ -403,11 +319,6 @@ def find_first_stable_after_peak(data, peak, stable_min=50, stable_max=60):
 
     # 如果未找到稳定值，返回 None
     return None
-
-
-LLLL = []
-import pandas as pd
-
 
 def extract_events(df, segment):
     start, end = segment
@@ -448,6 +359,88 @@ def extract_events(df, segment):
                 print(f"峰值为{peak_L}")
                 L3.append(len_peaks)
     return L3
+
+
+merge_csv_files(data_path, "tmp_data")
+merge_csv_files(data_path, "data")
+
+# 读取CSV文件
+df = pd.read_csv("tmp_data/Ajia_plc_1.csv")
+# 将 Ajia-3_v 和 Ajia-5_v 列转换为数值类型，无法转换的设为 -1
+df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
+df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
+# 初始化 status 列，默认值为 'False'
+df["status"] = "False"
+df["check_current_presence"] = "False"
+df["Operational_Status"]= "未工作"
+have_boot = -1
+not_have_boot = -1
+# 遍历每一行，判断设备状态
+for i in range(1, df.shape[0]):
+    # 取当前行和前一行的数据
+    prev_ajia3 = df.loc[i - 1, "Ajia-3_v"]
+    prev_ajia5 = df.loc[i - 1, "Ajia-5_v"]
+    curr_ajia3 = df.loc[i, "Ajia-3_v"]
+    curr_ajia5 = df.loc[i, "Ajia-5_v"]
+
+    # 停电条件：当前 Ajia-5_v == -1，且前一时刻 Ajia-5_v > 0 或 0
+    if curr_ajia5 == -1 and (prev_ajia5 >= 0):
+        df.loc[i, "status"] = "停电"
+
+    # A架开机条件：前一时刻 Ajia-3_v == -1，且当前 Ajia-3_v >= 0
+    if prev_ajia3 == -1 and curr_ajia3 >= 0:
+        df.loc[i, "status"] = "A架开机"
+        have_boot = i
+    if prev_ajia5 == -1 and curr_ajia5 >= 0:
+        df.loc[i, "status"] = "A架开机"
+        have_boot = i
+
+    # A架关机条件：当前 Ajia-3_v == -1，且前一时刻 Ajia-3_v >= 0
+    if curr_ajia3 == -1 and prev_ajia3 >= 0:
+        df.loc[i, "status"] = "A架关机"
+        not_have_boot = i
+    if curr_ajia5 == -1 and prev_ajia5 >= 0:
+        df.loc[i, "status"] = "A架关机"
+        not_have_boot = i
+    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
+        for j in range(have_boot, not_have_boot+1):
+            df.loc[j, "Operational_Status"] = "开机工作中"
+        have_boot = -1
+        not_have_boot = -1
+    # 电流检测条件
+    # 有电流：前一时刻有一个或全部为0，下一刻均不为0
+    
+    if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
+        df.loc[i, "check_current_presence"] = "有电流"
+    # 无电流：前一时刻均不为0，下一刻有一个或全部为0
+    elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
+        df.loc[i, "check_current_presence"] = "无电流"
+        
+
+
+# # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
+# def compute_angle_range(row):
+#     if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
+#         return "error"
+#     return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
+
+
+# df["angle_range"] = df.apply(compute_angle_range, axis=1)
+
+df["ajia_0_v_extremes"] = check_ajia_0_v_extremes(df)
+start_time = None
+segments = []
+
+
+# 遍历DataFrame
+for index, row in df.iterrows():
+    if row["status"] == "A架开机":
+        start_time = row["csvTime"]
+    elif row["status"] == "A架关机" and start_time is not None:
+        end_time = row["csvTime"]
+        segments.append((start_time, end_time))
+        start_time = None
+LLLL = []
 
 
 L5 = []
@@ -774,7 +767,8 @@ for segment in segments:
                             ].tolist()
                             df.loc[indices, "status"] = "征服者落座"
     else:
-
+        LLM_predict_count+=1
+        LLM_predict_time_range[LLM_predict_count] = (start, end)
         events_2 = events_2.copy()
         events_2.loc[:, "csvTime"] = pd.to_datetime(events_2["csvTime"])
         # 获取第一个值
@@ -807,7 +801,8 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
-
+            if a==-100:
+                continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
             df.loc[indices, "status"] = "A架摆出"
 
@@ -840,7 +835,8 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
-
+            if a==-100:
+                continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
             df.loc[indices, "status"] = "征服者起吊"
 
@@ -871,7 +867,8 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
-
+            if a==-100:
+                continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
             df.loc[indices, "status"] = "A架摆出"
 
@@ -1151,3 +1148,10 @@ import shutil
 
 if os.path.exists("tmp_data"):
     shutil.rmtree("tmp_data")
+    
+print("LLM预测总数：",LLM_predict_count)
+print("LLM预测时间段：",LLM_predict_time_range)
+#保存LLM预测时间段至文件中
+with open("data/LLM_predict_time_range.txt", "w") as f:
+    for key, value in LLM_predict_time_range.items():
+        f.write(f"{key}: {value}\n")
