@@ -1,6 +1,5 @@
 """工具函数"""
 
-
 import numpy as np
 import logger
 from zhipuai import ZhipuAI
@@ -26,11 +25,13 @@ def parse_res(response):
         return res
     except Exception:
         return res
-    
+
+
 def custom_serializer(obj):
     if isinstance(obj, np.int64):
         return int(obj)
     raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+
 
 def parse_code(response):
     """
@@ -46,6 +47,7 @@ def parse_code(response):
     except Exception:
         return res
 
+
 def check_api_key() -> str:
     """
     检查API_KEY是否设定
@@ -56,6 +58,7 @@ def check_api_key() -> str:
             "ZHIPUAI_API_KEY is not set. Please set the environment variable."
         )
     return api_key
+
 
 def get_completion(
     messages: list[dict],

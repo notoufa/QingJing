@@ -1367,22 +1367,10 @@ function_map: dict[str, callable] = {
 
 if __name__ == "__main__":
     print(
-        get_data_by_time_range(
-            "Ajia_plc_1",
-            "2024-08-24 00:55:08",
-            "2024-08-24 24:03:08",
-            columns=[],
-            status="小艇落座",
-        )
-    )
-    print(
-        get_total_energy_generation_or_fuel_consumption_by_time_range(
+        get_total_energy_consumption_by_time_range(
             "2024-05-17 00:00:00",
-            "2024-05-23 00:00:00",
-            "理论发电量",
-            "整个柴油发电机组",
-            0.8,
-            42.76,
+            "2024-05-25 00:00:00",
+            "甲板机械设备"
         )
     )
     for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
