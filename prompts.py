@@ -18,7 +18,7 @@ prompt_summary_file = "prompts/summary.md"
 prompt_correct_file = "prompts/correct.md"
 prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_get_tool_file = "prompts/get_tool.md"
-
+get_prompt_atomic_question_system = "prompts/atomic_question_system.md"
 
 def get_knowledge_by_question(question: str) -> list[str]:
     """

@@ -296,6 +296,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
             logger.error(f"【原子问题预处理出错】: {e}")
             logger.error(traceback.format_exc())
     messages = [
+
         {
             "role": "user",
             "content": prompts.get_prompt_atomic_question(
