@@ -67,12 +67,12 @@ def color_print(level, color, *args, sep=" ", end="\n"):
 
 # 各级别日志函数
 def trace(*args, sep=" ", end="\n"):
-    """打印跟踪信息（灰色）"""
+    """打印跟踪信息（白色）"""
     color_print("TRACE", "white", *args, sep=sep, end=end)
 
 
 def debug(*args, sep=" ", end="\n"):
-    """打印调试信息（白色）"""
+    """打印调试信息（灰色）"""
     color_print("DEBUG", "grey", *args, sep=sep, end=end)
 
 

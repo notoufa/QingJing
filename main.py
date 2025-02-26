@@ -14,30 +14,33 @@ submit_dir = "results"
 solution_dir = "solutions"
 export_api_response = False
 
-test_vote_times = 1
-test_splice_index = False
 test_input_path = "questions/test.jsonl"
-
-production_vote_times = 1
-production_splice_index = False
 production_input_path = "questions/question_B.jsonl"
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Run the script in test or production mode."
-    )
-    parser.add_argument("-t", "--test", action="store_true", help="Run in test mode")
+    parser = argparse.ArgumentParser(description="以测试或生产模式运行脚本。")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-t", "--test", action="store_true", help="以测试模式运行")
+    group.add_argument("-p", "--production", action="store_true", help="以生产模式运行")
     parser.add_argument(
-        "-p", "--production", action="store_true", help="Run in production mode"
+        "-s",
+        "--splice_index",
+        action="store_true",
+        help="仅处理问题文件中的第一个问题，用于测试",
     )
     parser.add_argument(
-        "-m", "--max_workers", action="store_true", help="Max workers", default=20
+        "-m", "--max_workers", type=int, default=20, help="最大并发线程数，默认为20"
+    )
+    parser.add_argument("-q", "--question_file", type=str, help="指定问题文件")
+
+    parser.add_argument(
+        "-v", "--vote_times", type=int, default=1, help="指定投票次数，默认为1"
     )
     args = parser.parse_args()
 
     if not args.test and not args.production:
-        parser.error("You must specify either -t (test) or -p (production) mode.")
+        parser.error("必须指定 -t（测试模式）或 -p（生产模式）之一。")
 
     return args
 
@@ -75,8 +78,13 @@ def main():
     args = parse_args()
     is_test = args.test
     max_workers = args.max_workers
+    question_path = args.question_file or (
+        test_input_path if is_test else production_input_path
+    )
+    splice_index = args.splice_index
 
     global vote_times
+    vote_times = args.vote_times
 
     logger.init()
     load_tools()
@@ -84,18 +92,19 @@ def main():
     os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
 
-    logger.debug(f"【运行模式】: {'测试' if is_test else '生产'}")
-
-    question_path = test_input_path if is_test else production_input_path
-    vote_times = test_vote_times if is_test else production_vote_times
-    splice_index = test_splice_index if is_test else production_splice_index
-
     with open(question_path, "r", encoding="utf-8") as f:
         q_json_list = [json.loads(line.strip()) for line in f]
     if splice_index:
         q_json_list = q_json_list[:1]
 
-    logger.info(f"【问题总数】: {len(q_json_list)}")
+    logger.debug(
+        f"【运行模式】: {'测试' if is_test else '生产'},",
+        f"【问题总数】: {len(q_json_list)},",
+        f"【投票次数】: {vote_times},",
+        f"【最大并发线程数】: {max_workers},",
+        f"【仅处理第一个问题】: {splice_index},",
+        f"【问题文件】: {question_path}",
+    )
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
     submit_path = os.path.join(submit_dir, f"试试又不会怎样_result_{date_str}.jsonl")
