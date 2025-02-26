@@ -525,7 +525,8 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
 
     device_config = {
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
-        "甲板机械设备": ["折臂吊车", "一号门架", "二号门架", "绞车变频器"],
+        "甲板机械设备": ["折臂吊车", "A架", "绞车变频器"],
+        "A架": ["一号门架", "二号门架"],
         "折臂吊车": ("device_13_11_meter_1311", "13-11-6_v"),
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
