@@ -18,9 +18,9 @@ XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流�
 规则要求：  
 1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 70 以上）。  
 2. 结果应从最后一段非零数据中选择，且满足以下条件：  
-   - 第一个值：该段的第一个峰值，且必须大于 80。  
-   - 第二个值：位于第一个和第三个值之间，必须小于 60。  
-   - 第三个值：重新达到峰值，且必须大于 80。  
+   - 第一个值：该段的第一个峰值，且一般大于 70。  
+   - 第二个值：位于第一个和第三个值之间，一般小于 60。  
+   - 第三个值：重新达到峰值，且一般大于 70。  
 3. 忽略大于 200 的异常数据。  
 4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
 5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
@@ -42,9 +42,9 @@ HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流�
 规则要求：  
 1. 数据列表应包含至少两段非零数据。  
 2. 结果应满足以下条件：  
-   - 第一个值：来自非最后一段非零数据的峰值，且必须大于 80。  
-   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 90。  
-   - 第三个值：位于第二个值之后，且必须小于 60，即最后一个峰值回落至低于 60 的点。  
+   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 70。  
+   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 70。  
+   - 第三个值：位于第二个值之后，且一般小于 60，即最后一个峰值回落至低于 60 的点。  
 3. 忽略大于 200 的异常数据。  
 4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
 5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
@@ -226,33 +226,33 @@ def extract_daily_power_on_times(df):
 
 def find_peaks(data1):
     # 数据预处理
-    data = [50 if 50 <= num <= 68 else num for num in data1]
+    data = [50 if 50 <= num <= 66 else num for num in data1]
 
     # 找到峰值
     peaks = []
     for i in range(1, len(data) - 1):  # 从第二个元素遍历到倒数第二个元素
         if data[i] > data[i - 1] and data[i] > data[i + 1]:  # 判断是否为峰值
             peaks.append(data[i])  # 只记录峰值值
-    peaks = [peak for peak in peaks if peak > 80]
+    peaks = [peak for peak in peaks if peak > 70]
     # 返回峰值格式和具体的峰值
     return len(peaks), peaks
 
 def find_first_increasing_value(data):
     """
-    找到列表中第一个从稳定值（68以下）开始增加的值。
+    找到列表中第一个从稳定值（66以下）开始增加的值。
 
     参数:
     data (list): 输入的数值列表。
 
     返回:
-    tuple: 第一个大于68的值及其索引。如果未找到，返回 (None, None)。
+    tuple: 第一个大于66的值及其索引。如果未找到，返回 (None, None)。
     """
-    # 将介于50到68之间的值替换为50
-    processed_data = [50 if 50 <= num <= 68 else num for num in data]
+    # 将介于50到66之间的值替换为50
+    processed_data = [50 if 50 <= num <= 66 else num for num in data]
 
-    # 找到第一个大于68的值及其索引
+    # 找到第一个大于66的值及其索引
     for index, value in enumerate(processed_data):
-        if value > 68 and value < 300:
+        if value > 66 and value < 300:
             return value
     # 如果未找到，返回 (None, None)
     return 50
@@ -523,6 +523,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
+                            df.loc[start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[end, "Operational_Status"] = "布放阶段结束"
     if L4 == [2]:
         events = df[
             (df["csvTime"] >= start)
@@ -580,6 +582,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
+                            df.loc[start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[end, "Operational_Status"] = "布放阶段结束"
 
     elif L4 == [0, 3]:
         events = df[
@@ -639,6 +643,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
+                            df.loc[start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[end, "Operational_Status"] = "布放阶段结束"
     elif L4 == [0, 1, 3]:
         events = df[
             (df["csvTime"] >= start)
@@ -696,6 +702,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
+                            df.loc[start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[end, "Operational_Status"] = "布放阶段结束"
     elif L4 == [1, 2] or L4 == [1, 1]:
         events = df[
             (df["csvTime"] >= start)
@@ -766,9 +774,11 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == value_11
                             ].tolist()
                             df.loc[indices, "status"] = "征服者落座"
+                            df.loc[start, "Operational_Status"] = "回收阶段开始"
+                            df.loc[end, "Operational_Status"] = "回收阶段结束"
     else:
         LLM_predict_count+=1
-        LLM_predict_time_range[LLM_predict_count] = (start, end)
+        LLM_predict_time_range[LLM_predict_count] = [start, end]
         events_2 = events_2.copy()
         events_2.loc[:, "csvTime"] = pd.to_datetime(events_2["csvTime"])
         # 获取第一个值
@@ -801,6 +811,7 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
+            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
             if a==-100:
                 continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
@@ -813,6 +824,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
+            df.loc[start, "Operational_Status"] = "回收阶段开始"
+            df.loc[end, "Operational_Status"] = "回收阶段结束"
 
         elif (
             first_value in first_start_times 
@@ -835,6 +848,7 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
+            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
             if a==-100:
                 continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
@@ -847,6 +861,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "A架摆回"
+            df.loc[start, "Operational_Status"] = "布放阶段开始"
+            df.loc[end, "Operational_Status"] = "布放阶段结束"
 
         elif first_value in second_start_times :
             events_2["new_column"] = events_2.apply(
@@ -867,6 +883,7 @@ for segment in segments:
                 a, b, c = -100, -100, -100
             print("----------------预测的值---------------------")
             print(a, b, c)
+            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
             if a==-100:
                 continue
             indices = events_2.index[events_2["new_column"] == a].tolist()
@@ -879,6 +896,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
+            df.loc[start, "Operational_Status"] = "回收阶段开始"
+            df.loc[end, "Operational_Status"] = "回收阶段结束"
 
         print("------------------")
         print(L4)
