@@ -51,6 +51,7 @@
                                 "operator": {
                                     "type": "string",
                                     "enum": [
+                                        "in",
                                         "==",
                                         ">",
                                         "<",
@@ -58,11 +59,11 @@
                                         "<=",
                                         "!="
                                     ],
-                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                    "description": "运算符，支持以下值：'in','==', '>', '<', '>=', '<=', '!='。"
                                 },
                                 "value": {
                                     "type": "string",
-                                    "description": "用于过滤的值，类型为字符串。"
+                                    "description": "用于过滤的值，类型为字符串。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
                                 }
                             },
                             "required": [
@@ -141,6 +142,7 @@
                                 "operator": {
                                     "type": "string",
                                     "enum": [
+                                        "in",
                                         "==",
                                         ">",
                                         "<",
@@ -148,11 +150,11 @@
                                         "<=",
                                         "!="
                                     ],
-                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                    "description": "运算符，支持以下值：'in', '==', '>', '<', '>=', '<=', '!='。"
                                 },
                                 "value": {
                                     "type": "string",
-                                    "description": "用于过滤的值，类型为字符串。"
+                                    "description": "用于过滤的值，类型为字符串。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
                                 }
                             },
                             "required": [
@@ -507,6 +509,7 @@
                                 "operator": {
                                     "type": "string",
                                     "enum": [
+                                        "in",
                                         "==",
                                         ">",
                                         "<",
@@ -514,11 +517,11 @@
                                         "<=",
                                         "!="
                                     ],
-                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                    "description": "运算符，支持以下值：'in', '==', '>', '<', '>=', '<=', '!='。"
                                 },
                                 "value": {
                                     "type": "string",
-                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
                                 }
                             },
                             "required": [
