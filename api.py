@@ -191,7 +191,7 @@ def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题纠错出错】: {e}")
+        logger.error(f"【问题纠错出错】: {e}\n{traceback.format_exc()}")
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
