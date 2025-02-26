@@ -19,11 +19,12 @@ prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_get_tool_file = "prompts/get_tool.md"
 
 
-def get_knowledge_by_question(question: str) -> list[str]:
+def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
     """
     根据问题获得背景知识
 
     :param question: 问题
+    :param log: 是否打印日志
     :return: 背景知识列表
     """
     with open(knowledge_file, "r", encoding="utf-8") as file:
@@ -36,7 +37,8 @@ def get_knowledge_by_question(question: str) -> list[str]:
                 if item.get("example"):
                     knowledge += f"（示例：{item['example']}）"
                 knowledge_set.add(knowledge)
-    logger.info("【背景知识】", str(list(knowledge_set)))
+    if log:
+        logger.debug("【背景知识】\n", "\n".join(list(knowledge_set)))
     return list(knowledge_set)
 
 
@@ -77,7 +79,7 @@ def get_prompt_update_decomposition(question: str) -> str:
     """
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
     return res
 
 
@@ -104,30 +106,39 @@ def get_prompt_atomic_question(
     """
     question = task.question
     with open(prompt_atomic_question_file, "r", encoding="utf-8") as file:
-        res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-    if str(chain_of_subtasks) != "None":
-        res = res.replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
-    res = res.replace("<<table_meta_list>>", str(table_meta_list))
-    res = res.replace("<<assumption>>", assumption)
-    res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
-    res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
-    return res
+        system_prompt = file.read()
+
+    system_prompt = (
+        system_prompt.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+        .replace("<<table_meta_list>>", str(table_meta_list))
+        .replace("<<assumption>>", assumption)
+    )
+
+    user_prompt = """
+    已知子任务链：<<chain_of_subtasks>>
+    已知上游任务执行结果：<<parent_tasks_desc>>
+    
+    当前要求解的子任务为：<<<question>>>
+    """
+
+    user_prompt = (
+        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+        .replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
+        .replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+    )
+    return system_prompt, user_prompt
 
 
-def get_prompt_summary(summary: dict) -> str:
+def get_prompt_summary(question: str) -> str:
     """
     获得问题总结模板
 
-    :param summary: 问题总结
+    :param question: 问题
     :return: 问题总结模板
     """
     with open(prompt_summary_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace(
-        "<<knowledge>>", str(get_knowledge_by_question(summary["question"]))
-    )
-    res = res.replace("<<summary>>", str(summary))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question("question")))
     return res
 
 
@@ -151,7 +162,7 @@ def get_prompt_get_tool(question: str) -> str:
     """
     with open(prompt_get_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
     res = res.replace("<<tools>>", str(str(tools.tools_description_str())))
     res = res.replace("<<question>>", f"{question}")
     return res
@@ -168,7 +179,7 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     with open(prompt_get_table_meta_and_tool_file, "r", encoding="utf-8") as file:
         res = file.read()
     question = task.question
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
     res = res.replace("<<tools>>", tools.tools_description_str())
     res = res.replace("<<table_desc>>", get_table_desc_str())
     res = res.replace("<<assumption>>", assumption)
