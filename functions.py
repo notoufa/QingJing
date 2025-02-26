@@ -7,6 +7,7 @@ import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
 
+
 import logger
 
 table_meta_file = "knowledge/table_meta.json"
@@ -108,7 +109,7 @@ def get_data_by_time_range(
 
     if filter_work_status:
         filtered_data = filtered_data[
-            filtered_data["Operational_Status"]=="开机工作中"
+            filtered_data["Operational_Status"] == "开机工作中"
         ]
         if filtered_data.empty:
             return {
@@ -524,7 +525,8 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
 
     device_config = {
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
-        "甲板机械设备": ["折臂吊车", "一号门架", "二号门架", "绞车变频器"],
+        "甲板机械设备": ["折臂吊车", "A架", "绞车变频器"],
+        "A架": ["一号门架", "二号门架"],
         "折臂吊车": ("device_13_11_meter_1311", "13-11-6_v"),
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
@@ -1019,13 +1021,21 @@ def calculate_time_interval(start_time: str, end_time: str):
         }
 
 
-def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
+def sort_datetime(
+    input_list: list[str],
+    order: str,
+    only_order_time: bool,
+    conditions: List[Dict[str, str]] = None,
+):
     """
     对列表进行排序，支持日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），可选择升序或降序。
 
     :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
     :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
     :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
+    :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
+            - "operator": 过滤操作符（==, >, <, >=, <=, !=）
+            - "value": 过滤值
 
     :return: 排序后的列表及相关信息。
     """
@@ -1035,21 +1045,67 @@ def sort_datetime(input_list: list[str], order: str, only_order_time: bool):
         "input_list": input_list,
         "order": order,
         "only_order_time": only_order_time,
+        "conditions": conditions,
     }
 
     try:
 
         def parse_value(value):
             """解析日期字符串，确保可以正确排序"""
-            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
-            return dt.time() if only_order_time else dt
+            try:
+                dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+                return dt.time() if only_order_time else dt
+            except Exception:
+                dt = datetime.strptime(value, "%H:%M:%S")
+                return dt.time() if only_order_time else dt
 
         sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
 
+        if conditions:
+            for condition in conditions:
+                operator = condition.get("operator")
+                value = condition.get("value")
+                if operator not in ["==", ">", "<", ">=", "<=", "!="]:
+                    return {
+                        "error": f"不支持的操作符: {operator}",
+                        "metadata": metadata,
+                    }
+                if operator == "==":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) == parse_value(value)
+                    ]
+                elif operator == ">":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) > parse_value(value)
+                    ]
+                elif operator == "<":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) < parse_value(value)
+                    ]
+                elif operator == ">=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) >= parse_value(value)
+                    ]
+                elif operator == "<=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) <= parse_value(value)
+                    ]
+                elif operator == "!=":
+                    sorted_list = [
+                        x for x in sorted_list if parse_value(x) != parse_value(value)
+                    ]
+
+        dates = sorted(
+            {
+                datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+                for x in sorted_list
+            }
+        )
         return {
             "result": sorted_list,
+            "filted_dates": f"符合筛选条件的所有日期：{dates}",
             "metadata": metadata,
-            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序",
+            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序；并返回",
         }
     except ValueError as e:
         return {
@@ -1097,7 +1153,56 @@ def convert_seconds(seconds):
         },
         "metadata": metadata,
     }
+    
+def generate_simple_python_code(task_description: str):
+    """
+    调用大模型生成简单的 Python 代码。
+    
+    :param task_description: str，任务描述，包括输入、输出和注意事项。
+    :return: str，生成的 Python 代码。
+    """
+    
+    from api import get_completion
+    from utils import parse_code
+    
+    metadata = {
+        "function_name": "generate_simple_python_code",
+        "task_description": task_description,
+    }
+    CODE_GENERATE_PROMPT=f"""
+    # 任务描述  
+    {task_description}
 
+    # 约束条件  
+    - todo  
+
+    # 输出要求  
+    适当的思考过程是有益的，但最终必须输出代码。确保输出格式如下，并且只包含一个代码块：
+
+    ```python  
+    你的代码
+    ```
+    """
+    messages = [
+        {"role": "system", "content": "你是一个精通 Python 的编程助手，能够生成简洁且高效准确的 Python 代码。"},
+        {"role": "user", "content": CODE_GENERATE_PROMPT}
+    ]
+    
+    response = get_completion(messages)
+    
+    try:
+        response_data = parse_code(response)
+        return {
+            "result": response_data,
+            "metadata": metadata,
+        }
+    except Exception as e:
+        return {
+            "error": f"生成代码失败: {e}",
+            "metadata": metadata,
+        }
+        
+    
 
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
@@ -1112,6 +1217,7 @@ function_map: dict[str, callable] = {
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
     "sort_datetime": sort_datetime,
+    "generate_simple_python_code": generate_simple_python_code,
 }
 
 if __name__ == "__main__":

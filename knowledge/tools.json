@@ -215,11 +215,12 @@
                     },
                     "device_name": {
                         "type": "string",
-                        "description": "设备名称，支持以下值：'全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进相关设备）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B'。",
+                        "description": "设备名称，支持以下值：'全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'A架'、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进器）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B'。",
                         "enum": [
                             "全船",
                             "甲板机械设备",
                             "折臂吊车",
+                            "A架",
                             "一号门架",
                             "二号门架",
                             "绞车变频器",
@@ -440,7 +441,7 @@
         "type": "function",
         "function": {
             "name": "sort_datetime",
-            "description": "对日期列表进行排序，可选择升序或降序。",
+            "description": "对日期列表进行排序，可选择升序或降序，可筛选指定时间段的时间",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -464,6 +465,35 @@
                         "type": "bool",
                         "description": "true表示仅排序时间，false表示排序日期和时间",
                         "default": false
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [
+                                        "==",
+                                        ">",
+                                        "<",
+                                        ">=",
+                                        "<=",
+                                        "!="
+                                    ],
+                                    "description": "运算符，例如 '==', '>', '<', '>=', '<=', '!='。"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                                }
+                            },
+                            "required": [
+                                "operator",
+                                "value"
+                            ]
+                        }
                     }
                 },
                 "required": [
@@ -489,6 +519,25 @@
                 },
                 "required": [
                     "seconds"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "generate_simple_python_code",
+            "description": "当现有工具无法满足需求且任务可通过简洁的 Python 代码准确实现时，调用此函数，利用大模型根据任务要求生成 Python 代码。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task_description": {
+                        "type": "string",
+                        "description": "详细描述任务，包括输入、预期输出及注意事项。"
+                    }
+                },
+                "required": [
+                    "task_description"
                 ]
             }
         }

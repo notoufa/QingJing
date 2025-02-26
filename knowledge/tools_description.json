@@ -62,7 +62,7 @@
     },
     {
         "function_name": "sort_datetime",
-        "input": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按日期时间排序或仅排序时间",
+        "input": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按日期时间排序或仅排序时间，支持升序或降序，支持筛选某时间点之前或之后",
         "output": "排序后的日期列表，按升序或降序排列",
         "notice": "判断时间先后顺序必须调用sort_datetime函数"
     }

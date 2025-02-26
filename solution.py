@@ -168,6 +168,7 @@ class Subtask:
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
+            "function_results": self.function_results,
         }
 
     def to_update_dict(self):
