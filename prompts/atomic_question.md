@@ -1,9 +1,13 @@
 当前执行的子任务为：<<<question>>>
+
 已知子任务链：<<chain_of_subtasks>>
+
+已知背景知识：<<knowledge>>
+
 已知上游任务执行结果：<<parent_tasks_desc>>
 
 已知数据表结构：<<table_meta_list>>
-已知背景知识：<<knowledge>>
+
 假设条件：<<<assumption>>>
 
 回答问题并严格遵守以下要求：
