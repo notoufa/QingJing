@@ -57,7 +57,7 @@ def get_data_by_time_range(
     end_time (str): 结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
     columns (list): 需要查询的列名列表，如果为None，则返回所有列
     status (str): 需要筛选的状态（例如 '开机'、'关机'），如果为None，则不筛选状态
-    filter_work_status (bool): 是否只筛选‘开机工作中’状态的数据
+    filter_work_status (bool): 是是否只筛选‘开机工作中’或布放阶段与回收阶段状态的数据
 
     返回:
     dict: 包含指定列名和对应值的字典，或错误信息
@@ -110,10 +110,16 @@ def get_data_by_time_range(
             }
 
     if filter_work_status:
-        filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
+        if table_name == "Ajia_plc_1":
+            filtered_data = filtered_data[
+                (filtered_data["work_status"] == "布放阶段中")
+                | (filtered_data["work_status"] == "回收阶段中")
+            ]
+        else:
+            filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
         if filtered_data.empty:
             return {
-                "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中' 的数据",
+                "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中'或 布放阶段中或回收阶段中的数据",
                 "metadata": metadata,
             }
 

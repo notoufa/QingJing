@@ -16,11 +16,11 @@ data_path = "assets/初赛数据/"
 XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
 
 规则要求：  
-1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 70 以上）。  
+1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 75 以上）。  
 2. 结果应从最后一段非零数据中选择，且满足以下条件：  
-   - 第一个值：该段的第一个峰值，且一般大于 70。  
+   - 第一个值：该段的第一个峰值，且一般大于 75。  
    - 第二个值：位于第一个和第三个值之间，一般小于 60。  
-   - 第三个值：重新达到峰值，且一般大于 70。  
+   - 第三个值：重新达到峰值，且一般大于 75。  
 3. 忽略大于 200 的异常数据。  
 4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
 5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
@@ -42,8 +42,8 @@ HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流�
 规则要求：  
 1. 数据列表应包含至少两段非零数据。  
 2. 结果应满足以下条件：  
-   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 70。  
-   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 70。  
+   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 75。  
+   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 75。  
    - 第三个值：位于第二个值之后，且一般小于 60，即最后一个峰值回落至低于 60 的点。  
 3. 忽略大于 200 的异常数据。  
 4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
@@ -233,7 +233,7 @@ def find_peaks(data1):
     for i in range(1, len(data) - 1):  # 从第二个元素遍历到倒数第二个元素
         if data[i] > data[i - 1] and data[i] > data[i + 1]:  # 判断是否为峰值
             peaks.append(data[i])  # 只记录峰值值
-    peaks = [peak for peak in peaks if peak > 70]
+    peaks = [peak for peak in peaks if peak > 75]
     # 返回峰值格式和具体的峰值
     return len(peaks), peaks
 
@@ -525,7 +525,8 @@ for segment in segments:
                             df.loc[indices, "status"] = "A架摆回"
                             df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
                             df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-    if L4 == [2]:
+                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
+    elif L4 == [2]:
         events = df[
             (df["csvTime"] >= start)
             & (df["csvTime"] <= end)
@@ -584,6 +585,7 @@ for segment in segments:
                             df.loc[indices, "status"] = "A架摆回"
                             df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
                             df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
 
     elif L4 == [0, 3]:
         events = df[
@@ -645,6 +647,7 @@ for segment in segments:
                             df.loc[indices, "status"] = "A架摆回"
                             df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
                             df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
     elif L4 == [0, 1, 3]:
         events = df[
             (df["csvTime"] >= start)
@@ -704,6 +707,7 @@ for segment in segments:
                             df.loc[indices, "status"] = "A架摆回"
                             df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
                             df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
     elif L4 == [1, 2] or L4 == [1, 1]:
         events = df[
             (df["csvTime"] >= start)
@@ -776,6 +780,7 @@ for segment in segments:
                             df.loc[indices, "status"] = "征服者落座"
                             df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
                             df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
+                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
     else:
         LLM_predict_count+=1
         LLM_predict_time_range[LLM_predict_count] = [start, end]
@@ -826,6 +831,7 @@ for segment in segments:
             df.loc[indices, "status"] = "征服者落座"
             df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
             df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
+            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
 
         elif (
             first_value in first_start_times 
@@ -863,6 +869,7 @@ for segment in segments:
             df.loc[indices, "status"] = "A架摆回"
             df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
             df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
 
         elif first_value in second_start_times :
             events_2["new_column"] = events_2.apply(
@@ -898,6 +905,7 @@ for segment in segments:
             df.loc[indices, "status"] = "征服者落座"
             df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
             df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
+            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
 
         print("------------------")
         print(L4)
