@@ -490,8 +490,13 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
             "error": f"时间列转换失败: {e}",
         }
 
+    if isinstance(start_time, str):
+        start_time_dt = pd.to_datetime(start_time)
+    if isinstance(end_time, str):
+        end_time_dt = pd.to_datetime(end_time)
+
     filtered_data = df[
-        (df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)
+        (df["csvTime"] >= start_time_dt) & (df["csvTime"] <= end_time_dt)
     ].copy()
 
     if filtered_data.empty:
@@ -522,6 +527,9 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         "end_time": end_time,
         "device_name": device_name,
     }
+
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
 
     device_config = {
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
@@ -674,18 +682,18 @@ def get_running_duration_by_time_range(start_time, end_time, type, index=None):
 
 
 def get_total_energy_generation_or_fuel_consumption_by_time_range(
-    start_time,
-    end_time,
-    type,
-    device_name,
+    start_time: str,
+    end_time: str,
+    type: str,
+    device_name: str,
     diesel_density=None,
     diesel_calorific_value=None,
 ):
     """
     根据开始时间和结束时间，查询设备在指定时间范围内的发电量或燃油消耗量
 
-    :param start_time: 查询的开始时间（字符串或 datetime 类型）
-    :param end_time: 查询的结束时间（字符串或 datetime 类型）
+    :param start_time: 查询的开始时间（字符串类型）
+    :param end_time: 查询的结束时间（字符串类型）
     :param type: 查询类型，'理论发电量'、'实际发电量'、'燃油消耗量'
     :param device_name: 设备名称，'一号柴油发电机'、'二号柴油发电机'、'三号柴油发电机'、'四号柴油发电机'、'整个柴油发电机组'
     :param diesel_density: 柴油密度，单位kg/L
@@ -817,7 +825,6 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
         "mj_result_desc": "mj_result表示转换为MJ单位的值",
         "metadata": metadata,
     }
-
 
 def calculate_action_proportion(
     start_time: str, end_time: str, action: str, time_point: str
@@ -1008,6 +1015,11 @@ def calculate_time_interval(start_time: str, end_time: str):
         return {
             "result": convert_seconds(seconds),
             "metadata": metadata,
+            "range": (
+                "时间范围为{}到{}".format(start_time, end_time)
+                if seconds > 0
+                else "时间范围为{}到{}".format(end_time, start_time)
+            ),
             "desc": (
                 f"{start_time}在{end_time}之前"
                 if seconds > 0
@@ -1153,23 +1165,24 @@ def convert_seconds(seconds):
         },
         "metadata": metadata,
     }
-    
+
+
 def generate_simple_python_code(task_description: str):
     """
     调用大模型生成简单的 Python 代码。
-    
+
     :param task_description: str，任务描述，包括输入、输出和注意事项。
     :return: str，生成的 Python 代码。
     """
-    
+
     from api import get_completion
     from utils import parse_code
-    
+
     metadata = {
         "function_name": "generate_simple_python_code",
         "task_description": task_description,
     }
-    CODE_GENERATE_PROMPT=f"""
+    CODE_GENERATE_PROMPT = f"""
     # 任务描述  
     {task_description}
 
@@ -1184,12 +1197,15 @@ def generate_simple_python_code(task_description: str):
     ```
     """
     messages = [
-        {"role": "system", "content": "你是一个精通 Python 的编程助手，能够生成简洁且高效准确的 Python 代码。"},
-        {"role": "user", "content": CODE_GENERATE_PROMPT}
+        {
+            "role": "system",
+            "content": "你是一个精通 Python 的编程助手，能够生成简洁且高效准确的 Python 代码。",
+        },
+        {"role": "user", "content": CODE_GENERATE_PROMPT},
     ]
-    
+
     response = get_completion(messages)
-    
+
     try:
         response_data = parse_code(response)
         return {
@@ -1201,8 +1217,7 @@ def generate_simple_python_code(task_description: str):
             "error": f"生成代码失败: {e}",
             "metadata": metadata,
         }
-        
-    
+
 
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
@@ -1221,6 +1236,7 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
+    print(get_total_energy_generation_or_fuel_consumption_by_time_range('2024-05-17 00:00:00', "2024-05-23 00:00:00", "实际发电量", "整个柴油发电机组", 0.8, 42.76))
     for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
         for day in range(17, 31):
             date = f"2024-05-{day:02d}"
