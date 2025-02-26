@@ -6,6 +6,7 @@ from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
+from utils import *
 
 
 import logger
@@ -1174,8 +1175,7 @@ def generate_simple_python_code(task_description: str):
     :param task_description: str，任务描述，包括输入、输出和注意事项。
     :return: str，生成的 Python 代码。
     """
-
-    from api import get_completion
+    
     from utils import parse_code
 
     metadata = {
@@ -1186,8 +1186,9 @@ def generate_simple_python_code(task_description: str):
     # 任务描述  
     {task_description}
 
-    # 约束条件  
-    - todo  
+    # 代码要求
+    1. 生成的代码应该能够实现任务描述中的功能。
+    2. 返回结果存在变量 `result` 中。
 
     # 输出要求  
     适当的思考过程是有益的，但最终必须输出代码。确保输出格式如下，并且只包含一个代码块：
@@ -1207,9 +1208,9 @@ def generate_simple_python_code(task_description: str):
     response = get_completion(messages)
 
     try:
-        response_data = parse_code(response)
+        python_code = parse_code(response)
         return {
-            "result": response_data,
+            "result": python_code,
             "metadata": metadata,
         }
     except Exception as e:
@@ -1217,7 +1218,34 @@ def generate_simple_python_code(task_description: str):
             "error": f"生成代码失败: {e}",
             "metadata": metadata,
         }
+        
+# coderesult = generate_simple_python_code('''二号柴油发电机组各温度相关参数的报警阈值如下：  
+#     缸套水温度> 102℃ 触发报警，  
+#     左排气温度> 730℃ 触发报警，  
+#     右排气温度> 730℃ 触发报警，  
+#     滑油温度> 110℃ 触发报警，  
+#     冷却液温度> 60℃ 触发报警，  
+#     冷风温度> 55℃ 触发报警，  
+#     热风温度> 100℃ 触发报警，  
+#     非驱动轴轴承温度> 90℃ 触发报警，  
+#     驱动轴轴承温度> 90℃ 触发报警，  
+#     U 相绕组温度显示> 145℃ 触发报警，  
+#     V 相绕组温度显示> 145℃ 触发报警，  
+#     W 相绕组温度显示> 145℃ 触发报警。
+# 统计若实际温度超过 160 ，触发报警的参数数量''')
 
+# if "result" in coderesult:
+#     generated_code = coderesult["result"]
+#     print("生成的代码：\n", generated_code)
+#     local_scope = {}
+#     exec(generated_code, {}, local_scope)
+#     # 直接执行生成的代码
+#     result=local_scope["result"]
+    
+#     try:
+#         print("调用结果：",result)  
+#     except NameError:
+#         print("生成的代码运行错误。")
 
 function_map: dict[str, callable] = {
     "get_data_by_time_range": get_data_by_time_range,
