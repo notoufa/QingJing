@@ -7,6 +7,7 @@ import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
 from utils import *
+from typing import List, Dict
 
 
 import logger
@@ -109,9 +110,7 @@ def get_data_by_time_range(
             }
 
     if filter_work_status:
-        filtered_data = filtered_data[
-            filtered_data["Operational_Status"] == "开机工作中"
-        ]
+        filtered_data = filtered_data[filtered_data["work_status"] == "开机工作中"]
         if filtered_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到工作状态为 '开机工作中' 的数据",
@@ -182,10 +181,6 @@ def get_meta_by_table_columns(table_name, columns):
                 column_desc[column] = tmp["desc"]
 
     return column_desc
-
-
-import pandas as pd
-from typing import List, Dict
 
 
 def aggregate_data(
@@ -296,20 +291,31 @@ def aggregate_data(
 
     values = filtered_data[column].dropna()
 
-    if method == "avg":
-        result = values.mean()
-    elif method == "max":
-        result = values.max()
-    elif method == "min":
-        result = values.min()
-    elif method == "mode":
-        result = values.mode()[0] if not values.mode().empty else None
-    elif method == "sum":
-        result = values.sum()
-    elif method == "count":
-        result = len(values)
-    else:
-        return {"error": f"不支持的聚合方法: {method}", "metadata": metadata}
+    try:
+        if method == "avg":
+            result = values.mean()
+        elif method == "max":
+            result = values.max()
+        elif method == "min":
+            result = values.min()
+        elif method == "mode":
+            result = values.mode()[0] if not values.mode().empty else None
+        elif method == "sum":
+            result = values.sum()
+        elif method == "count":
+            result = len(values)
+        else:
+            return {
+                "error": f"不支持的聚合方法: {method}",
+                "metadata": metadata,
+            }
+    except Exception as e:
+        logger.error("聚合失败", e)
+        logger.error(traceback.format_exc())
+        return {
+            "error": f"聚合错误: {e}",
+            "metadata": metadata,
+        }
 
     return {
         f"{column}_{method}": round(result, 2) if isinstance(result, float) else result,
@@ -827,6 +833,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
         "metadata": metadata,
     }
 
+
 def calculate_action_proportion(
     start_time: str, end_time: str, action: str, time_point: str
 ):
@@ -1175,7 +1182,7 @@ def generate_simple_python_code(task_description: str):
     :param task_description: str，任务描述，包括输入、输出和注意事项。
     :return: str，生成的 Python 代码。
     """
-    
+
     from utils import parse_code
 
     metadata = {
@@ -1218,19 +1225,20 @@ def generate_simple_python_code(task_description: str):
             "error": f"生成代码失败: {e}",
             "metadata": metadata,
         }
-        
-# coderesult = generate_simple_python_code('''二号柴油发电机组各温度相关参数的报警阈值如下：  
-#     缸套水温度> 102℃ 触发报警，  
-#     左排气温度> 730℃ 触发报警，  
-#     右排气温度> 730℃ 触发报警，  
-#     滑油温度> 110℃ 触发报警，  
-#     冷却液温度> 60℃ 触发报警，  
-#     冷风温度> 55℃ 触发报警，  
-#     热风温度> 100℃ 触发报警，  
-#     非驱动轴轴承温度> 90℃ 触发报警，  
-#     驱动轴轴承温度> 90℃ 触发报警，  
-#     U 相绕组温度显示> 145℃ 触发报警，  
-#     V 相绕组温度显示> 145℃ 触发报警，  
+
+
+# coderesult = generate_simple_python_code('''二号柴油发电机组各温度相关参数的报警阈值如下：
+#     缸套水温度> 102℃ 触发报警，
+#     左排气温度> 730℃ 触发报警，
+#     右排气温度> 730℃ 触发报警，
+#     滑油温度> 110℃ 触发报警，
+#     冷却液温度> 60℃ 触发报警，
+#     冷风温度> 55℃ 触发报警，
+#     热风温度> 100℃ 触发报警，
+#     非驱动轴轴承温度> 90℃ 触发报警，
+#     驱动轴轴承温度> 90℃ 触发报警，
+#     U 相绕组温度显示> 145℃ 触发报警，
+#     V 相绕组温度显示> 145℃ 触发报警，
 #     W 相绕组温度显示> 145℃ 触发报警。
 # 统计若实际温度超过 160 ，触发报警的参数数量''')
 
@@ -1241,9 +1249,9 @@ def generate_simple_python_code(task_description: str):
 #     exec(generated_code, {}, local_scope)
 #     # 直接执行生成的代码
 #     result=local_scope["result"]
-    
+
 #     try:
-#         print("调用结果：",result)  
+#         print("调用结果：",result)
 #     except NameError:
 #         print("生成的代码运行错误。")
 
@@ -1264,8 +1272,25 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(get_data_by_time_range('Ajia_plc_1','2024-08-24 00:55:08','2024-08-24 24:03:08',columns=[],status='小艇落座'))
-    print(get_total_energy_generation_or_fuel_consumption_by_time_range('2024-05-17 00:00:00', "2024-05-23 00:00:00", "理论发电量", "整个柴油发电机组", 0.8, 42.76))
+    print(
+        get_data_by_time_range(
+            "Ajia_plc_1",
+            "2024-08-24 00:55:08",
+            "2024-08-24 24:03:08",
+            columns=[],
+            status="小艇落座",
+        )
+    )
+    print(
+        get_total_energy_generation_or_fuel_consumption_by_time_range(
+            "2024-05-17 00:00:00",
+            "2024-05-23 00:00:00",
+            "理论发电量",
+            "整个柴油发电机组",
+            0.8,
+            42.76,
+        )
+    )
     for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
         for day in range(17, 31):
             date = f"2024-05-{day:02d}"
