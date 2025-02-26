@@ -17,9 +17,6 @@ import logger
 from utils import *
 
 
-
-
-
 def vote(id: str, question: str, vote_times: int) -> VoteResult:
     """
     多次调用 get_answer 获取答案，并让 LLM 评估选出最优答案
@@ -37,7 +34,7 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             logger.info(f"【开始第{i+1}次获取问题答案】")
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
-            logger.special(
+            logger.success(
                 f"【第{i+1}次得到的最终答案】: \n{str(solution.reasoning_answer)}"
             )
         except Exception as e:
@@ -142,8 +139,12 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     logger.info("【问题总结】", solution.to_summary_json())
     messages = [
         {
+            "role": "system",
+            "content": prompts.get_prompt_summary(solution.question),
+        },
+        {
             "role": "user",
-            "content": prompts.get_prompt_summary(solution.to_summary_json()),
+            "content": str(solution.to_summary_json()),
         },
     ]
     response = get_completion(messages)
@@ -200,7 +201,7 @@ def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
     :param question: 问题
     :return: 问题的分解结果
     """
-    logger.info("【获取问题分解结果】", question)
+    logger.info("【开始获取问题分解结果】", question)
     tool_names = get_tool(question)
     messages = [
         {
@@ -227,7 +228,7 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
     :param decomposition: 问题的分解结果
     :return: 是否需要更新任务分解树
     """
-    logger.info("【询问是否需要更新任务分解树】")
+    logger.debug("【询问是否需要更新任务分解树】")
     messages = [
         {
             "role": "system",
@@ -265,15 +266,20 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
+    system_prompt, user_prompt = prompts.get_prompt_atomic_question(
+        task,
+        decomposition.assumption,
+        decomposition.chain_of_subtasks,
+        table_meta_list,
+    )
     messages = [
         {
+            "role": "system",
+            "content": system_prompt,
+        },
+        {
             "role": "user",
-            "content": prompts.get_prompt_atomic_question(
-                task,
-                decomposition.assumption,
-                decomposition.chain_of_subtasks,
-                table_meta_list,
-            ),
+            "content": user_prompt,
         },
     ]
     response = get_completion(messages, tool_list)
@@ -287,10 +293,10 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                 function_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
                 if function_name in functions.function_map.keys():
-                    logger.info("【开始执行工具函数】", function_name, ", 参数:", args)
+                    logger.debug("【开始执行工具函数】", function_name, ", 参数:", args)
                     function_result = functions.function_map[function_name](**args)
                     function_results.append(function_result)
-                    logger.success("【工具函数执行结果】", function_result)
+                    logger.info("【工具函数执行结果】", function_result)
                     messages.append(
                         {
                             "role": "tool",
@@ -306,7 +312,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
             break
     api_response = ApiResponse(messages, response)
     answer = parse_res(response)
-    logger.special("【原子问题答案】", answer)
+    logger.success("【原子问题答案】", answer)
     task.answer = answer
     task.function_results = function_results
     task.api_response = api_response
@@ -321,7 +327,7 @@ def get_tool(question: str) -> list:
     :param question: 问题
     :return: 所需工具的名称列表
     """
-    logger.info("【开始获取初始问题所需工具】", question)
+    logger.debug("【开始获取初始问题所需工具】", question)
     messages = [
         {
             "role": "user",
@@ -330,7 +336,7 @@ def get_tool(question: str) -> list:
     ]
     response = get_completion(messages)
     tool_names = json.loads(parse_res(response))
-    logger.success("【问题所需工具】", tool_names)
+    logger.info("【问题所需工具】", tool_names)
     return tool_names
 
 
@@ -344,7 +350,7 @@ def get_table_meta_and_tool(
     :param task: 原子问题
     :return: 数据表的元信息和所需工具
     """
-    logger.info("【开始获取原子问题所需数据表和工具】", task.question)
+    logger.debug("【开始获取原子问题所需数据表和工具】", task.question)
     messages = [
         {
             "role": "user",
@@ -359,13 +365,10 @@ def get_table_meta_and_tool(
     need_tools = res.get("tools", [])
     if not decomposition.contains_time and "设备参数详情表" not in tables:
         tables.append("设备参数详情表")
-    logger.success("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
+    logger.info("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
     tool_list = []
     for tool in tools.tools:
         if tool["function"]["name"] in need_tools:
             tool_list.append(tool)
     return table_meta_list, tool_list
-
-
-
