@@ -1389,8 +1389,12 @@ function_map: dict[str, callable] = {
 
 if __name__ == "__main__":
     print(
-        get_data_by_time_range(
-            "2024-05-17 00:00:00", "2024-05-25 00:00:00", "甲板机械设备"
+        aggregate_data(
+            "device_1_2_meter_102",
+            "2024-05-17 00:00:00",
+            "2024-05-17 23:59:59",
+            "1-2-10_v",
+            "avg",
         )
     )
     for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
@@ -1402,4 +1406,4 @@ if __name__ == "__main__":
                     table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count"
                 )["csvTime_count"]
             )
-            print(table, date, ":", missing_count, missing_count / 1400 * 100, "%")
+            print(table, date, ":", missing_count, missing_count / 1440 * 100, "%")
