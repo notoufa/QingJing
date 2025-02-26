@@ -523,8 +523,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
     if L4 == [2]:
         events = df[
             (df["csvTime"] >= start)
@@ -582,8 +582,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
 
     elif L4 == [0, 3]:
         events = df[
@@ -643,8 +643,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
     elif L4 == [0, 1, 3]:
         events = df[
             (df["csvTime"] >= start)
@@ -702,8 +702,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
     elif L4 == [1, 2] or L4 == [1, 1]:
         events = df[
             (df["csvTime"] >= start)
@@ -774,8 +774,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == value_11
                             ].tolist()
                             df.loc[indices, "status"] = "征服者落座"
-                            df.loc[start, "Operational_Status"] = "回收阶段开始"
-                            df.loc[end, "Operational_Status"] = "回收阶段结束"
+                            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
+                            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
     else:
         LLM_predict_count+=1
         LLM_predict_time_range[LLM_predict_count] = [start, end]
@@ -824,8 +824,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
-            df.loc[start, "Operational_Status"] = "回收阶段开始"
-            df.loc[end, "Operational_Status"] = "回收阶段结束"
+            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
+            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
 
         elif (
             first_value in first_start_times 
@@ -861,8 +861,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "A架摆回"
-            df.loc[start, "Operational_Status"] = "布放阶段开始"
-            df.loc[end, "Operational_Status"] = "布放阶段结束"
+            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
+            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
 
         elif first_value in second_start_times :
             events_2["new_column"] = events_2.apply(
@@ -896,8 +896,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
-            df.loc[start, "Operational_Status"] = "回收阶段开始"
-            df.loc[end, "Operational_Status"] = "回收阶段结束"
+            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
+            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
 
         print("------------------")
         print(L4)
