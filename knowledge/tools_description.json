@@ -36,7 +36,7 @@
     },
     {
         "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
-        "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组）、查询类型（理论发电量、实际发电量、燃油消耗量）",
+        "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组(包括一号/二号/三号/四号)）、查询类型（理论发电量、实际发电量、燃油消耗量）",
         "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）",
         "notice": "计算理论发电量时，请直接调用get_total_energy_generation_or_fuel_consumption_by_time_range函数，不需要先计算燃油消耗量"
     },
