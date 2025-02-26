@@ -372,7 +372,7 @@ df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
 # 初始化 status 列，默认值为 'False'
 df["status"] = "False"
 df["check_current_presence"] = "False"
-df["Operational_Status"]= "未工作"
+df["work_status"]= "未工作"
 have_boot = -1
 not_have_boot = -1
 # 遍历每一行，判断设备状态
@@ -404,7 +404,7 @@ for i in range(1, df.shape[0]):
         not_have_boot = i
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot+1):
-            df.loc[j, "Operational_Status"] = "开机工作中"
+            df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
     # 电流检测条件
@@ -523,8 +523,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
     if L4 == [2]:
         events = df[
             (df["csvTime"] >= start)
@@ -582,8 +582,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[1]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
 
     elif L4 == [0, 3]:
         events = df[
@@ -643,8 +643,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
     elif L4 == [0, 1, 3]:
         events = df[
             (df["csvTime"] >= start)
@@ -702,8 +702,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == peak_L[2]
                             ].tolist()
                             df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
+                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
     elif L4 == [1, 2] or L4 == [1, 1]:
         events = df[
             (df["csvTime"] >= start)
@@ -774,8 +774,8 @@ for segment in segments:
                                 between_events["Ajia-5_v"] == value_11
                             ].tolist()
                             df.loc[indices, "status"] = "征服者落座"
-                            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
-                            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
+                            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
+                            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
     else:
         LLM_predict_count+=1
         LLM_predict_time_range[LLM_predict_count] = [start, end]
@@ -824,8 +824,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
-            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
-            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
+            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
+            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
 
         elif (
             first_value in first_start_times 
@@ -861,8 +861,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "A架摆回"
-            df.loc[df["csvTime"] == start, "Operational_Status"] = "布放阶段开始"
-            df.loc[df["csvTime"] == end, "Operational_Status"] = "布放阶段结束"
+            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
 
         elif first_value in second_start_times :
             events_2["new_column"] = events_2.apply(
@@ -896,8 +896,8 @@ for segment in segments:
 
             indices = events_2.index[events_2["new_column"] == c].tolist()
             df.loc[indices, "status"] = "征服者落座"
-            df.loc[df["csvTime"] == start, "Operational_Status"] = "回收阶段开始"
-            df.loc[df["csvTime"] == end, "Operational_Status"] = "回收阶段结束"
+            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
+            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
 
         print("------------------")
         print(L4)
@@ -915,7 +915,7 @@ df = pd.read_csv("tmp_data/Port3_ksbg_9.csv")
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
 # 初始化status列
 df["status"] = "False"
-df["Operational_Status"]= "未开机"
+df["work_status"]= "未开机"
 have_boot = -1
 not_have_boot = -1
 # A架开机关机
@@ -930,7 +930,7 @@ for i in range(1, df.shape[0]):
         not_have_boot = i
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot):
-            df.loc[j, "Operational_Status"] = "开机工作中"
+            df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
     # if df.loc[i, "status"] != "False" and action_df.loc[i, "status"] == "False":
@@ -1005,7 +1005,7 @@ df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
 # 检测折臂吊车的开机和关机事件
 segments = []
 start_time = None
-df["Operational_Status"]= "未工作"
+df["work_status"]= "未工作"
 have_boot = -1
 not_have_boot = -1
 for i in range(1, df.shape[0]):
@@ -1020,7 +1020,7 @@ for i in range(1, df.shape[0]):
         
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot+1):
-            df.loc[j, "Operational_Status"] = "开机工作中"
+            df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
 
