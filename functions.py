@@ -812,7 +812,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
             print(f"计算设备 {device_name} {type}时出错: {e}")
     return {
         "result": result,
-        "unit": "L" if type == "燃油消耗量" else "Kwh",
+        "unit": "L" if type == "燃油消耗量" else "kWh",
         "mj_result": mj_result,
         "mj_result_desc": "mj_result表示转换为MJ单位的值",
         "metadata": metadata,

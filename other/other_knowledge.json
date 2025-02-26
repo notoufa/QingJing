@@ -550,7 +550,7 @@
         ]
     },
     {
-        "knowledge": "MJ和kWh的换算关系：1KWh=3.6MJ，即由MJ转换为Kwh时，使用除法：热值/3.6",
+        "knowledge": "MJ和kWh的换算关系：1KWh=3.6MJ，即由MJ转换为时，使用除法：热值/3.6",
         "keys": [
             "MJ",
             "kWh",
