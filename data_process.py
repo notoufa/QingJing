@@ -1,384 +1,79 @@
 import os
 import pandas as pd
 from collections import defaultdict
-import json
 from datetime import datetime
 import json
-import pandas as pd
+import logger
+import traceback
 
-table_name_map={
-    "Ajia_plc_1":"A架动作表",
-    "device_13_11_meter_1311":"折臂吊车与小艇动作表",
-    "Port3_ksbg_9":"艏推系统DP动作表"
+table_name_map = {
+    "Ajia_plc_1.csv": "A架动作表.csv",
+    "device_13_11_meter_1311.csv": "折臂吊车与小艇动作表.csv",
+    "Port3_ksbg_9.csv": "艏推系统DP动作表.csv",
 }
+
 data_path = "assets/初赛数据/"
+tmp_path = "tmp_data"
+output_path = "data"
+
+os.makedirs(tmp_path, exist_ok=True)
+os.makedirs(output_path, exist_ok=True)
+
+# 合并数据
 
 
-XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
-
-规则要求：  
-1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 75 以上）。  
-2. 结果应从最后一段非零数据中选择，且满足以下条件：  
-   - 第一个值：该段的第一个峰值，且一般大于 75。  
-   - 第二个值：位于第一个和第三个值之间，一般小于 60。  
-   - 第三个值：重新达到峰值，且一般大于 75。  
-3. 忽略大于 200 的异常数据。  
-4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
-5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
-
-示例：  
-输入：  
-[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.6478, 56.5133, 60.8637, 56.3751, 56.3777, 56.3601, 61.1564, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 422.499, 56.2896, 66.3951, 60.8928, 57.7813, 56.3871, 66.3077, 62.5263, 56.3937, 58.0826, 90.0969, 87.5592, 83.9934, 56.5033, 59.3441, 58.0018, 56.3027, 56.2845, 56.3666, 101.763, 96.6118, 56.3492, 59.2629, 57.0112, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
-输出：  
-[90.0969, 56.5033, 101.763]  
-
-现有一组新的电流变化序列数据： 
-<<L>>  
-
-请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
-
-
-HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
-
-规则要求：  
-1. 数据列表应包含至少两段非零数据。  
-2. 结果应满足以下条件：  
-   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 75。  
-   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 75。  
-   - 第三个值：位于第二个值之后，且一般小于 60，即最后一个峰值回落至低于 60 的点。  
-3. 忽略大于 200 的异常数据。  
-4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
-5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
-
-示例：  
-输入：  
-[0.0, 0.0, 0.0, 0.0, 0.0, 57.0048, 56.8545, 61.9802, 56.8646, 56.8705, 56.777, 68.3751, 56.5526, 56.6556, 63.1736, 68.4542, 78.2151, 86.3214, 82.7017, 58.9111, 56.632, 56.9142, 56.6583, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.2542, 56.2177, 56.1263, 56.2697, 56.102, 59.5568, 57.5703, 57.6415, 56.9307, 57.0531, 56.9337, 58.582, 58.0159, 104.238, 96.6301, 97.1496, 56.5543, 63.426, 57.6552, 56.6086, 56.6611, 56.5601, 56.6476, 56.68, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
-输出：  
-[86.3214, 104.238, 56.5543]  
-
-现有一组新的电流变化序列数据：  
-<<L>>  
-
-请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
-
-LLM_predict_count = 0
-LLM_predict_time_range={}
-def predict_sequence_by_llm(L_sequence, oper):
-    from utils import get_completion
-
-    if oper == 0:
-        context_text = XIAFANG
-    else:
-        context_text = HUISHOU
-    prompt = context_text.replace("<<L>>", L_sequence)
-    print(prompt)
-    messages = [{"role": "user", "content": prompt}]
-    response = get_completion(messages)
-    return str(response.choices[0].message.content)
-
-def get_result(L_sequence, oper):
-    try:
-        input_string = predict_sequence_by_llm(L_sequence=L_sequence, oper=oper)
-        print(input_string)
-        result_list = json.loads(input_string)
-
-        if len(result_list) == 3:
-            a = result_list[0]
-            b = result_list[1]
-            c = result_list[2]
-            return a, b, c
-    except:
-        try:
-            input_string = predict_sequence_by_llm(L_sequence=L_sequence)
-            result_list = json.loads(input_string)
-            if len(result_list) == 3:
-                a = result_list[0]
-                b = result_list[1]
-                c = result_list[2]
-                return a, b, c
-        except:
-            return -100, -100, -100
-
-def merge_csv_files(folder_path, out_path):
-    # Store files by their prefix
+def merge_csv_files(input_path, out_path):
+    # 根据前缀分组文件
     file_groups = defaultdict(list)
-    for file_name in os.listdir(folder_path):
+    for file_name in os.listdir(input_path):
         if file_name.endswith(".csv") and "字段释义" not in file_name:
             prefix = file_name.rsplit("_", 1)[0]
-            file_groups[prefix].append(os.path.join(folder_path, file_name))
-
-    # Merge files with the same prefix
+            file_groups[prefix].append(os.path.join(input_path, file_name))
+    # 合并前缀相同的文件
     for prefix, file_list in file_groups.items():
         merged_df = pd.concat(
             (pd.read_csv(file) for file in file_list), ignore_index=True
         )
         output_file = os.path.join(out_path, f"{prefix}.csv")
-
-        print(output_file)
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         merged_df.to_csv(output_file, index=False)
-        print(f'合并前缀为"{prefix}"的文件到{output_file}')
-
-    # Convert Excel to CSV
-    os.makedirs("data", exist_ok=True)
+        logger.info(f'合并前缀为"{prefix}"的文件到{output_file}')
+    # 将设备参数详情表转为csv
     df_device = pd.read_excel(f"{data_path}设备参数详情.xlsx")
-    df_device.to_csv("tmp_data/设备参数详情表.csv", index=False)
-    df_device.to_csv("data/设备参数详情表.csv", index=False)
+    df_device.to_csv(os.path.join(out_path, "设备参数详情表.csv"), index=False)
 
-# 定义一个函数，将值转换为数值类型，无法转换的返回 -1
+
+logger.special("开始合并数据")
+merge_csv_files(data_path, tmp_path)
+merge_csv_files(data_path, output_path)
+logger.success("数据合并完成")
+
+# 判定A架的开关机和有无电流
+table_key = "Ajia_plc_1.csv"
+
+
 def convert_to_numeric(value):
+    """
+    将值转换为数值类型，无法转换的返回 -1
+    """
     try:
         return float(value)
     except ValueError:
         return -1
-    
-# 定义函数来检查Ajia-0_v摆动至最小值和最大值
-def check_ajia_0_v_extremes(df):
-    flag = False
-    extremes = [0] * len(df)
-    for i in range(0, len(df)):
-        if df.loc[i, "Ajia-0_v"] == "error":
-            extremes[i] = 0
-            continue
-        curr_ajia_0_v = float(df.loc[i, "Ajia-0_v"])
-        if -44 <= curr_ajia_0_v <= -42 and flag == True:
-            flag = False
-            extremes[i] = -1
-        elif 34 <= curr_ajia_0_v <= 36 and flag == False:
-            flag = True
-            extremes[i] = 1
-        else :
-            extremes[i] = 0
-    return extremes
-
-def is_mostly_fifty(L_):
-    # 去掉列表中0或者超过200的值
-    filtered_list = [x for x in L_ if x != 0 and x <= 200]
-    # 将50到60之间的值视为50
-    normalized_list = [50 if 50 <= x <= 60 else x for x in filtered_list]
-    # 统计50的数量
-    count_50 = normalized_list.count(50)
-
-    # 如果50的数量超过列表长度的一半，返回1，否则返回0
-    if count_50 > len(normalized_list) / 2:
-        return 1  # 代表是待机
-    else:
-        return 0
-
-    # 初始化变量
-
-def extract_daily_power_on_times(df):
-    """
-    从CSV文件中提取一天内有两次开机的第一次和第二次开机时间。
-
-    参数:
-    file_path (str): CSV文件的路径，包含 'csvTime' 和 'status' 列。
-
-    返回:
-    first_start_times (list): 一天内有两次开机的第一次开机时间列表。
-    second_start_times (list): 一天内有两次开机的第二次开机时间列表。
-    """
-    # 读取CSV文件
-    df = df
-
-    # 将 csvTime 转换为 datetime 类型
-    df["csvTime"] = pd.to_datetime(df["csvTime"])
-
-    # 按天分组
-    df["date"] = df["csvTime"].dt.date
-
-    # 初始化一个字典来存储每天的开机关机时间段
-    daily_segments = {}
-
-    # 遍历每一天的数据
-    for date, group in df.groupby("date"):
-        segments = []
-        start_time = None
-
-        # 遍历每一天的记录
-        for index, row in group.iterrows():
-            if row["status"] == "A架开机":
-                start_time = row["csvTime"]
-            elif row["status"] == "A架关机" and start_time is not None:
-                end_time = row["csvTime"]
-                segments.append((start_time, end_time))
-                start_time = None
-
-        # 将每天的开机关机时间段存入字典
-        daily_segments[date] = segments
-
-    # 统计每天的开机关机次数
-    daily_counts = {date: len(segments) for date, segments in daily_segments.items()}
-
-    # 筛选出一天内有两次开机关机的情况
-    two_times_days = [date for date, count in daily_counts.items() if count == 2]
-
-    # 初始化两个列表来存储第一次和第二次的开机时间
-    first_start_times = []
-    second_start_times = []
-
-    # 遍历这些日期，提取第一次和第二次的开机时间
-    for date in two_times_days:
-        segments = daily_segments[date]
-        first_start_times.append(segments[0][0])  # 第一次开机时间
-        second_start_times.append(segments[1][0])  # 第二次开机时间
-
-    return first_start_times, second_start_times
-
-def find_peaks(data1):
-    # 数据预处理
-    data = [50 if 50 <= num <= 66 else num for num in data1]
-
-    # 找到峰值
-    peaks = []
-    for i in range(1, len(data) - 1):  # 从第二个元素遍历到倒数第二个元素
-        if data[i] > data[i - 1] and data[i] > data[i + 1]:  # 判断是否为峰值
-            peaks.append(data[i])  # 只记录峰值值
-    peaks = [peak for peak in peaks if peak > 75]
-    # 返回峰值格式和具体的峰值
-    return len(peaks), peaks
-
-def find_first_increasing_value(data):
-    """
-    找到列表中第一个从稳定值（66以下）开始增加的值。
-
-    参数:
-    data (list): 输入的数值列表。
-
-    返回:
-    tuple: 第一个大于66的值及其索引。如果未找到，返回 (None, None)。
-    """
-    # 将介于50到66之间的值替换为50
-    processed_data = [50 if 50 <= num <= 66 else num for num in data]
-
-    # 找到第一个大于66的值及其索引
-    for index, value in enumerate(processed_data):
-        if value > 66 and value < 300:
-            return value
-    # 如果未找到，返回 (None, None)
-    return 50
-
-def find_stable_value(data1, data2, peak1, peak2):
-    """
-    找到两个峰值之间的数据中，回落到稳定值的第一个值。
-    假设稳定值在 50 到 60 之间。
-
-    参数:
-    data (list): 数据列表
-    peak1 (float): 第一个峰值
-    peak2 (float): 第二个峰值
-
-    返回:
-    float or None: 稳定值，如果未找到则返回 None
-    """
-    # 找到峰值之间的数据
-    try:
-        start_index = data1.index(peak1)
-        end_index = data1.index(peak2)
-    except ValueError:
-        # 如果峰值不在列表中，返回 None
-        return None
-
-    between_peaks1 = data1[start_index : end_index + 1]
-    between_peaks2 = data2[start_index : end_index + 1]
-
-    # 找到回落到稳定值的第一个值（假设稳定值在 50 到 60 之间）
-    for index, value in enumerate(between_peaks1):
-        if 50 <= value <= 60 and 50 <= between_peaks2[index] <= 60:
-            return value
-
-    # 如果未找到稳定值，返回 None
-    return None
-
-def find_first_stable_after_peak(data, peak, stable_min=50, stable_max=60):
-    """
-    从峰值到列表末尾的数据中，找到第一个回落到稳定值的值。
-
-    参数:
-    data (list): 数据列表
-    peak (float): 峰值
-    stable_min (float): 稳定值的最小值
-    stable_max (float): 稳定值的最大值
-
-    返回:
-    float or None: 稳定值，如果未找到则返回 None
-    """
-    try:
-        # 找到峰值的索引
-        start_index = data.index(peak)
-    except ValueError:
-        # 如果峰值不在列表中，返回 None
-        return None
-
-    # 切片获取从峰值到列表末尾的数据
-    after_peak = data[start_index:]
-
-    # 找到回落到稳定值的第一个值
-    for value in after_peak:
-        if stable_min <= value <= stable_max:
-            return value
-
-    # 如果未找到稳定值，返回 None
-    return None
-
-def extract_events(df, segment):
-    start, end = segment
-    # start = pd.to_datetime(start)
-    # end = pd.to_datetime(end)
-    print(f"开机时间: {start}, 关机时间: {end}")
-    events = df[
-        (df["csvTime"] >= start)
-        & (df["csvTime"] <= end)
-        & (df["check_current_presence"].isin(["有电流", "无电流"]))
-    ]
-    print(f"事件数量: {events.shape[0]}")
-    L3 = []
-    # 检查事件数量是否为偶数
-    if events.shape[0] >= 2 and events.shape[0] % 2 == 0:
-        # 遍历所有偶数索引的事件对
-        for i in range(0, events.shape[0], 2):
-            event_start = events.iloc[i]
-            event_end = events.iloc[i + 1]
-            # 确保第一个事件是“有电流”，第二个事件是“无电流”
-            if (
-                event_start["check_current_presence"] == "有电流"
-                and event_end["check_current_presence"] == "无电流"
-            ):
-                start_event_time = event_start["csvTime"]
-                end_event_time = event_end["csvTime"]
-
-                # 提取两个事件之间的数据
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
-                print(f"事件对 ({i}, {i + 1}) 之间的数据: {data1}")
-
-                # 调用 find_peaks 函数（假设已定义）
-                len_peaks, peak_L = find_peaks(data1)
-                print(f"峰值为{peak_L}")
-                L3.append(len_peaks)
-    return L3
 
 
-merge_csv_files(data_path, "tmp_data")
-merge_csv_files(data_path, "data")
+logger.special("开始判定A架开关机和有无电流")
 
-# 读取CSV文件
-df = pd.read_csv("tmp_data/Ajia_plc_1.csv")
-# 将 Ajia-3_v 和 Ajia-5_v 列转换为数值类型，无法转换的设为 -1
+df = pd.read_csv(os.path.join(tmp_path, table_key))
 df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
 df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
-# 初始化 status 列，默认值为 'False'
 df["status"] = "False"
 df["check_current_presence"] = "False"
-df["work_status"]= "未工作"
+df["work_status"] = "未工作"
 have_boot = -1
 not_have_boot = -1
-# 遍历每一行，判断设备状态
+
 for i in range(1, df.shape[0]):
-    # 取当前行和前一行的数据
     prev_ajia3 = df.loc[i - 1, "Ajia-3_v"]
     prev_ajia5 = df.loc[i - 1, "Ajia-5_v"]
     curr_ajia3 = df.loc[i, "Ajia-3_v"]
@@ -403,37 +98,65 @@ for i in range(1, df.shape[0]):
     if curr_ajia5 == -1 and prev_ajia5 >= 0:
         df.loc[i, "status"] = "A架关机"
         not_have_boot = i
+
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
-        for j in range(have_boot, not_have_boot+1):
+        for j in range(have_boot, not_have_boot + 1):
             df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
-    # 电流检测条件
-    # 有电流：前一时刻有一个或全部为0，下一刻均不为0
-    
+
+    # 有电流条件：前一时刻有一个或全部为0，下一刻均不为0
     if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
         df.loc[i, "check_current_presence"] = "有电流"
-    # 无电流：前一时刻均不为0，下一刻有一个或全部为0
+    # 无电流条件：前一时刻均不为0，下一刻有一个或全部为0
     elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
         df.loc[i, "check_current_presence"] = "无电流"
-        
+
+logger.success("A架开关机和有无电流判定完成")
 
 
-# # （Ajia-0_v减去Ajia-1_v）的绝对值 ，赋为新列angle_range
-# def compute_angle_range(row):
-#     if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
-#         return "error"
-#     return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
+# 处理A架角度数据
+def compute_angle_range(row):
+    """
+    计算角度范围
+    """
+    if row["Ajia-0_v"] == "error" or row["Ajia-1_v"] == "error":
+        return "error"
+    return abs(float(row["Ajia-0_v"]) - float(row["Ajia-1_v"]))
 
 
+# logger.special("开始处理A架角度范围")
 # df["angle_range"] = df.apply(compute_angle_range, axis=1)
+# logger.success("处理完成")
+
+
+# 检查Ajia-0_v摆动至最小值和最大值
+def check_ajia_0_v_extremes(df):
+    flag = False
+    extremes = [0] * len(df)
+    for i in range(0, len(df)):
+        if df.loc[i, "Ajia-0_v"] == "error":
+            extremes[i] = 0
+            continue
+        curr_ajia_0_v = float(df.loc[i, "Ajia-0_v"])
+        if -44 <= curr_ajia_0_v <= -42 and flag == True:
+            flag = False
+            extremes[i] = -1
+        elif 34 <= curr_ajia_0_v <= 36 and flag == False:
+            flag = True
+            extremes[i] = 1
+        else:
+            extremes[i] = 0
+    return extremes
+
 
 df["ajia_0_v_extremes"] = check_ajia_0_v_extremes(df)
+
+# 根据开关机事件，将A架数据分为若干段
+logger.special("根据开关机事件，将A架数据分为若干段")
 start_time = None
 segments = []
 
-
-# 遍历DataFrame
 for index, row in df.iterrows():
     if row["status"] == "A架开机":
         start_time = row["csvTime"]
@@ -441,367 +164,418 @@ for index, row in df.iterrows():
         end_time = row["csvTime"]
         segments.append((start_time, end_time))
         start_time = None
-LLLL = []
+
+logger.success("共分为%d段" % len(segments))
+for i, (start_time, end_time) in enumerate(segments):
+    logger.info(f"第{i+1}段：{start_time} - {end_time}")
+
+# 让LLM预测不好判断的动作
+
+prompt_ajia_judge_file = "prompts/ajia_judge.md"
+
+XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
+
+规则要求：  
+1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 70 以上）。  
+2. 结果应从最后一段非零数据中选择，且满足以下条件：  
+   - 第一个值：该段的第一个峰值，且一般大于 70。  
+   - 第二个值：位于第一个和第三个值之间，一般小于 60。  
+   - 第三个值：重新达到峰值，且一般大于 70。  
+3. 忽略大于 200 的异常数据。  
+4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
+5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
+
+示例：  
+输入：  
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.6478, 56.5133, 60.8637, 56.3751, 56.3777, 56.3601, 61.1564, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 422.499, 56.2896, 66.3951, 60.8928, 57.7813, 56.3871, 66.3077, 62.5263, 56.3937, 58.0826, 90.0969, 87.5592, 83.9934, 56.5033, 59.3441, 58.0018, 56.3027, 56.2845, 56.3666, 101.763, 96.6118, 56.3492, 59.2629, 57.0112, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
+输出：  
+[90.0969, 56.5033, 101.763]  
+
+现有一组新的电流变化序列数据： 
+<<L>>  
+
+请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
 
 
-L5 = []
+HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
+
+规则要求：  
+1. 数据列表应包含至少两段非零数据。  
+2. 结果应满足以下条件：  
+   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 70。  
+   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 70。  
+   - 第三个值：位于第二个值之后，且一般小于 60，即最后一个峰值回落至低于 60 的点。  
+3. 忽略大于 200 的异常数据。  
+4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
+5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
+
+示例：  
+输入：  
+[0.0, 0.0, 0.0, 0.0, 0.0, 57.0048, 56.8545, 61.9802, 56.8646, 56.8705, 56.777, 68.3751, 56.5526, 56.6556, 63.1736, 68.4542, 78.2151, 86.3214, 82.7017, 58.9111, 56.632, 56.9142, 56.6583, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.2542, 56.2177, 56.1263, 56.2697, 56.102, 59.5568, 57.5703, 57.6415, 56.9307, 57.0531, 56.9337, 58.582, 58.0159, 104.238, 96.6301, 97.1496, 56.5543, 63.426, 57.6552, 56.6086, 56.6611, 56.5601, 56.6476, 56.68, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
+输出：  
+[86.3214, 104.238, 56.5543]  
+
+现有一组新的电流变化序列数据：  
+<<L>>  
+
+请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
+
+
+def predict_sequence_by_llm(L_sequence, is_xiafang: bool):
+    from api import get_completion
+    from utils import parse_res
+
+    # with open(prompt_ajia_judge_file, "r", encoding="utf-8") as file:
+    #     ajia_judge = file.read()
+
+    if is_xiafang:
+        ajia_judge = XIAFANG
+    else:
+        ajia_judge = HUISHOU
+
+    prompt = ajia_judge.replace("<<L>>", L_sequence)
+    messages = [{"role": "user", "content": prompt}]
+    response = get_completion(messages)
+    res = parse_res(response)
+    logger.info("【LLM返回】：%s" % res)
+    return res
+
+
+def single_predict(L_sequence, is_xiafang: bool):
+    result_list = json.loads(predict_sequence_by_llm(L_sequence, is_xiafang))
+    if len(result_list) == 3:
+        a = result_list[0]
+        b = result_list[1]
+        c = result_list[2]
+        return a, b, c
+
+
+def get_predict_result(L_sequence, is_xiafang: bool):
+    try:
+        return single_predict(L_sequence, is_xiafang)
+    except Exception as e:
+        logger.error("LLM预测失败，尝试再次预测：%s" % e)
+        try:
+            return single_predict(L_sequence, is_xiafang)
+        except Exception as e:
+            logger.error("LLM预测失败，返回默认值：%s" % e)
+            return -100, -100, -100
+
+
+# 判断A架关键动作的辅助函数
+def extract_daily_power_on_times(df):
+    """
+    从CSV文件中提取一天内有两次开机的第一次和第二次开机时间。
+
+    参数:
+    file_path (str): CSV文件的路径，包含 'csvTime' 和 'status' 列。
+
+    返回:
+    first_start_times (list): 一天内有两次开机的第一次开机时间列表。
+    second_start_times (list): 一天内有两次开机的第二次开机时间列表。
+    """
+    df["csvTime"] = pd.to_datetime(df["csvTime"])
+
+    df["date"] = df["csvTime"].dt.date
+
+    daily_segments = {}
+
+    for date, group in df.groupby("date"):
+        segments = []
+        start_time = None
+
+        for index, row in group.iterrows():
+            if row["status"] == "A架开机":
+                start_time = row["csvTime"]
+            elif row["status"] == "A架关机" and start_time is not None:
+                end_time = row["csvTime"]
+                segments.append((start_time, end_time))
+                start_time = None
+
+        daily_segments[date] = segments
+
+    daily_counts = {date: len(segments) for date, segments in daily_segments.items()}
+
+    two_times_days = [date for date, count in daily_counts.items() if count == 2]
+
+    first_start_times = []
+    second_start_times = []
+
+    for date in two_times_days:
+        segments = daily_segments[date]
+        first_start_times.append(segments[0][0])
+        second_start_times.append(segments[1][0])
+
+    return first_start_times, second_start_times
+
+
+def find_peaks(input_data):
+    """
+    找到峰值
+
+    :param input_data:输入序列
+    :return: 峰值数量，峰值列表
+    """
+    data = [50 if 50 <= num <= 66 else num for num in input_data]
+
+    # 找到峰值
+    peaks = []
+    for i in range(1, len(data) - 1):  # 从第二个元素遍历到倒数第二个元素
+        if data[i] > data[i - 1] and data[i] > data[i + 1]:  # 判断是否为峰值
+            peaks.append(data[i])  # 只记录峰值值
+    peaks = [peak for peak in peaks if peak > 75]
+    # 返回峰值格式和具体的峰值
+    return len(peaks), peaks
+
+
+def find_first_increasing_value(data):
+    """
+    找到列表中第一个从稳定值（66以下）开始增加的值
+
+    :param data: 输入的数值列表
+    :return: 第一个大于66的值。如果未找到，返回50
+    """
+    processed_data = [50 if 50 <= num <= 66 else num for num in data]
+
+    for _, value in enumerate(processed_data):
+        if value > 66 and value < 300:
+            return value
+    return 50
+
+
+def find_stable_value(data1, data2, peak1, peak2):
+    """
+    找到两个峰值之间的数据中，回落到稳定值的第一个值。
+    假设稳定值在 50 到 60 之间。
+
+    :param data1 (list): 数据列表
+    :param data2 (list): 数据列表
+    :param peak1 (float): 第一个峰值
+    :param peak2 (float): 第二个峰值
+
+    :return float or None: 稳定值，如果未找到则返回 None
+    """
+    try:
+        start_index = data1.index(peak1)
+        end_index = data1.index(peak2)
+    except ValueError:
+        return None
+
+    between_peaks1 = data1[start_index : end_index + 1]
+    between_peaks2 = data2[start_index : end_index + 1]
+
+    for index, value in enumerate(between_peaks1):
+        if 50 <= value <= 60 and 50 <= between_peaks2[index] <= 60:
+            return value
+
+    return None
+
+
+def find_first_stable_after_peak(data, peak, stable_min=50, stable_max=60):
+    """
+    从峰值到列表末尾的数据中，找到第一个回落到稳定值的值。
+
+    :param data (list): 数据列表
+    :param peak (float): 峰值
+    :param stable_min (float): 稳定值的最小值
+    :param stable_max (float): 稳定值的最大值
+
+    :return float or None: 稳定值，如果未找到则返回 None
+    """
+    try:
+        start_index = data.index(peak)
+    except ValueError:
+        return None
+
+    after_peak = data[start_index:]
+
+    for value in after_peak:
+        if stable_min <= value <= stable_max:
+            return value
+
+    return None
+
+
+def extract_peak_pattern(current_presence_data):
+    """
+    从数据中提取峰值模式\n
+    事件对：从有电流到无电流是一个
+
+    :param current_presence_data: 有无电流数据
+    :return: 返回时间段内各个事件对内的峰值数量
+    """
+    logger.info(f"【提取事件对】事件数量: {current_presence_data.shape[0]}")
+    peak_pattern = []
+    if current_presence_data.shape[0] >= 2 and current_presence_data.shape[0] % 2 == 0:
+        for i in range(0, current_presence_data.shape[0], 2):
+            event_start = current_presence_data.iloc[i]
+            event_end = current_presence_data.iloc[i + 1]
+            # 确保第一个事件是“有电流”，第二个事件是“无电流”
+            if (
+                event_start["check_current_presence"] == "有电流"
+                and event_end["check_current_presence"] == "无电流"
+            ):
+                event_start_time = event_start["csvTime"]
+                event_end_time = event_end["csvTime"]
+                between_data = df[
+                    (df["csvTime"] >= event_start_time)
+                    & (df["csvTime"] <= event_end_time)
+                ]
+                ajia_5_data = list(between_data["Ajia-5_v"])
+                logger.info(
+                    f"【提取事件对】事件对 ({i}, {i + 1}) 之间的数据: {ajia_5_data}"
+                )
+                len_peaks, peak_L = find_peaks(ajia_5_data)
+                logger.info(
+                    f"【提取事件对】事件对 ({i}, {i + 1}) 之间的峰值数量: {len_peaks}，峰值为{peak_L}"
+                )
+                peak_pattern.append(len_peaks)
+    return peak_pattern
+
+
+# 判定A架的关键动作
 # 提取每个区段内的“通电流”和“关电流”事件
+
+
+class PredictResult:
+    def __init__(self, start_time, end_time):
+        """
+        预测结果类
+        :param start_time: 起始时间
+        :param end_time: 结束时间
+        :param prediction: 预测结果
+        """
+        self.start_time = start_time
+        self.end_time = end_time
+        self.prediction: list[float] = None
+
+    def __str__(self):
+        return f"预测时间段: {self.start_time} - {self.end_time}, 预测结果: {self.prediction}"
+
+
+LLM_predict_count = 0
+LLM_predict_results: dict[int, PredictResult] = {}
 for segment in segments:
-    L4 = extract_events(df, segment=segment)
-    L5.append(L4)
     start, end = segment
-    events_11 = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
-    print("-----------------事件--------------------")
-    print(list(events_11["Ajia-5_v"]))
-    print("-----------------事件--------------------")
-    events_1 = df[
+    logger.success(f"【开始处理时间段】开机时间: {start}, 关机时间: {end}")
+    logger.info(f"【处理时间段】开始提取事件对")
+    segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
+    logger.info(f"【处理时间段】区间数据：{list(segment_data['Ajia-5_v'])}")
+    current_presence_data = df[
         (df["csvTime"] >= start)
         & (df["csvTime"] <= end)
         & (df["check_current_presence"].isin(["有电流", "无电流"]))
     ]
-    LLLL.append(events_1.shape[0])
-    # if start=='2024-08-24 07:55:08':
-
-    if L4 == [0, 2] or L4 == [0, 0, 2]:
-        events = df[
-            (df["csvTime"] >= start)
-            & (df["csvTime"] <= end)
-            & (df["check_current_presence"].isin(["有电流", "无电流"]))
+    peak_pattern = extract_peak_pattern(current_presence_data)
+    logger.info(f"【处理时间段】区间类型：{peak_pattern}")
+    if (
+        peak_pattern == [2]
+        or peak_pattern == [0, 2]
+        or peak_pattern == [0, 0, 2]
+        or peak_pattern == [0, 3]
+        or peak_pattern == [0, 1, 3]
+    ):
+        # 下放阶段
+        logger.info(f"【处理时间段】下放阶段")
+        if peak_pattern == [2]:
+            event_start_time = current_presence_data.iloc[0]["csvTime"]
+            event_end_time = current_presence_data.iloc[1]["csvTime"]
+        elif peak_pattern == [0, 2] or peak_pattern == [0, 3]:
+            event_start_time = current_presence_data.iloc[2]["csvTime"]
+            event_end_time = current_presence_data.iloc[3]["csvTime"]
+        elif peak_pattern == [0, 0, 2] or peak_pattern == [0, 1, 3]:
+            event_start_time = current_presence_data.iloc[4]["csvTime"]
+            event_end_time = current_presence_data.iloc[5]["csvTime"]
+        between_data = df[
+            (df["csvTime"] >= event_start_time) & (df["csvTime"] <= event_end_time)
         ]
-        if events.shape[0] % 2 == 0:
-            if (
-                events.iloc[0]["check_current_presence"] == "有电流"
-                and events.iloc[1]["check_current_presence"] == "无电流"
-            ):
-                start_event_time = events.iloc[0]["csvTime"]
-                end_event_time = events.iloc[1]["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
-
-                len_peaks, peak_L = find_peaks(data1)
-
-                if len_peaks == 0:
-                    if (
-                        events.iloc[2]["check_current_presence"] == "有电流"
-                        and events.iloc[3]["check_current_presence"] == "无电流"
-                    ):
-                        if L4 == [0, 2]:
-                            start_event_time = events.iloc[2]["csvTime"]
-                            end_event_time = events.iloc[3]["csvTime"]
-                        elif L4 == [0, 0, 2]:
-                            start_event_time = events.iloc[4]["csvTime"]
-                            end_event_time = events.iloc[5]["csvTime"]
-                        between_events = df[
-                            (df["csvTime"] >= start_event_time)
-                            & (df["csvTime"] <= end_event_time)
-                        ]
-                        data1 = list(between_events["Ajia-5_v"])
-                        data2 = list(between_events["Ajia-3_v"])
-                        print(data1)
-                        len_peaks, peak_L = find_peaks(data1)
-                        if len_peaks == 2:
-                            value_11 = find_first_increasing_value(data1)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者起吊"
-
-                            value_11 = find_stable_value(
-                                data1, data2, peak_L[0], peak_L[1]
-                            )
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "缆绳解除"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "征服者入水"
-
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == peak_L[1]
-                            ].tolist()
-                            df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
-    elif L4 == [2]:
-        events = df[
-            (df["csvTime"] >= start)
-            & (df["csvTime"] <= end)
-            & (df["check_current_presence"].isin(["有电流", "无电流"]))
+        ajia_5_data = list(between_data["Ajia-5_v"])
+        ajia_3_data = list(between_data["Ajia-3_v"])
+        len_peaks, peak_L = find_peaks(ajia_5_data)
+        # 征服者起吊：电流从稳定值（50多），取高于50的点
+        first_increasing_value = find_first_increasing_value(ajia_5_data)
+        indices = between_data.index[
+            between_data["Ajia-5_v"] == first_increasing_value
+        ].tolist()
+        df.loc[indices, "status"] = "征服者起吊"
+        # 缆绳解除：电流从高值回落至稳定值（50多），取50
+        stable_value = find_stable_value(
+            ajia_5_data, ajia_3_data, peak_L[len_peaks - 2], peak_L[len_peaks - 1]
+        )
+        indices = between_data.index[between_data["Ajia-5_v"] == stable_value].tolist()
+        df.loc[indices, "status"] = "缆绳解除"
+        # 征服者入水：缆绳解除的时间点往前推一分钟
+        previous_indices = [idx - 1 for idx in indices if idx > 0]
+        df.loc[previous_indices, "status"] = "征服者入水"
+        # A架摆回：征服者入水后，电流重新增加到峰值（最大值点）
+        indices = between_data.index[
+            between_data["Ajia-5_v"] == peak_L[len_peaks - 1]
+        ].tolist()
+        df.loc[indices, "status"] = "A架摆回"
+        df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+        df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = (
+            "布放阶段中"
+        )
+    elif peak_pattern == [1, 2] or peak_pattern == [1, 1]:
+        # 回收阶段
+        logger.info(f"【处理时间段】回收阶段")
+        # 第一个事件对
+        event_start_time = current_presence_data.iloc[0]["csvTime"]
+        event_end_time = current_presence_data.iloc[1]["csvTime"]
+        between_data = df[
+            (df["csvTime"] >= event_start_time) & (df["csvTime"] <= event_end_time)
         ]
-        if events.shape[0] % 2 == 0:
-            if (
-                events.iloc[0]["check_current_presence"] == "有电流"
-                and events.iloc[1]["check_current_presence"] == "无电流"
-            ):
-                start_event_time = events.iloc[0]["csvTime"]
-                end_event_time = events.iloc[1]["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
+        ajia_5_data = list(between_data["Ajia-5_v"])
 
-                len_peaks, peak_L = find_peaks(data1)
-
-                if len_peaks == 2:
-                    if (
-                        events.iloc[0]["check_current_presence"] == "有电流"
-                        and events.iloc[1]["check_current_presence"] == "无电流"
-                    ):
-                        start_event_time = events.iloc[0]["csvTime"]
-                        end_event_time = events.iloc[1]["csvTime"]
-                        between_events = df[
-                            (df["csvTime"] >= start_event_time)
-                            & (df["csvTime"] <= end_event_time)
-                        ]
-                        data1 = list(between_events["Ajia-5_v"])
-                        data2 = list(between_events["Ajia-3_v"])
-                        len_peaks, peak_L = find_peaks(data1)
-                        if len_peaks == 2:
-                            value_11 = find_first_increasing_value(data1)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者起吊"
-
-                            value_11 = find_stable_value(
-                                data1, data2, peak_L[0], peak_L[1]
-                            )
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "缆绳解除"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "征服者入水"
-
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == peak_L[1]
-                            ].tolist()
-                            df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
-
-    elif L4 == [0, 3]:
-        events = df[
-            (df["csvTime"] >= start)
-            & (df["csvTime"] <= end)
-            & (df["check_current_presence"].isin(["有电流", "无电流"]))
+        len_peaks, peak_L = find_peaks(ajia_5_data)
+        # A架摆出：征服者起吊前，电流到达峰值（取峰值）
+        first_increasing_value = find_first_increasing_value(ajia_5_data)
+        indices = between_data.index[between_data["Ajia-5_v"] == peak_L[0]].tolist()
+        df.loc[indices, "status"] = "A架摆出"
+        # 第二个事件对
+        event_start_time = current_presence_data.iloc[2]["csvTime"]
+        event_end_time = current_presence_data.iloc[3]["csvTime"]
+        between_data = df[
+            (df["csvTime"] >= event_start_time) & (df["csvTime"] <= event_end_time)
         ]
-        if events.shape[0] % 2 == 0:
-            if (
-                events.iloc[0]["check_current_presence"] == "有电流"
-                and events.iloc[1]["check_current_presence"] == "无电流"
-            ):
-                start_event_time = events.iloc[0]["csvTime"]
-                end_event_time = events.iloc[1]["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
+        ajia_5_data = list(between_data["Ajia-5_v"])
 
-                len_peaks, peak_L = find_peaks(data1)
+        len_peaks, peak_L = find_peaks(ajia_5_data)
+        max_value = max([x for x in ajia_5_data if x <= 200])
 
-                if len_peaks == 0:
-                    if (
-                        events.iloc[2]["check_current_presence"] == "有电流"
-                        and events.iloc[3]["check_current_presence"] == "无电流"
-                    ):
-                        start_event_time = events.iloc[2]["csvTime"]
-                        end_event_time = events.iloc[3]["csvTime"]
-                        between_events = df[
-                            (df["csvTime"] >= start_event_time)
-                            & (df["csvTime"] <= end_event_time)
-                        ]
-                        data1 = list(between_events["Ajia-5_v"])
-                        data2 = list(between_events["Ajia-3_v"])
-                        print(data1)
-                        len_peaks, peak_L = find_peaks(data1)
-                        if len_peaks == 3:
-                            value_11 = find_first_increasing_value(data1)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者起吊"
+        # 征服者出水：电流峰值（取峰值）
+        indices = between_data.index[between_data["Ajia-5_v"] == max_value].tolist()
+        df.loc[indices, "status"] = "征服者出水"
+        # 缆绳挂妥：征服者出水往前推一分钟
+        previous_indices = [idx - 1 for idx in indices if idx > 0]
+        df.loc[previous_indices, "status"] = "缆绳挂妥"
+        # 征服者落座：电流从高值回落至稳定值（50多）（取50）
+        first_stable_after_peak = find_first_stable_after_peak(ajia_5_data, max_value)
+        indices = between_data.index[
+            between_data["Ajia-5_v"] == first_stable_after_peak
+        ].tolist()
+        df.loc[indices, "status"] = "征服者落座"
+        df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
+        df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
+        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = (
+            "回收阶段中"
+        )
+    elif len(peak_pattern) > 0:
+        LLM_predict_count += 1
+        LLM_predict_results[LLM_predict_count] = PredictResult(start, end)
+        logger.info("【处理时间段】交由大模型预测")
 
-                            value_11 = find_stable_value(
-                                data1, data2, peak_L[1], peak_L[2]
-                            )
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "缆绳解除"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "征服者入水"
-
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == peak_L[2]
-                            ].tolist()
-                            df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
-    elif L4 == [0, 1, 3]:
-        events = df[
-            (df["csvTime"] >= start)
-            & (df["csvTime"] <= end)
-            & (df["check_current_presence"].isin(["有电流", "无电流"]))
-        ]
-        if events.shape[0] % 2 == 0:
-            if (
-                events.iloc[0]["check_current_presence"] == "有电流"
-                and events.iloc[1]["check_current_presence"] == "无电流"
-            ):
-                start_event_time = events.iloc[0]["csvTime"]
-                end_event_time = events.iloc[1]["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
-
-                len_peaks, peak_L = find_peaks(data1)
-
-                if len_peaks == 0:
-                    if (
-                        events.iloc[4]["check_current_presence"] == "有电流"
-                        and events.iloc[5]["check_current_presence"] == "无电流"
-                    ):
-                        start_event_time = events.iloc[4]["csvTime"]
-                        end_event_time = events.iloc[5]["csvTime"]
-                        between_events = df[
-                            (df["csvTime"] >= start_event_time)
-                            & (df["csvTime"] <= end_event_time)
-                        ]
-                        data1 = list(between_events["Ajia-5_v"])
-                        data2 = list(between_events["Ajia-3_v"])
-
-                        len_peaks, peak_L = find_peaks(data1)
-                        if len_peaks == 3:
-                            value_11 = find_first_increasing_value(data1)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者起吊"
-                            value_11 = find_stable_value(
-                                data1, data2, peak_L[1], peak_L[2]
-                            )
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "缆绳解除"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "征服者入水"
-
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == peak_L[2]
-                            ].tolist()
-                            df.loc[indices, "status"] = "A架摆回"
-                            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-                            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
-    elif L4 == [1, 2] or L4 == [1, 1]:
-        events = df[
-            (df["csvTime"] >= start)
-            & (df["csvTime"] <= end)
-            & (df["check_current_presence"].isin(["有电流", "无电流"]))
-        ]
-        if events.shape[0] % 2 == 0:
-            if (
-                events.iloc[0]["check_current_presence"] == "有电流"
-                and events.iloc[1]["check_current_presence"] == "无电流"
-            ):
-                start_event_time = events.iloc[0]["csvTime"]
-                end_event_time = events.iloc[1]["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
-                ]
-                data1 = list(between_events["Ajia-5_v"])
-
-                len_peaks, peak_L = find_peaks(data1)
-
-                if len_peaks == 1:
-                    value_11 = find_first_increasing_value(data1)
-                    indices = between_events.index[
-                        between_events["Ajia-5_v"] == peak_L[0]
-                    ].tolist()
-                    df.loc[indices, "status"] = "A架摆出"
-                    if (
-                        events.iloc[2]["check_current_presence"] == "有电流"
-                        and events.iloc[3]["check_current_presence"] == "无电流"
-                    ):
-                        start_event_time = events.iloc[2]["csvTime"]
-                        end_event_time = events.iloc[3]["csvTime"]
-                        between_events = df[
-                            (df["csvTime"] >= start_event_time)
-                            & (df["csvTime"] <= end_event_time)
-                        ]
-                        data1 = list(between_events["Ajia-5_v"])
-
-                        len_peaks, peak_L = find_peaks(data1)
-                        max_value = max([x for x in data1 if x <= 200])
-
-                        if len_peaks == 2:
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == max_value
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者出水"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "缆绳挂妥"
-
-                            value_11 = find_first_stable_after_peak(data1, max_value)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者落座"
-                        elif len_peaks == 1:
-                            # 找到 between_events 中 Ajia-5_v 等于 target_value 的索引
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == max_value
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者出水"
-                            previous_indices = [idx - 1 for idx in indices if idx > 0]
-                            df.loc[previous_indices, "status"] = "缆绳挂妥"
-
-                            value_11 = find_first_stable_after_peak(data1, max_value)
-                            indices = between_events.index[
-                                between_events["Ajia-5_v"] == value_11
-                            ].tolist()
-                            df.loc[indices, "status"] = "征服者落座"
-                            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
-                            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
-                            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
-    else:
-        if len(L4) == 0:
-            continue
-        LLM_predict_count+=1
-        LLM_predict_time_range[LLM_predict_count] = [start, end]
-        events_2 = events_11.copy()
-        events_2.loc[:, "csvTime"] = pd.to_datetime(events_2["csvTime"])
+        segment_data = segment_data.copy()
+        segment_data.loc[:, "csvTime"] = pd.to_datetime(segment_data["csvTime"])
         # 获取第一个值
-        first_value = events_2["csvTime"].iloc[0]
-
-       
-
+        first_value = segment_data["csvTime"].iloc[0]
         # 判断小时是否大于12点
         is_hour_greater_than_12 = first_value.hour > 12
         first_start_times, second_start_times = extract_daily_power_on_times(df=df)
 
-        if (
-            is_hour_greater_than_12
-        ):  
-            events_2["new_column"] = events_2.apply(
+        def predict(data, is_xiafang):
+            data["predict_column"] = data.apply(
                 lambda row: (
                     row["Ajia-3_v"]
                     if row["Ajia-5_v"] == 0 and row["Ajia-3_v"] > 0
@@ -809,135 +583,110 @@ for segment in segments:
                 ),
                 axis=1,
             )
-            print("----------------LLM预测的列表---------------------")
-            print(str(list(events_2["new_column"])))
-
-            try:
-                a, b, c = get_result(str(list(events_2["new_column"])), 1)
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                a, b, c = -100, -100, -100
-            print("----------------预测的值---------------------")
-            print(a, b, c)
-            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
-            if a==-100:
-                continue
-            indices = events_2.index[events_2["new_column"] == a].tolist()
-            df.loc[indices, "status"] = "A架摆出"
-
-            indices = events_2.index[events_2["new_column"] == b].tolist()
-            df.loc[indices, "status"] = "征服者出水"
-            previous_indices = [idx - 1 for idx in indices if idx > 0]
-            df.loc[previous_indices, "status"] = "缆绳挂妥"
-
-            indices = events_2.index[events_2["new_column"] == c].tolist()
-            df.loc[indices, "status"] = "征服者落座"
-            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
-            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
-            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
-
-        elif (
-            first_value in first_start_times 
-        ):  # 去掉1==0由LLM判断状态  默认不开启 给大家分享参考思路。
-            events_2["new_column"] = events_2.apply(
-                lambda row: (
-                    row["Ajia-3_v"]
-                    if row["Ajia-5_v"] == 0 and row["Ajia-3_v"] > 0
-                    else row["Ajia-5_v"]
-                ),
-                axis=1,
+            logger.info(
+                "【处理时间段】----------------LLM预测的列表---------------------"
             )
-            print("----------------LLM预测的列表---------------------")
-            print(str(list(events_2["new_column"])))
-
+            logger.info(str(list(segment_data["predict_column"])))
             try:
-                a, b, c = get_result(str(list(events_2["new_column"])), 0)
+                a, b, c = get_predict_result(
+                    str(list(segment_data["predict_column"])), is_xiafang
+                )
             except Exception as e:
-                print(f"An error occurred: {e}")
+                logger.error(f"An error occurred: {e}\n{traceback.format_exc()}")
                 a, b, c = -100, -100, -100
-            print("----------------预测的值---------------------")
-            print(a, b, c)
-            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
-            if a==-100:
-                continue
-            indices = events_2.index[events_2["new_column"] == a].tolist()
-            df.loc[indices, "status"] = "征服者起吊"
-
-            indices = events_2.index[events_2["new_column"] == b].tolist()
-            df.loc[indices, "status"] = "缆绳解除"
-            previous_indices = [idx - 1 for idx in indices if idx > 0]
-            df.loc[previous_indices, "status"] = "征服者入水"
-
-            indices = events_2.index[events_2["new_column"] == c].tolist()
-            df.loc[indices, "status"] = "A架摆回"
-            df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-            df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
-
-        elif first_value in second_start_times :
-            events_2["new_column"] = events_2.apply(
-                lambda row: (
-                    row["Ajia-3_v"]
-                    if row["Ajia-5_v"] == 0 and row["Ajia-3_v"] > 0
-                    else row["Ajia-5_v"]
-                ),
-                axis=1,
+            LLM_predict_results[LLM_predict_count].prediction = (a, b, c)
+            logger.success(
+                "【处理时间段】LLM预测结果：",
+                "下放阶段" if is_xiafang else "回收阶段",
+                a,
+                b,
+                c,
             )
-            print("----------------LLM预测的列表---------------------")
-            print(str(list(events_2["new_column"])))
+            if is_xiafang:
+                indices = segment_data.index[
+                    segment_data["predict_column"] == a
+                ].tolist()
+                df.loc[indices, "status"] = "征服者起吊"
 
-            try:
-                a, b, c = get_result(str(list(events_2["new_column"])), 1)
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                a, b, c = -100, -100, -100
-            print("----------------预测的值---------------------")
-            print(a, b, c)
-            LLM_predict_time_range[LLM_predict_count].append((a,b,c))
-            if a==-100:
-                continue
-            indices = events_2.index[events_2["new_column"] == a].tolist()
-            df.loc[indices, "status"] = "A架摆出"
+                indices = segment_data.index[
+                    segment_data["predict_column"] == b
+                ].tolist()
+                df.loc[indices, "status"] = "缆绳解除"
+                previous_indices = [idx - 1 for idx in indices if idx > 0]
+                df.loc[previous_indices, "status"] = "征服者入水"
 
-            indices = events_2.index[events_2["new_column"] == b].tolist()
-            df.loc[indices, "status"] = "征服者出水"
-            previous_indices = [idx - 1 for idx in indices if idx > 0]
-            df.loc[previous_indices, "status"] = "缆绳挂妥"
+                indices = segment_data.index[
+                    segment_data["predict_column"] == c
+                ].tolist()
+                df.loc[indices, "status"] = "A架摆回"
+                df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
+                df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
+                df.loc[
+                    (df["csvTime"] > start) & (df["csvTime"] < end), "work_status"
+                ] = "布放阶段中"
+            else:
+                indices = segment_data.index[
+                    segment_data["predict_column"] == a
+                ].tolist()
+                df.loc[indices, "status"] = "A架摆出"
 
-            indices = events_2.index[events_2["new_column"] == c].tolist()
-            df.loc[indices, "status"] = "征服者落座"
-            df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
-            df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
-            df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
+                indices = segment_data.index[
+                    segment_data["predict_column"] == b
+                ].tolist()
+                df.loc[indices, "status"] = "征服者出水"
+                previous_indices = [idx - 1 for idx in indices if idx > 0]
+                df.loc[previous_indices, "status"] = "缆绳挂妥"
 
-        print("------------------")
-        print(L4)
-df = df.drop(columns=["date"])  # 删除 'date' 列
-# df = df.drop(columns=['check_current_presence'])  # 删除 'date' 列
-df.to_csv("data/Ajia_plc_1.csv", index=False)
-action_df = df[["csvTime", "status","Ajia-3_v","Ajia-5_v"]]
-table_key = "Ajia_plc_1"
-df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
-# In[4]:
+                indices = segment_data.index[
+                    segment_data["predict_column"] == c
+                ].tolist()
+                df.loc[indices, "status"] = "征服者落座"
+                df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
+                df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
+                df.loc[
+                    (df["csvTime"] > start) & (df["csvTime"] < end), "work_status"
+                ] = "回收阶段中"
 
-import pandas as pd
+        if is_hour_greater_than_12:
+            predict(segment_data, False)
+        elif first_value in first_start_times:
+            predict(segment_data, True)
+        elif first_value in second_start_times:
+            predict(segment_data, False)
 
-# 读取CSV文件
-df = pd.read_csv("tmp_data/Port3_ksbg_9.csv")
-# 将P3_33列转换为数值类型，无法转换的保留原值
+    logger.success(f"【处理时间段完成】开机时间: {start}, 关机时间: {end}")
+
+print("LLM预测总数：", LLM_predict_count)
+for key, value in LLM_predict_results.items():
+    print(f"{key}: {value}")
+# with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
+#     for key, value in LLM_predict_results.items():
+#         f.write(f"{key}: {value}\n")
+
+# 保存A架数据
+logger.special("开始保存A架数据")
+df = df.drop(columns=["date"])
+# df = df.drop(columns=['check_current_presence'])
+df.to_csv(os.path.join(output_path, table_key), index=False)
+df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
+logger.success("A架数据保存成功")
+
+# 判定ON DP和OFF DP
+table_key = "Port3_ksbg_9.csv"
+logger.special("开始判定ON DP和OFF DP")
+df = pd.read_csv(os.path.join(output_path, table_key))
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
-# 初始化status列
 df["status"] = "False"
-df["work_status"]= "未开机"
+df["work_status"] = "未开机"
 have_boot = -1
 not_have_boot = -1
-# A架开机关机
+
 for i in range(1, df.shape[0]):
-    # 开机
+    # ON DP
     if df.loc[i - 1, "P3_33"] == 0 and df.loc[i, "P3_33"] > 0:
         df.loc[i, "status"] = "ON DP"
         have_boot = i
-    # 关机
+    # OFF DP
     if df.loc[i - 1, "P3_33"] > 0 and df.loc[i, "P3_33"] == 0:
         df.loc[i, "status"] = "OFF DP"
         not_have_boot = i
@@ -946,24 +695,19 @@ for i in range(1, df.shape[0]):
             df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
-    # if df.loc[i, "status"] != "False" and action_df.loc[i, "status"] == "False":
-    #     action_df.loc[i, "status"]=df.loc[i, "status"]
-# action_df["P3_33"]=df["P3_33"]
-# action_df["P3_18"]=df["P3_18"]
-# 保存结果
-table_key = "Port3_ksbg_9"
-df.to_csv(f"data/{table_key}.csv", index=False)
-df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
-# In[5]:
 
+df.to_csv(os.path.join(output_path, table_key), index=False)
+df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
+logger.success("ON DP和OFF DP数据保存成功")
 
-# 读取CSV文件
-df = pd.read_csv("tmp_data/device_13_11_meter_1311.csv")
+# 处理折臂吊车
+from collections import Counter
 
-# 将13-11-6_v列转换为数值类型，无法转换的保留原值
+table_key = "device_13_11_meter_1311.csv"
+
+logger.special("开始判定折臂吊车关键动作")
+df = pd.read_csv(os.path.join(tmp_path, table_key))
 df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
-
-# 初始化status和action列
 df["status"] = "False"
 df["action"] = "False"
 
@@ -1010,15 +754,14 @@ def sliding_window_3(arr):
     return modified_arr
 
 
-# 应用滑动窗口逻辑到 DataFrame 的某一列
+logger.info("【处理折臂吊车】开始应用滑动窗口逻辑")
 df["13-11-6_v_new"] = sliding_window_5(df["13-11-6_v"].tolist())
 df["13-11-6_v_new"] = sliding_window_4(df["13-11-6_v_new"].tolist())
 df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
+logger.success("【处理折臂吊车】滑动窗口逻辑应用完成")
 
-# 检测折臂吊车的开机和关机事件
-segments = []
-start_time = None
-df["work_status"]= "未工作"
+logger.info("【处理折臂吊车】开始判定折臂吊车的开机和关机事件")
+df["work_status"] = "未工作"
 have_boot = -1
 not_have_boot = -1
 for i in range(1, df.shape[0]):
@@ -1030,20 +773,21 @@ for i in range(1, df.shape[0]):
     if df.iloc[i - 1]["13-11-6_v"] > 0 and df.iloc[i]["13-11-6_v"] == 0:
         df.at[df.index[i], "status"] = "折臂吊车关机"
         not_have_boot = i
-        
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
-        for j in range(have_boot, not_have_boot+1):
+        for j in range(have_boot, not_have_boot + 1):
             df.loc[j, "work_status"] = "开机工作中"
         have_boot = -1
         not_have_boot = -1
-
     # 检测由待机进入工作和由工作进入待机的事件
     if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] > 10:
         df.at[df.index[i], "action"] = "由待机进入工作"
     if df.iloc[i - 1]["13-11-6_v_new"] > 10 and df.iloc[i]["13-11-6_v_new"] < 10:
         df.at[df.index[i], "action"] = "由工作进入待机"
+logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
 
-    # 遍历DataFrame
+logger.info("【处理折臂吊车】根据折臂吊车的开机和关机事件划分时间段")
+segments = []
+start_time = None
 for index, row in df.iterrows():
     if row["status"] == "折臂吊车开机":
         start_time = row["csvTime"]
@@ -1051,66 +795,75 @@ for index, row in df.iterrows():
         end_time = row["csvTime"]
         segments.append((start_time, end_time))
         start_time = None
-from collections import Counter
+logger.success("【处理折臂吊车】时间段划分完成")
 
 
 def find_most_frequent_number(lst):
-    # 使用 Counter 统计每个数的出现次数
+    """
+    使用 Counter 统计每个数的出现次数\n
+    找到出现次数最多的数（如果有多个，只返回第一个）
+    """
     counter = Counter(lst)
-    # 找到出现次数最多的数（如果有多个，只返回第一个）
     most_common_number = counter.most_common(1)[0][0]
     return most_common_number
 
 
-
-# 提取每个区段内的“由待机进入工作”和“由工作进入待机”事件
 for segment in segments:
     start, end = segment
-    events = df[
+    logger.info(f"【开始处理时间段】开始时间：{start}，结束时间：{end}")
+    actions_data = df[
         (df["csvTime"] >= start)
         & (df["csvTime"] <= end)
         & (df["action"].isin(["由待机进入工作", "由工作进入待机"]))
     ]
-    events_2 = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
+    segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
     # 检查事件数量是否为偶数且等于6
-    if events.shape[0] > 0 and events.iloc[0]["csvTime"] == start:
-        events = events[2:]
-        events_2 = events_2[2:]
-    if events.shape[0] == 8:
-        csv_time_as_datetime = pd.to_datetime(events["csvTime"], errors="coerce")
-        # 计算时间差，并转换为秒
-        time_diffs = (csv_time_as_datetime.iloc[1::2].values - csv_time_as_datetime.iloc[::2].values).astype("timedelta64[s]").astype(int)
+    if actions_data.shape[0] > 0 and actions_data.iloc[0]["csvTime"] == start:
+        actions_data = actions_data[2:]
+        segment_data = segment_data[2:]
+    if actions_data.shape[0] == 8:
+        csv_time_as_datetime = pd.to_datetime(actions_data["csvTime"], errors="coerce")
+        # 计算时间差
+        time_diffs = (
+            (
+                csv_time_as_datetime.iloc[1::2].values
+                - csv_time_as_datetime.iloc[::2].values
+            )
+            .astype("timedelta64[s]")
+            .astype(int)
+        )
         # 找到最小时间差的位置
         min_idx = time_diffs.argmin() * 2
         # 直接 drop 对应索引
-        events = events.drop(events.index[[min_idx, min_idx + 1]])
-    if events.shape[0] == 6:
-        print(f"开机时间: {start}, 关机时间: {end}")
-        print(f"事件数量: {events.shape[0]}")
+        actions_data = actions_data.drop(actions_data.index[[min_idx, min_idx + 1]])
+
+    logger.info(f"【处理时间段】事件数量: {actions_data.shape[0]}")
+    if actions_data.shape[0] == 6:
         # 处理每一对事件
         for i in range(0, 6, 2):
-
-            event_start = events.iloc[i]
-            event_end = events.iloc[i + 1]
+            event_start = actions_data.iloc[i]
+            event_end = actions_data.iloc[i + 1]
 
             if (
                 event_start["action"] == "由待机进入工作"
                 and event_end["action"] == "由工作进入待机"
             ):
-                start_event_time = event_start["csvTime"]
-                end_event_time = event_end["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
+                event_start_time = event_start["csvTime"]
+                event_end_time = event_end["csvTime"]
+                between_data = df[
+                    (df["csvTime"] >= event_start_time)
+                    & (df["csvTime"] <= event_end_time)
                 ]
-                data1 = list(between_events["13-11-6_v"])
+                ajia_5_data = list(between_data["13-11-6_v"])
 
                 # 找到最后一个大于9的值
-                last_value_above_9 = next((x for x in reversed(data1) if x > 9), None)
+                last_value_above_9 = next(
+                    (x for x in reversed(ajia_5_data) if x > 9), None
+                )
 
                 if last_value_above_9 is not None:
-                    all_indices = between_events.index[
-                        between_events["13-11-6_v_new"] == last_value_above_9
+                    all_indices = between_data.index[
+                        between_data["13-11-6_v_new"] == last_value_above_9
                     ].tolist()
                     last_index = all_indices[-1] if all_indices else None
 
@@ -1123,37 +876,36 @@ for segment in segments:
                         elif i == 4:
                             df.loc[last_index, "status"] = "小艇落座"
                 else:
-                    print("列表中没有大于 9 的值")
-    if events.shape[0] == 4:
-        print(f"开机时间: {start}, 关机时间: {end}")
-        print(f"事件数量: {events.shape[0]}")
+                    logger.info("列表中没有大于 9 的值")
+    if actions_data.shape[0] == 4:
         # 处理每一对事件
         for i in range(0, 4, 2):
-            event_start = events.iloc[i]
-            event_end = events.iloc[i + 1]
+            event_start = actions_data.iloc[i]
+            event_end = actions_data.iloc[i + 1]
             if (
                 event_start["action"] == "由待机进入工作"
                 and event_end["action"] == "由工作进入待机"
             ):
-                start_event_time = event_start["csvTime"]
-                end_event_time = event_end["csvTime"]
-                between_events = df[
-                    (df["csvTime"] >= start_event_time)
-                    & (df["csvTime"] <= end_event_time)
+                event_start_time = event_start["csvTime"]
+                event_end_time = event_end["csvTime"]
+                between_data = df[
+                    (df["csvTime"] >= event_start_time)
+                    & (df["csvTime"] <= event_end_time)
                 ]
-                data1 = list(between_events["13-11-6_v"])
+                ajia_5_data = list(between_data["13-11-6_v"])
 
                 # 找到最后一个大于9的值
-                last_value_above_9 = next((x for x in reversed(data1) if x > 9), None)
+                last_value_above_9 = next(
+                    (x for x in reversed(ajia_5_data) if x > 9), None
+                )
 
                 if last_value_above_9 is not None:
-                    all_indices = between_events.index[
-                        between_events["13-11-6_v_new"] == last_value_above_9
+                    all_indices = between_data.index[
+                        between_data["13-11-6_v_new"] == last_value_above_9
                     ].tolist()
                     last_index = all_indices[-1] if all_indices else None
 
                     # 根据事件对的顺序更新status
-
                     if (
                         last_index is not None
                         and df.loc[last_index, "status"] == "False"
@@ -1166,24 +918,13 @@ for segment in segments:
                     print("列表中没有大于 9 的值")
                 # 保存结果
 # df = df.drop(columns=['action'])
-# df = df.drop(columns=['13-11-6_v_new'])
-table_key = "device_13_11_meter_1311"
-df.to_csv(f"data/{table_key}.csv", index=False)
-df.to_csv(f"data/{table_name_map[table_key]}.csv", index=False)
-# for i in range(1, df.shape[0]):
-#     if df.loc[i, "status"] != "False" and action_df.loc[i, "status"] == "False":
-#             action_df.loc[i, "status"]=df.loc[i, "status"]
-# action_df["13-11-6_v"]=df["13-11-6_v"]
-# df.to_csv("data/action_table.csv", index=False)
-# 移除tmp_data文件夹
+df = df.drop(columns=["13-11-6_v_new"])
+df.to_csv(os.path.join(output_path, table_key), index=False)
+df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
+logger.success("【处理折臂吊车】保存数据完成")
+
+# 移除临时文件夹
 import shutil
 
-if os.path.exists("tmp_data"):
-    shutil.rmtree("tmp_data")
-    
-print("LLM预测总数：",LLM_predict_count)
-print("LLM预测时间段：",LLM_predict_time_range)
-#保存LLM预测时间段至文件中
-with open("data/LLM_predict_time_range.txt", "w") as f:
-    for key, value in LLM_predict_time_range.items():
-        f.write(f"{key}: {value}\n")
+if os.path.exists(tmp_path):
+    shutil.rmtree(tmp_path)

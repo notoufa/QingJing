@@ -1,7 +1,7 @@
 """构造Prompt"""
 
 import json
-from solution import Decomposition, ReasoningAnswer, Subtask
+from solution import Subtask
 import tools
 import logger
 
@@ -12,11 +12,11 @@ atomic_questions_file = "knowledge/atomic_questions.json"
 prompt_task_decomposition_file = "prompts/task_decomposition.md"
 prompt_update_decomposition_file = "prompts/update_decomposition.md"
 prompt_vote_file = "prompts/vote.md"
+prompt_get_tool_file = "prompts/get_tool.md"
+prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
 prompt_correct_file = "prompts/correct.md"
-prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
-prompt_get_tool_file = "prompts/get_tool.md"
 
 
 def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
