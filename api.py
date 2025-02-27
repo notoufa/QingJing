@@ -148,7 +148,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             "content": str(solution.to_summary_json()),
         },
     ]
-    response = get_completion(messages)
+    response = get_completion(messages, tools=tools.get_calculate_tools())
     try:
         res = json.loads(parse_res(response))
         res_answer = ReasoningAnswer.from_dict(res)
@@ -181,7 +181,7 @@ def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
         },
     ]
     res_answer = solution.reasoning_answer.clone()
-    response = get_completion(messages)
+    response = get_completion(messages, tools=tools.get_calculate_tools())
     try:
         res = json.loads(parse_res(response))
         res_answer.corrected_reasoning = res["corrected_reasoning"]
