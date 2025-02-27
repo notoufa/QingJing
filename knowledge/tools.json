@@ -561,6 +561,27 @@
     {
         "type": "function",
         "function": {
+            "name": "count_days",
+            "description": "根据给出的日期列表，统计出现的日期天数",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "dates": {
+                        "type": "list",
+                        "description": "需要统计天数的日期列表，格式为 ['YYYY-MM-DD HH:MM:SS','YYYY-MM-DD HH:MM:SS',]。"
+                    }
+                },
+                "required": [
+                    "dates"
+                ]
+            }
+        
+        }
+    
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "generate_simple_python_code",
             "description": "当现有工具无法满足需求且任务可通过简洁的 Python 代码准确实现时，调用此函数，利用大模型根据任务要求生成 Python 代码。",
             "parameters": {
