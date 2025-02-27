@@ -52,13 +52,13 @@
             "task_id": 1,
             "level": 1,
             "question": "查询2024/8/23-2024/8/24 深海作业回收阶段的开始时间",
-            "parent_ids": [0]
+            "parent_ids": [ 0 ]
         },
         {
             "task_id": 2,
             "level": 1,
             "question": "查询2024/8/23-2024/8/24 深海作业回收阶段的结束时间",
-            "parent_ids": [0]
+            "parent_ids": [ 0 ]
         },
         {
             "task_id": 3,
@@ -88,13 +88,13 @@
             "task_id": 7,
             "level": 4,
             "question": "查询2024/8/23 深海作业回收阶段中，【征服者起吊】到【征服者入水】的电流状态变化次数",
-            "parent_ids": [5]
+            "parent_ids": [ 5 ]
         },
         {
             "task_id": 8,
             "level": 4,
             "question": "查询2024/8/24 在深海作业回收阶段，【征服者起吊】到【征服者入水】的电流状态变化次数",
-            "parent_ids": [6]
+            "parent_ids": [ 6 ]
         },
         {
             "task_id": 9,

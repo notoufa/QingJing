@@ -465,8 +465,8 @@
     {
         "type": "function",
         "function": {
-            "name": "sort_datetime",
-            "description": "对日期列表进行排序，可选择升序或降序，可筛选指定时间段的时间",
+            "name": "sort_by_datetime",
+            "description": "对日期时间列表按照完整的日期时间（YYYY-MM-DD HH:MM:SS）进行排序,可选择升序或降序，可筛选指定时间段的时间",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -485,11 +485,6 @@
                             "desc"
                         ],
                         "description": "排序方式，'asc' 表示升序，'desc' 表示降序。"
-                    },
-                    "only_order_time": {
-                        "type": "bool",
-                        "description": "true表示仅排序时间，false表示排序日期和时间",
-                        "default": false
                     },
                     "conditions_logic": {
                         "type": "string",
@@ -533,8 +528,78 @@
                 },
                 "required": [
                     "input_list",
-                    "order",
-                    "only_order_time"
+                    "order"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sort_only_by_time",
+            "description": "对日期时间列表仅按照时间（HH:MM:SS）进行排序,可选择升序或降序，可筛选指定时间段的时间",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "input_list": {
+                        "type": "array",
+                        "items": {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        "description": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
+                    },
+                    "order": {
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "description": "排序方式，'asc' 表示升序，'desc' 表示降序。"
+                    },
+                    "conditions_logic": {
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "OR"
+                        ],
+                        "default": "AND",
+                        "description": "逻辑运算符，可选 'AND' 或 'OR'，用于组合多个条件。"
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间。",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [
+                                        "in",
+                                        "==",
+                                        ">",
+                                        "<",
+                                        ">=",
+                                        "<=",
+                                        "!="
+                                    ],
+                                    "description": "运算符，支持以下值：'in', '==', '>', '<', '>=', '<=', '!='。"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
+                                }
+                            },
+                            "required": [
+                                "operator",
+                                "value"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "input_list",
+                    "order"
                 ]
             }
         }
