@@ -80,9 +80,9 @@ def get_completion(
         client = ZhipuAI(api_key=check_api_key())
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
         if json_output:
-            response_format = {'type': 'json_object'}
+            response_format = {"type": "json_object"}
         else:
-            response_format = {'type': 'text'}
+            response_format = {"type": "text"}
         response = client.chat.completions.create(
             model=model,
             stream=False,
@@ -91,6 +91,8 @@ def get_completion(
             response_format=response_format,
             temperature=temperature,
         )
+        if response.choices[0].finish_reason == "length":
+            logger.error("【回答长度过长】")
         logger.trace("【回答结果】", str(response))
         return response
     except Exception as e:
