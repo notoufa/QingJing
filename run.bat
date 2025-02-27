@@ -9,7 +9,7 @@ if %errorlevel% neq 0 (
 )
 
 echo 数据预处理完成, 开始运行主程序...
-python main.py -p
+python main.py -p -q questions/question.json
 if %errorlevel% neq 0 (
     echo 主程序运行失败
     exit /b %errorlevel%

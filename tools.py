@@ -14,7 +14,7 @@ def tools_description_str(tools: list[str] = None) -> str:
     for idx, item in enumerate(tools):
         desc_str = f"{idx + 1}. 函数名称：{item['function_name']}，输入：{item['input']}，输出：{item['output']}"
         if item.get("notice"):
-            desc_str += f"，【注意】：{item['notice']}"
+            desc_str += f"，【注意】：{item['notices']}"
         if item.get("example"):
             desc_str += f"，【示例问题】：{item['example']}"
         desc_strs.append(desc_str)
