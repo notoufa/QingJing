@@ -78,9 +78,9 @@ def get_prompt_update_decomposition(question: str) -> str:
     :param question: 问题
     :return: 任务分解模板
     """
-    with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
+    with open(prompt_update_decomposition_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
+    res = res.replace("<<question>>", question)
     return res
 
 
