@@ -33,7 +33,6 @@ def parse_args():
         "-m", "--max_workers", type=int, default=20, help="最大并发线程数，默认为20"
     )
     parser.add_argument("-q", "--question_file", type=str, help="指定问题文件")
-
     parser.add_argument(
         "-v", "--vote_times", type=int, default=1, help="指定投票次数，默认为1"
     )

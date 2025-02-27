@@ -74,6 +74,7 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     """
     solution = ProblemSolution(id, question)
     decomposition, api_response = get_task_decomposition(solution.question)
+    solution.init_decomposition = decomposition.clone()
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
 
