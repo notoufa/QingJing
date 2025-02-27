@@ -3,8 +3,10 @@
         "function_name": "aggregate_data",
         "input": "数据表名、开始时间、结束时间、列名、过滤条件和聚合方法",
         "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、求和、数据条数",
-        "notice": "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数",
-        "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？"
+        "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？",
+        "notices": [
+            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数"
+        ]
     },
     {
         "function_name": "get_data_by_time_range",
@@ -15,7 +17,9 @@
         "function_name": "get_actions_by_time_range",
         "input": "开始时间、结束时间。",
         "output": "指定时间范围内发生的所有关键动作",
-        "notice": "如要查询某具体的关键动作发生的时间，请调用get_data_by_time_range函数"
+        "notices": [
+            "如要查询某具体的关键动作发生的时间，请调用get_data_by_time_range函数"
+        ]
     },
     {
         "function_name": "get_device_parameter_by_name",
@@ -25,21 +29,28 @@
     {
         "function_name": "get_total_energy_consumption_by_time_range",
         "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）",
-        "notice": "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算总值",
-        "output": "该设备在指定时间范围内的总能耗（单位：kWh）"
+        "output": "该设备在指定时间范围内的总能耗（单位：kWh）",
+        "notices": [
+            "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算总值"
+        ]
     },
     {
         "function_name": "get_running_duration_by_time_range",
         "input": "开始时间、结束时间、查询类型（某设备的运行总时长，如折臂吊车运行总时长、A架运行总时长、A架实际运行时长、作业总时长等）、计算第几次运行时长",
         "output": "该类型的第X次或运行总时长（单位：秒、分钟、小时）",
-        "notice": "该函数用于计算设备的运行时长，查询开机/关机时间点请调用get_data_by_time_range函数",
-        "example": "2022/01/01 A架的第二次开机时长为多少？"
+        "example": "2022/01/01 A架的第二次开机时长为多少？",
+        "notices": [
+            "该函数用于计算设备的运行时长，查询开机/关机时间点请调用get_data_by_time_range函数"
+        ]
     },
     {
         "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
         "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组(包括一号/二号/三号/四号)）、查询类型（理论发电量、实际发电量、燃油消耗量）",
         "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）",
-        "notice": "计算理论发电量时，请直接调用get_total_energy_generation_or_fuel_consumption_by_time_range函数，不需要先计算燃油消耗量；涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算设备组的总值，而不是单独计算，如查询1~4号柴油发电机组的理论发电量，可以直接查询整个柴油发电机组"
+        "notices": [
+            "【任务分解】若要计算理论发电量，请直接调用该函数，【不要先计算燃油消耗量】",
+            "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算设备组的总值，而不是单独计算，如查询1~4号柴油发电机组的理论发电量，可以直接查询整个柴油发电机组"
+        ]
     },
     {
         "function_name": "calculate_action_proportion",
@@ -60,12 +71,21 @@
         "function_name": "calculate_time_interval",
         "input": "两个时间点（开始时间、结束时间）",
         "output": "时间间隔（单位：秒、分钟、小时）",
-        "notice": "【不能用于求时间范围】该函数仅用于计算两个时间点之间的时间间隔"
+        "notices": [
+            "【不能用于求时间范围】该函数仅用于计算两个时间点之间的时间间隔"
+        ]
     },
     {
         "function_name": "sort_datetime",
-        "input": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按日期时间排序或仅排序时间，支持升序或降序，支持筛选某时间点之前或之后",
+        "input": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按整个日期（'YYYY-MM-DD HH:MM:SS'）或仅按日期中的时间（'HH:MM:SS'）字段排序，支持升序或降序，支持筛选某时间点之前或之后",
         "output": "排序后的日期列表，按升序或降序排列",
         "notice": "判断时间先后顺序必须调用sort_datetime函数"
+    },
+    {
+        "function_name": "count_days", 
+        "input": "需要统计天数的日期列表，元素为日期字符串列表（格式为 ['YYYY-MM-DD HH:MM:SS','YYYY-MM-DD HH:MM:SS',]）",
+        "output": "日期列表中出现的天数",
+        "notice": "统计天数时必须调用count_days函数,不得自行数数"
+
     }
 ]

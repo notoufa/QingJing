@@ -1249,6 +1249,14 @@ def sort_datetime(
             "metadata": metadata,
         }
 
+def count_days(dates: List[str]):
+    """
+    统计多个日期的天数。
+    :param dates: 需要统计天数的日期列表，格式为 ['YYYY-MM-DD', 'YYYY-MM-DD', ...]
+    :return: 天数
+    """
+    return len(dates)
+
 
 def convert_seconds(seconds):
     """
@@ -1385,6 +1393,7 @@ function_map: dict[str, callable] = {
     "aggregate_data": aggregate_data,
     "sort_datetime": sort_datetime,
     "generate_simple_python_code": generate_simple_python_code,
+    "count_days": count_days,
 }
 
 if __name__ == "__main__":

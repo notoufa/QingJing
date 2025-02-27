@@ -30,10 +30,19 @@ def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
     """
     with open(knowledge_file, "r", encoding="utf-8") as file:
         knowledge_list = json.load(file)
+
     knowledge_set = set()
+
     for item in knowledge_list:
         for key in item["keys"]:
-            if key in question:
+            add_flag = False
+            if "&" in key:
+                sub_keys = key.split("&")
+                if all(sub_key.strip() in question for sub_key in sub_keys):
+                    add_flag = True
+            else:
+                add_flag = key in question
+            if add_flag:
                 knowledge = item["knowledge"]
                 if item.get("example"):
                     knowledge += f"（示例：{item['example']}）"
@@ -94,8 +103,9 @@ def get_prompt_vote() -> str:
         res = file.read()
     return res
 
+
 def get_prompt_pre_atomic_question(
-    task: Subtask, assumption: str, chain_of_subtasks: str    
+    task: Subtask, assumption: str, chain_of_subtasks: str
 ) -> tuple[str, str]:
     """
     获得预回答原子问题模板
@@ -106,7 +116,7 @@ def get_prompt_pre_atomic_question(
     question = task.question
     with open(prompt_pre_atomic_question_file, "r", encoding="utf-8") as file:
         system_prompt = file.read()
-    
+
     system_prompt = (
         system_prompt.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
         .replace("<<assumption>>", assumption)
@@ -119,13 +129,11 @@ def get_prompt_pre_atomic_question(
     已知上游任务执行结果：<<parent_tasks_desc>>
     """
 
-    user_prompt = (
-        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
-        .replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
-        
-    )
+    user_prompt = user_prompt.replace(
+        "<<question>>", f"【子任务{task.task_id}】{question}"
+    ).replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
     return system_prompt, user_prompt
-    
+
 
 def get_prompt_atomic_question(
     task: Subtask, assumption: str, chain_of_subtasks: str, table_meta_list: list[dict]
