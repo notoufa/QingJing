@@ -1145,9 +1145,11 @@ def sort_by_datetime(
         "function_name": "sort_by_datetime",
         "input_list": input_list,
         "order": order,
+        "conditions_logic": conditions_logic,
         "conditions": conditions,
     }
     try:
+
         def parse_value(value):
             """解析日期字符串，确保可以正确排序"""
             return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
@@ -1232,6 +1234,7 @@ def sort_by_datetime(
             "metadata": metadata,
         }
 
+
 def sort_only_by_time(
     input_list: List[str],
     order: str,
@@ -1252,9 +1255,11 @@ def sort_only_by_time(
         "function_name": "sort_by_time",
         "input_list": input_list,
         "order": order,
+        "conditions_logic": conditions_logic,
         "conditions": conditions,
     }
     try:
+
         def parse_value(value):
             """解析日期字符串，仅提取时间部分"""
             dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
@@ -1341,13 +1346,18 @@ def sort_only_by_time(
         }
 
 
-def count_days(dates: List[str]):
+def get_list_length(input_list: list):
     """
-    统计多个日期的天数。
-    :param dates: 需要统计天数的日期列表，格式为 ['YYYY-MM-DD', 'YYYY-MM-DD', ...]
+    统计列表长度。
+    :param input_list: 需要统计的列表
     :return: 天数
     """
-    return len(dates)
+    return {
+        "result": len(input_list),
+        "metadata": {
+            "input_list": input_list,
+        },
+    }
 
 
 def convert_seconds(seconds):
@@ -1486,7 +1496,7 @@ function_map: dict[str, callable] = {
     "sort_by_datetime": sort_by_datetime,
     "sort_only_by_time": sort_only_by_time,
     "generate_simple_python_code": generate_simple_python_code,
-    "count_days": count_days,
+    "get_list_length": get_list_length,
 }
 
 if __name__ == "__main__":
