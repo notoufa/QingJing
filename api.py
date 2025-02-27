@@ -103,6 +103,7 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
                 future.result()
 
         if level != last_level:
+            # decomposition.draw_table()
             update_decomposition(question, decomposition)
 
     reasoning_answer, api_response = get_summary(solution)
