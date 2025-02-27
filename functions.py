@@ -1252,29 +1252,36 @@ def sort_only_by_time(
     :return: 排序后的列表及相关信息。
     """
     metadata = {
-        "function_name": "sort_by_time",
+        "function_name": "sort_only_by_time",
         "input_list": input_list,
         "order": order,
         "conditions_logic": conditions_logic,
         "conditions": conditions,
     }
     try:
-
-        def parse_value(value):
-            """解析日期字符串，仅提取时间部分"""
+        def parse_value_date(value):
+            """解析日期时间字符串，提取时间部分"""
             dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
             return dt.time()
+        
+        def parse_value_time(value):
+            """解析时间字符串"""
+            return datetime.strptime(value, "%H:%M:%S").time()
 
-        sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
+        # 按时间部分排序
+        sorted_list = sorted(input_list, key=parse_value_date, reverse=(order == "desc"))
+
         if conditions:
             logic = conditions_logic.upper()
             if logic not in ["AND", "OR"]:
                 return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
+            
             mask = (
                 [False] * len(sorted_list)
                 if logic == "OR"
                 else [True] * len(sorted_list)
             )
+            
             for condition in conditions:
                 operator, value = (
                     condition["operator"],
@@ -1285,20 +1292,23 @@ def sort_only_by_time(
                         "error": f"不支持的操作符: {operator}",
                         "metadata": metadata,
                     }
+                
                 try:
-                    parsed_value = parse_value(value)
+                    parsed_value = parse_value_time(value)  # 解析条件中的时间
                 except ValueError as e:
                     return {
                         "error": str(e),
                         "metadata": metadata,
                     }
+                
                 condition_mask = []
                 for item in sorted_list:
                     try:
-                        parsed_item = parse_value(item)
+                        parsed_item = parse_value_date(item)  # 解析输入列表中的时间
                     except ValueError:
                         condition_mask.append(False)
                         continue
+                    
                     if operator == "==":
                         condition_mask.append(parsed_item == parsed_value)
                     elif operator == "!=":
@@ -1314,7 +1324,7 @@ def sort_only_by_time(
                     elif operator == "in":
                         if isinstance(value, str):
                             value_list = [
-                                parse_value(v.strip()) for v in value.split(",")
+                                parse_value_time(v.strip()) for v in value.split(",")
                             ]
                         else:
                             return {
@@ -1322,11 +1332,14 @@ def sort_only_by_time(
                                 "metadata": metadata,
                             }
                         condition_mask.append(parsed_item in value_list)
+                
                 if logic == "AND":
                     mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
                 else:
                     mask = [m1 | m2 for m1, m2 in zip(mask, condition_mask)]
+            
             sorted_list = [item for item, keep in zip(sorted_list, mask) if keep]
+        
         dates = sorted(
             {
                 datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
@@ -1344,7 +1357,6 @@ def sort_only_by_time(
             "error": f"排序失败: {e}",
             "metadata": metadata,
         }
-
 
 def get_list_length(input_list: list):
     """
@@ -1500,22 +1512,23 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(
-        aggregate_data(
-            "device_1_2_meter_102",
-            "2024-05-17 00:00:00",
-            "2024-05-17 23:59:59",
-            "1-2-10_v",
-            "avg",
-        )
-    )
-    for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
-        for day in range(17, 31):
-            date = f"2024-05-{day:02d}"
-            missing_count = (
-                1440
-                - aggregate_data(
-                    table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count"
-                )["csvTime_count"]
-            )
-            print(table, date, ":", missing_count, missing_count / 1440 * 100, "%")
+    print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
+    # print(
+    #     aggregate_data(
+    #         "device_1_2_meter_102",
+    #         "2024-05-17 00:00:00",
+    #         "2024-05-17 23:59:59",
+    #         "1-2-10_v",
+    #         "avg",
+    #     )
+    # )
+    # for table in ["Ajia_plc_1", "Jiaoche_plc_1", "Port1_ksbg_1"]:
+    #     for day in range(17, 31):
+    #         date = f"2024-05-{day:02d}"
+    #         missing_count = (
+    #             1440
+    #             - aggregate_data(
+    #                 table, f"{date} 00:00:00", f"{date} 23:59:59", "csvTime", "count"
+    #             )["csvTime_count"]
+    #         )
+    #         print(table, date, ":", missing_count, missing_count / 1440 * 100, "%")
