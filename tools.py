@@ -6,6 +6,19 @@ tools_description = []
 tools_file = "knowledge/tools.json"
 tools_description_file = "knowledge/tools_description.json"
 
+calculate_tools_name = [
+    "calculate_math_operations",
+    "convert_seconds",
+    "calculate_time_interval",
+    "sort_by_datetime",
+    "sort_only_by_time",
+    "get_list_length",
+]
+
+
+def get_calculate_tools() -> list[dict]:
+    return [item for item in tools if item["function"]["name"] in calculate_tools_name]
+
 
 def tools_description_str(tools: list[str] = None) -> str:
     if tools is None:

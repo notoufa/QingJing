@@ -698,25 +698,25 @@ def get_running_duration_by_time_range(start_time, end_time, type, index=None):
 
     device_config = {
         "折臂吊车运行时长": (
-            "data/device_13_11_meter_1311.csv",
+            "data/折臂吊车与小艇动作表.csv",
             "status",
             "折臂吊车开机",
             "折臂吊车关机",
         ),
         "A架运行时长": (
-            "data/Ajia_plc_1.csv",
+            "data/A架动作表.csv",
             "status",
             "A架开机",
             "A架关机",
         ),
         "作业时长": (
-            "data/Port3_ksbg_9.csv",
+            "data/艏推系统DP动作表.csv",
             "status",
             "ON DP",
             "OFF DP",
         ),
         "A架实际运行时长": (
-            "data/Ajia_plc_1.csv",
+            "data/A架动作表.csv",
             "check_current_presence",
             "有电流",
             "无电流",
