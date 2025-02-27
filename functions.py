@@ -1123,48 +1123,34 @@ def calculate_time_interval(start_time: str, end_time: str):
         }
 
 
-def sort_datetime(
-    input_list: list[str],
+def sort_by_datetime(
+    input_list: List[str],
     order: str,
-    only_order_time: bool,
     conditions_logic: str = "AND",
     conditions: List[Dict[str, str]] = None,
 ):
     """
-    对列表进行排序，支持日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），可选择升序或降序。
-
+    对列表按完整日期时间（格式为 'YYYY-MM-DD HH:MM:SS'）进行排序，支持升序或降序。
     :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
     :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
-    :param only_order_time (bool): True 表示仅按时间排序（忽略日期），False 表示按完整日期+时间排序。
-    :param conditions_logic (str): 过滤条件逻辑，支持AND、OR
+    :param conditions_logic (str): 过滤条件逻辑，支持AND、OR。
     :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
             - "operator": 过滤操作符（in, ==, >, <, >=, <=, !=）
             - "value": 过滤值
-
     :return: 排序后的列表及相关信息。
     """
-
     metadata = {
-        "function_name": "sort_datetime",
+        "function_name": "sort_by_datetime",
         "input_list": input_list,
         "order": order,
-        "only_order_time": only_order_time,
         "conditions": conditions,
     }
-
     try:
-
         def parse_value(value):
             """解析日期字符串，确保可以正确排序"""
-            try:
-                dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
-                return dt.time() if only_order_time else dt
-            except Exception:
-                dt = datetime.strptime(value, "%H:%M:%S")
-                return dt.time() if only_order_time else dt
+            return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
         sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
-
         if conditions:
             logic = conditions_logic.upper()
             if logic not in ["AND", "OR"]:
@@ -1179,7 +1165,6 @@ def sort_datetime(
                     condition["operator"],
                     condition["value"],
                 )
-
                 if operator not in ["in", "==", ">", "<", ">=", "<=", "!="]:
                     return {
                         "error": f"不支持的操作符: {operator}",
@@ -1192,7 +1177,6 @@ def sort_datetime(
                         "error": str(e),
                         "metadata": metadata,
                     }
-
                 condition_mask = []
                 for item in sorted_list:
                     try:
@@ -1200,7 +1184,6 @@ def sort_datetime(
                     except ValueError:
                         condition_mask.append(False)
                         continue
-
                     if operator == "==":
                         condition_mask.append(parsed_item == parsed_value)
                     elif operator == "!=":
@@ -1228,9 +1211,7 @@ def sort_datetime(
                     mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
                 else:
                     mask = [m1 | m2 for m1, m2 in zip(mask, condition_mask)]
-
             sorted_list = [item for item, keep in zip(sorted_list, mask) if keep]
-
         dates = sorted(
             {
                 datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
@@ -1241,13 +1222,122 @@ def sort_datetime(
             "result": sorted_list,
             "filted_dates": f"符合筛选条件的所有日期：{dates}",
             "metadata": metadata,
-            "desc": f"列表已按 {'时间' if only_order_time else '日期+时间'} 进行 {'升序' if order == 'asc' else '降序'} 排序；并返回",
+            "desc": f"列表已按日期+时间进行 {'升序' if order == 'asc' else '降序'} 排序；并返回",
         }
     except ValueError as e:
         return {
             "error": f"排序失败: {e}",
             "metadata": metadata,
         }
+
+def sort_only_by_time(
+    input_list: List[str],
+    order: str,
+    conditions_logic: str = "AND",
+    conditions: List[Dict[str, str]] = None,
+):
+    """
+    对日期时间列表仅按时间（格式为 'HH:MM:SS'）进行排序，支持升序或降序。
+    :param input_list (list[str]): 需要排序的列表，元素必须是日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。
+    :param order (str): 排序方式，'asc' 表示升序，'desc' 表示降序。
+    :param conditions_logic (str): 过滤条件逻辑，支持AND、OR。
+    :param conditions (List[Dict[str, str]], 可选): 过滤条件，每个条件包含：
+            - "operator": 过滤操作符（in, ==, >, <, >=, <=, !=）
+            - "value": 过滤值
+    :return: 排序后的列表及相关信息。
+    """
+    metadata = {
+        "function_name": "sort_by_time",
+        "input_list": input_list,
+        "order": order,
+        "conditions": conditions,
+    }
+    try:
+        def parse_value(value):
+            """解析日期字符串，仅提取时间部分"""
+            dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            return dt.time()
+
+        sorted_list = sorted(input_list, key=parse_value, reverse=(order == "desc"))
+        if conditions:
+            logic = conditions_logic.upper()
+            if logic not in ["AND", "OR"]:
+                return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
+            mask = (
+                [False] * len(sorted_list)
+                if logic == "OR"
+                else [True] * len(sorted_list)
+            )
+            for condition in conditions:
+                operator, value = (
+                    condition["operator"],
+                    condition["value"],
+                )
+                if operator not in ["in", "==", ">", "<", ">=", "<=", "!="]:
+                    return {
+                        "error": f"不支持的操作符: {operator}",
+                        "metadata": metadata,
+                    }
+                try:
+                    parsed_value = parse_value(value)
+                except ValueError as e:
+                    return {
+                        "error": str(e),
+                        "metadata": metadata,
+                    }
+                condition_mask = []
+                for item in sorted_list:
+                    try:
+                        parsed_item = parse_value(item)
+                    except ValueError:
+                        condition_mask.append(False)
+                        continue
+                    if operator == "==":
+                        condition_mask.append(parsed_item == parsed_value)
+                    elif operator == "!=":
+                        condition_mask.append(parsed_item != parsed_value)
+                    elif operator == ">":
+                        condition_mask.append(parsed_item > parsed_value)
+                    elif operator == "<":
+                        condition_mask.append(parsed_item < parsed_value)
+                    elif operator == ">=":
+                        condition_mask.append(parsed_item >= parsed_value)
+                    elif operator == "<=":
+                        condition_mask.append(parsed_item <= parsed_value)
+                    elif operator == "in":
+                        if isinstance(value, str):
+                            value_list = [
+                                parse_value(v.strip()) for v in value.split(",")
+                            ]
+                        else:
+                            return {
+                                "error": f"条件值 {value} 格式错误，in 操作符需要以逗号分隔的字符串",
+                                "metadata": metadata,
+                            }
+                        condition_mask.append(parsed_item in value_list)
+                if logic == "AND":
+                    mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
+                else:
+                    mask = [m1 | m2 for m1, m2 in zip(mask, condition_mask)]
+            sorted_list = [item for item, keep in zip(sorted_list, mask) if keep]
+        dates = sorted(
+            {
+                datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+                for x in sorted_list
+            }
+        )
+        return {
+            "result": sorted_list,
+            "filted_dates": f"符合筛选条件的所有日期：{dates}",
+            "metadata": metadata,
+            "desc": f"列表已按时间进行 {'升序' if order == 'asc' else '降序'} 排序；并返回",
+        }
+    except ValueError as e:
+        return {
+            "error": f"排序失败: {e}",
+            "metadata": metadata,
+        }
+
 
 def count_days(dates: List[str]):
     """
@@ -1391,7 +1481,8 @@ function_map: dict[str, callable] = {
     "calculate_time_interval": calculate_time_interval,
     "convert_seconds": convert_seconds,
     "aggregate_data": aggregate_data,
-    "sort_datetime": sort_datetime,
+    "sort_by_datetime": sort_by_datetime,
+    "sort_only_by_time": sort_only_by_time,
     "generate_simple_python_code": generate_simple_python_code,
     "count_days": count_days,
 }
