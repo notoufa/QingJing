@@ -158,7 +158,6 @@ def get_prompt_atomic_question(
     user_prompt = """
     已知子任务链：<<chain_of_subtasks>>
     已知上游任务执行结果：<<parent_tasks_desc>>
-    
     当前要求解的子任务为：<<<question>>>
     """
 
