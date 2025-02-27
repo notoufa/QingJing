@@ -2,16 +2,16 @@
 
 ### 输入
 输入为 JSON 对象，包含以下字段：
-- assumption【不要修改】：假设条件。
-- format_requirement【不要修改】：格式要求（如时间输出格式要求为 XX:XX）。
-- contains_time【不要修改】：是否包含时间（true/false）。
+- assumption【不要修改】：假设条件
+- format_requirement【不要修改】：格式要求（如时间输出格式要求为 XX:XX）
+- contains_time【不要修改】：是否包含时间（true/false）
 - subtasks：子任务列表，每个子任务均为原子任务，包含以下字段：
-  - task_id：唯一标识，原始问题的 ID 固定为 0，子任务 ID 从 1 开始递增。
-  - level：子任务层级，从 1 开始计数。
-  - question：子任务描述，不包含假设条件和格式要求。
-  - parent_ids：依赖的父问题 ID 列表（无依赖则为[0]）。
-  - answer：子任务的答案。
-- chain_of_subtasks：子任务的执行顺序和依赖关系，表示任务之间的依赖顺序。
+  - task_id：唯一标识，原始问题的 ID 固定为 0，子任务 ID 从 1 开始递增
+  - level：子任务层级，从 1 开始计数
+  - question：子任务描述，不包含假设条件和格式要求
+  - parent_ids：依赖的父问题 ID 列表（无依赖则为[0]）
+  - answer：子任务的答案
+- chain_of_subtasks：子任务的执行顺序和依赖关系，表示任务之间的依赖顺序
 
 ### 更新要求
 1. 根据根据当前的任务完成情况，请判断【未完成】的子任务节点是否需要更新，具体包括：
