@@ -497,7 +497,7 @@
                     },
                     "conditions": {
                         "type": "array",
-                        "description": "可用于筛选指定时间段内的项，如筛选12:00前的时间。",
+                        "description": "可用于筛选指定时间段内的项。",
                         "items": {
                             "type": "object",
                             "properties": {
@@ -626,23 +626,24 @@
     {
         "type": "function",
         "function": {
-            "name": "count_days",
-            "description": "根据给出的日期列表，统计出现的日期天数",
+            "name": "get_list_length",
+            "description": "根据给出的列表，统计列表。可以是数字列表、字符串列表、日期列表。返回列表长度",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "dates": {
-                        "type": "list",
-                        "description": "需要统计天数的日期列表，格式为 ['YYYY-MM-DD HH:MM:SS','YYYY-MM-DD HH:MM:SS',]。"
+                    "input_list": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "需要统计的列表"
                     }
                 },
                 "required": [
-                    "dates"
+                    "input_list"
                 ]
             }
-        
         }
-    
     },
     {
         "type": "function",

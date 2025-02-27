@@ -93,11 +93,11 @@
         ]
     },
     {
-        "function_name": "count_days",
-        "input": "需要统计天数的日期列表，元素为日期字符串列表（格式为 ['YYYY-MM-DD HH:MM:SS','YYYY-MM-DD HH:MM:SS',]）",
-        "output": "日期列表中出现的天数",
+        "function_name": "get_list_length",
+        "input": "需要统计长度的列表，可以是数字列表、字符串列表、日期列表",
+        "output": "列表长度",
         "notices": [
-            "统计天数时必须调用count_days函数,不得自行数数"
+            "统计天数时必须调用get_list_length函数,不得自行数数"
         ]
     }
 ]
