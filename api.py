@@ -173,7 +173,7 @@ def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_correct(),
+            "content": prompts.get_prompt_correct(solution.question),
         },
         {
             "role": "user",

@@ -1,6 +1,7 @@
 """工具函数"""
 
 import numpy as np
+from openai import OpenAI
 import logger
 from zhipuai import ZhipuAI
 from zhipuai.core import StreamResponse
@@ -61,12 +62,25 @@ def check_api_key() -> str:
     return api_key
 
 
+def check_ds_api_key() -> str:
+    """
+    检查API_KEY是否设定
+    """
+    api_key = os.getenv("DEEPSEEK_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "DEEPSEEK_API_KEY is not set. Please set the environment variable."
+        )
+    return api_key
+
+
 def get_completion(
     messages: list[dict],
     tools: list[dict] = [],
     model: str = "glm-4-plus",
     temperature: float = 0,
     json_output: bool = False,
+    is_deepseek: bool = False,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -77,7 +91,14 @@ def get_completion(
     :return: 对话结果
     """
     try:
-        client = ZhipuAI(api_key=check_api_key())
+        if is_deepseek:
+            model = "deepseek/deepseek-v3"
+            client = OpenAI(
+                base_url="https://api.ppinfra.com/v3/openai",
+                api_key=check_ds_api_key(),
+            )
+        else:
+            client = ZhipuAI(api_key=check_api_key())
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
         if json_output:
             response_format = {"type": "json_object"}

@@ -117,11 +117,11 @@ def get_prompt_pre_atomic_question(
     with open(prompt_pre_atomic_question_file, "r", encoding="utf-8") as file:
         system_prompt = file.read()
 
-    system_prompt = (
-        system_prompt.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-        .replace("<<assumption>>", assumption)
-        .replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
-    )
+    system_prompt = system_prompt.replace(
+        "<<knowledge>>", str(get_knowledge_by_question(question))
+    ).replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+    if assumption:
+        system_prompt = system_prompt.replace("<<assumption>>", assumption)
 
     user_prompt = """
     当前要求解的子任务为：<<<question>>>
@@ -149,11 +149,11 @@ def get_prompt_atomic_question(
     with open(prompt_atomic_question_file, "r", encoding="utf-8") as file:
         system_prompt = file.read()
 
-    system_prompt = (
-        system_prompt.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
-        .replace("<<table_meta_list>>", str(table_meta_list))
-        .replace("<<assumption>>", assumption)
-    )
+    system_prompt = system_prompt.replace(
+        "<<knowledge>>", str(get_knowledge_by_question(question))
+    ).replace("<<table_meta_list>>", str(table_meta_list))
+    if assumption:
+        system_prompt = system_prompt.replace("<<assumption>>", assumption)
 
     user_prompt = """
     已知子任务链：<<chain_of_subtasks>>
@@ -182,7 +182,7 @@ def get_prompt_summary(question: str) -> str:
     return res
 
 
-def get_prompt_correct() -> str:
+def get_prompt_correct(question: str) -> str:
     """
     获得问题纠错模板
 
@@ -190,6 +190,7 @@ def get_prompt_correct() -> str:
     """
     with open(prompt_correct_file, "r", encoding="utf-8") as file:
         res = file.read()
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
     return res
 
 
@@ -222,7 +223,8 @@ def get_prompt_get_table_meta_and_tool(task: Subtask, assumption: str) -> str:
     res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question, False)))
     res = res.replace("<<tools>>", tools.tools_description_str())
     res = res.replace("<<table_desc>>", get_table_desc_str())
-    res = res.replace("<<assumption>>", assumption)
+    if assumption:
+        res = res.replace("<<assumption>>", assumption)
     res = res.replace("<<question>>", f"【子任务{task.task_id}】{question}")
     res = res.replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
     return res
