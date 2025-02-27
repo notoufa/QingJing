@@ -129,6 +129,7 @@ def get_data_by_time_range(
                 cond_value = float(cond_value)
                 column_values = filtered_data[cond_col].astype(float)
             except ValueError:
+                cond_value = str(cond_value)
                 column_values = filtered_data[cond_col].astype(str)
 
             if operator == "==":
@@ -324,6 +325,7 @@ def aggregate_data(
                 cond_value = float(cond_value)
                 column_values = filtered_data[cond_col].astype(float)
             except ValueError:
+                cond_value = str(cond_value)
                 column_values = filtered_data[cond_col].astype(str)
 
             if operator == "==":

@@ -5,7 +5,8 @@
         "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、求和、数据条数",
         "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？",
         "notices": [
-            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数"
+            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数",
+            "可以查询A架的完整摆动和单次摆动的次数"
         ]
     },
     {
@@ -79,18 +80,24 @@
         "function_name": "sort_by_datetime",
         "input": "需要排序完整日期时间的列表，元素为日期时间字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持按整个日期（'YYYY-MM-DD HH:MM:SS'）排序，支持升序或降序，支持筛选某时间点之前或之后",
         "output": "排序后的日期时间列表，按完整的日期时间升序或降序排列",
-        "notice": "比较完整的日期时间（YYYY-MM-DD HH:MM:SS）先后顺序，必须调用sort_datetime函数"
+        "notices": [
+            "比较完整的日期时间（YYYY-MM-DD HH:MM:SS）先后顺序，必须调用sort_datetime函数"
+        ]
     },
     {
         "function_name": "sort_only_by_time",
         "input": "需要排序时间的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持仅按时间字段（'HH:MM:SS'）排序，支持升序或降序",
         "output": "排序后的日期时间列表，按时间字段的升序或降序排列",
-        "notice": "若仅比较日期时间中时间字段（HH:MM:SS）的先后顺序时，必须调用sort_only_by_time函数"
+        "notices": [
+            "若仅比较日期时间中时间字段（HH:MM:SS）的先后顺序时，必须调用sort_only_by_time函数"
+        ]
     },
     {
         "function_name": "count_days",
         "input": "需要统计天数的日期列表，元素为日期字符串列表（格式为 ['YYYY-MM-DD HH:MM:SS','YYYY-MM-DD HH:MM:SS',]）",
         "output": "日期列表中出现的天数",
-        "notice": "统计天数时必须调用count_days函数,不得自行数数"
+        "notices": [
+            "统计天数时必须调用count_days函数,不得自行数数"
+        ]
     }
 ]

@@ -50,6 +50,8 @@ def handle_question(query):
         "平均作业时长": "平均每天作业时长",
         "开机时长": "运行时长",
         "开机总时长": "运行总时长",
+        "从征服者出水（约-43°）到落座（约35°）A架右舷摆过的角度可以记为一次完整的摆动（反之亦然），": "",
+        "假设A架右舷同一方向上摆动超过10°即可算作一次摆动，": "同方向摆动，",
     }
     for key, value in replace_dict.items():
         query = query.replace(key, value)
