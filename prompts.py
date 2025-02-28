@@ -71,8 +71,6 @@ def get_prompt_task_decomposition(question: str, tool_names: list[str]) -> str:
     """
     with open(prompt_task_decomposition_file, "r", encoding="utf-8") as file:
         res = file.read()
-    atomic_questions = get_atomic_questions()
-    res = res.replace("<<atomic_questions>>", str(atomic_questions))
     res = res.replace(
         "<<function_calls>>", tools.tools_description_str_by_names(tool_names)
     )
@@ -80,7 +78,7 @@ def get_prompt_task_decomposition(question: str, tool_names: list[str]) -> str:
     return res
 
 
-def get_prompt_update_decomposition(question: str) -> str:
+def get_prompt_update_decomposition() -> str:
     """
     获得任务分解更新模板
 
@@ -89,7 +87,6 @@ def get_prompt_update_decomposition(question: str) -> str:
     """
     with open(prompt_update_decomposition_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<question>>", question)
     return res
 
 

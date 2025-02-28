@@ -1,5 +1,6 @@
 """工具函数"""
 
+import json
 import numpy as np
 import logger
 from zhipuai import ZhipuAI
@@ -99,3 +100,5 @@ def get_completion(
         logger.error(f"【请求回答出错】: {e}")
         logger.error(traceback.format_exc())
         raise e
+
+
