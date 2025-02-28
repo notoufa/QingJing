@@ -157,12 +157,12 @@ class ApiResponse:
 
 
 class Subtask:
-    def __init__(self, task_id, level, question, parent_ids):
+    def __init__(self, task_id, level, question, parent_ids, answer=None, function_results=None):
         self.task_id: int = task_id
         self.level: int = level
         self.question: str = question
         self.parent_ids: list[int] = parent_ids
-        self.answer: str = None
+        self.answer: str = answer
         self.function_results = None
         self.parent_tasks: list[Subtask] = None
         self.api_response: ApiResponse = None
@@ -182,6 +182,8 @@ class Subtask:
             level=data["level"],
             question=data["question"],
             parent_ids=data["parent_ids"],
+            answer = data.get("answer"), 
+            function_results = data.get("function_results"),
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -210,7 +212,6 @@ class Subtask:
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
-            "function_results": self.function_results,
         }
 
     def to_update_dict(self):

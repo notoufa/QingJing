@@ -465,38 +465,6 @@
     {
         "type": "function",
         "function": {
-            "name": "sort_by_datetime",
-            "description": "对日期时间列表按照完整的日期时间（YYYY-MM-DD HH:MM:SS）进行排序,可选择升序或降序",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "input_list": {
-                        "type": "array",
-                        "items": {
-                            "format": "date-time",
-                            "type": "string"
-                        },
-                        "description": "需要排序的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。"
-                    },
-                    "order": {
-                        "type": "string",
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ],
-                        "description": "排序方式，'asc' 表示升序，'desc' 表示降序。"
-                    }
-                },
-                "required": [
-                    "input_list",
-                    "order"
-                ]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "sort_only_by_time",
             "description": "对日期时间列表仅按照时间（HH:MM:SS）进行排序,可选择升序或降序，可筛选每天出指定时间段的时间",
             "parameters": {
