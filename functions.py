@@ -6,9 +6,8 @@ from datetime import datetime
 import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
-from utils import *
 from typing import List, Dict
-
+from utils import *
 
 import logger
 

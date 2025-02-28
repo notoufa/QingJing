@@ -6,6 +6,48 @@ import copy
 
 import logger
 
+from typing import Optional
+
+
+class ApiConfig:
+    """API 配置对象"""
+
+    def __init__(
+        self,
+        config_name: str,
+        type: str,
+        model: str,
+        base_url: Optional[str] = None,
+        api_key_env: Optional[str] = None,
+        temperature: Optional[float] = 0,
+        stream: Optional[bool] = False,
+    ):
+        self.config_name = config_name
+        self.type = type
+        self.model = model
+        self.base_url = base_url
+        self.api_key_env = api_key_env
+        self.temperature = temperature
+        self.stream = stream
+
+    def __repr__(self):
+        return (
+            f"ApiConfig(config_name='{self.config_name}', type='{self.type}', "
+            f"model='{self.model}', base_url='{self.base_url}', api_key_env='{self.api_key_env}')"
+        )
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            config_name=data["config_name"],
+            type=data["type"],
+            model=data["model"],
+            base_url=data.get("base_url"),
+            api_key_env=data.get("api_key_env"),
+            temperature=data.get("temperature", 0),
+            stream=data.get("stream", False),
+        )
+
 
 class ReasoningAnswer:
     """

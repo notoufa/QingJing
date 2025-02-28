@@ -1,5 +1,6 @@
 """工具函数"""
 
+import json
 import numpy as np
 from openai import OpenAI
 import logger
@@ -7,8 +8,41 @@ from zhipuai import ZhipuAI
 from zhipuai.core import StreamResponse
 from zhipuai.types.chat.chat_completion import Completion
 from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from openai.types.chat import ChatCompletion
 import traceback
 import os
+from solution import ApiConfig
+
+api_config_file = "config.json"
+
+api_config = None
+
+
+def load_config(config_name: str) -> ApiConfig:
+    """加载 API 配置"""
+    global api_config
+    with open(api_config_file, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    api_configs = [
+        ApiConfig.from_dict(config) for config in data.get("api_configs", [])
+    ]
+    api_config = next(
+        (config for config in api_configs if config.config_name == config_name),
+        None,
+    )
+    return api_config
+
+
+def check_api_key(api_key_env: str) -> str:
+    """
+    检查API_KEY是否设定
+    """
+    api_key = os.getenv(api_key_env)
+    if not api_key:
+        raise RuntimeError(
+            f"{api_key_env} is not set. Please set the environment variable."
+        )
+    return api_key
 
 
 def parse_res(response):
@@ -50,37 +84,10 @@ def parse_code(response):
         return res
 
 
-def check_api_key() -> str:
-    """
-    检查API_KEY是否设定
-    """
-    api_key = os.getenv("ZHIPUAI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "ZHIPUAI_API_KEY is not set. Please set the environment variable."
-        )
-    return api_key
-
-
-def check_ds_api_key() -> str:
-    """
-    检查API_KEY是否设定
-    """
-    api_key = os.getenv("DEEPSEEK_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "DEEPSEEK_API_KEY is not set. Please set the environment variable."
-        )
-    return api_key
-
-
 def get_completion(
     messages: list[dict],
     tools: list[dict] = [],
-    model: str = "glm-4-plus",
-    temperature: float = 0,
     json_output: bool = False,
-    is_deepseek: bool = False,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -90,28 +97,37 @@ def get_completion(
     :param model: 模型
     :return: 对话结果
     """
+    model = api_config.model
+    temperature = api_config.temperature
+    stream = api_config.stream
     try:
-        if is_deepseek:
-            model = "deepseek/deepseek-v3"
+        if api_config.type.upper() == "OPENAI":
+            if not api_config.base_url:
+                raise RuntimeError("通用OpenAI接口配置 需要 base_url 参数")
             client = OpenAI(
-                base_url="https://api.ppinfra.com/v3/openai",
-                api_key=check_ds_api_key(),
+                base_url=api_config.base_url,
+                api_key=check_api_key(api_config.api_key_env),
             )
-        else:
-            client = ZhipuAI(api_key=check_api_key())
+        elif api_config.type.upper() == "ZHIPUAI":
+            client = ZhipuAI(api_key=check_api_key(api_config.api_key_env))
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
         if json_output:
             response_format = {"type": "json_object"}
         else:
             response_format = {"type": "text"}
+
         response = client.chat.completions.create(
             model=model,
-            stream=False,
+            stream=stream,
             messages=messages,
             tools=tools,
             response_format=response_format,
             temperature=temperature,
         )
+
+        if stream:
+            response = convert_stream_to_completion(response)
+
         if response.choices[0].finish_reason == "length":
             logger.error("【回答长度过长】")
         logger.trace("【回答结果】", str(response))
@@ -120,3 +136,72 @@ def get_completion(
         logger.error(f"【请求回答出错】: {e}")
         logger.error(traceback.format_exc())
         raise e
+
+
+def convert_stream_to_completion(stream_response) -> ChatCompletion:
+    """
+    将流式对话结果转换为对话结果
+
+    :param stream_response: 流式对话结果
+    :return: 对话结果
+    """
+    full_content = ""
+    tool_calls = {}
+
+    first_chunk = None
+    last_chunk = None
+
+    for chunk in stream_response:
+        last_chunk = chunk
+        if first_chunk is None:
+            first_chunk = chunk
+        if chunk.choices:
+            delta = chunk.choices[0].delta
+
+            if delta.content:
+                full_content += delta.content
+
+            if delta.tool_calls:
+                for tool_call in delta.tool_calls:
+                    tool_id = tool_call.id
+                    if tool_id not in tool_calls:
+                        tool_calls[tool_id] = {
+                            "id": tool_call.id,
+                            "type": tool_call.type,
+                            "function": {
+                                "name": tool_call.function.name,
+                                "arguments": tool_call.function.arguments or "",
+                            },
+                        }
+                    else:
+                        tool_calls[tool_id]["function"]["arguments"] += (
+                            tool_call.function.arguments or ""
+                        )
+
+    tool_calls_list = list(tool_calls.values())
+
+    completion = ChatCompletion(
+        id=first_chunk.id,
+        object="chat.completion",
+        created=first_chunk.created,
+        model=first_chunk.model,
+        choices=[
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": full_content,
+                    "tool_calls": tool_calls_list if tool_calls_list else None,
+                },
+                "finish_reason": last_chunk.choices[0].finish_reason,
+            }
+        ],
+        usage=first_chunk.usage,
+    )
+
+    return completion
+
+
+if __name__ == "__main__":
+    response = get_completion([{"role": "user", "content": "你好"}], stream=True)
+    print(parse_res(response))

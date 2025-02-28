@@ -1,0 +1,27 @@
+{
+    "api_configs": [
+        {
+            "config_name": "GLM",
+            "type": "ZHIPUAI",
+            "api_key_env": "ZHIPUAI_API_KEY",
+            "model": "glm-4-plus",
+            "temperature": 0
+        },
+        {
+            "config_name": "DeepSeek",
+            "type": "OPENAI",
+            "base_url": "https://api.ppinfra.com/v3/openai",
+            "api_key_env": "DEEPSEEK_API_KEY",
+            "model": "deepseek/deepseek-v3",
+            "temperature": 0,
+            "stream": true
+        },
+        {
+            "config_name": "HUST",
+            "type": "OPENAI",
+            "base_url": "http://demo.masterpool.cn:29005/api/v1",
+            "model": "default",
+            "temperature": 0
+        }
+    ]
+}
