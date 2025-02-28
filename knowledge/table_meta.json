@@ -46,6 +46,10 @@
             {
                 "name": "full_swing",
                 "desc": "A架右舷角度的完整摆动。可选值为'True'、'False'两种取值,取True表示一次完整摆动。Fasle表示没有完整摆动"
+            },
+            {
+                "name": "directional_swing",
+                "desc": "A架右舷角度的同方向摆动超过10°。可选值为'True'、'False'两种取值,取True表示一次同方向摆动超过10°。Fasle表示没有同方向摆动"
             }
         ]
     },
