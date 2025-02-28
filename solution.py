@@ -6,6 +6,48 @@ import copy
 
 import logger
 
+from typing import Optional
+
+
+class ApiConfig:
+    """API 配置对象"""
+
+    def __init__(
+        self,
+        config_name: str,
+        type: str,
+        model: str,
+        base_url: Optional[str] = None,
+        api_key_env: Optional[str] = None,
+        temperature: Optional[float] = 0,
+        stream: Optional[bool] = False,
+    ):
+        self.config_name = config_name
+        self.type = type
+        self.model = model
+        self.base_url = base_url
+        self.api_key_env = api_key_env
+        self.temperature = temperature
+        self.stream = stream
+
+    def __repr__(self):
+        return (
+            f"ApiConfig(config_name='{self.config_name}', type='{self.type}', "
+            f"model='{self.model}', base_url='{self.base_url}', api_key_env='{self.api_key_env}')"
+        )
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            config_name=data["config_name"],
+            type=data["type"],
+            model=data["model"],
+            base_url=data.get("base_url"),
+            api_key_env=data.get("api_key_env"),
+            temperature=data.get("temperature", 0),
+            stream=data.get("stream", False),
+        )
+
 
 class ReasoningAnswer:
     """
@@ -115,12 +157,12 @@ class ApiResponse:
 
 
 class Subtask:
-    def __init__(self, task_id, level, question, parent_ids):
+    def __init__(self, task_id, level, question, parent_ids, answer=None, function_results=None):
         self.task_id: int = task_id
         self.level: int = level
         self.question: str = question
         self.parent_ids: list[int] = parent_ids
-        self.answer: str = None
+        self.answer: str = answer
         self.function_results = None
         self.parent_tasks: list[Subtask] = None
         self.api_response: ApiResponse = None
@@ -140,6 +182,8 @@ class Subtask:
             level=data["level"],
             question=data["question"],
             parent_ids=data["parent_ids"],
+            answer = data.get("answer"), 
+            function_results = data.get("function_results"),
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -168,7 +212,6 @@ class Subtask:
             "question": self.question,
             "parent_ids": self.parent_ids,
             "answer": self.answer,
-            "function_results": self.function_results,
         }
 
     def to_update_dict(self):

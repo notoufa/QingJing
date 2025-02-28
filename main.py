@@ -36,11 +36,20 @@ def parse_args():
     parser.add_argument(
         "-v", "--vote_times", type=int, default=1, help="指定投票次数，默认为1"
     )
+    parser.add_argument(
+        "-c",
+        "--api_config_name",
+        type=str,
+        default="GLM",
+        help="API 配置名称，默认为 GLM",
+    )
     args = parser.parse_args()
 
     if not args.test and not args.production:
         parser.error("必须指定 -t（测试模式）或 -p（生产模式）之一。")
 
+    if not utils.load_config(args.api_config_name):
+        parser.error(f"未找到名称为 {args.api_config_name} 的 API 配置。")
     return args
 
 
@@ -83,6 +92,7 @@ def main():
         test_input_path if is_test else production_input_path
     )
     splice_index = args.splice_index
+    api_config_name = args.api_config_name
 
     global vote_times
     vote_times = args.vote_times
@@ -100,6 +110,7 @@ def main():
 
     logger.debug(
         f"【运行模式】: {'测试' if is_test else '生产'},",
+        f"【API 配置】: {api_config_name},",
         f"【问题总数】: {len(q_json_list)},",
         f"【投票次数】: {vote_times},",
         f"【最大并发线程数】: {max_workers},",
