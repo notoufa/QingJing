@@ -31,6 +31,7 @@
 2. 运行`data_process.py`文件，预处理数据集至`data`文件夹：`python data_process.py`
 3. 运行`main.py`文件，依次回答问题，得到结果：`python main.py -p`
    - 可以指定问题文件路径：`python main.py -p -q questions/question.json`
+   - 可以修改相关配置，查看`config.json`文件
 
 #### 三、目录结构
 
