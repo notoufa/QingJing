@@ -16,3 +16,4 @@ old_data/**
 questions/test.jsonl
 test_data/**
 tmps_data/**
+.vscode/**
