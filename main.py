@@ -15,7 +15,7 @@ solution_dir = "solutions"
 export_api_response = False
 
 test_input_path = "questions/test.jsonl"
-production_input_path = "questions/question_B.jsonl"
+production_input_path = "questions/question_new.jsonl"
 
 
 def parse_args():
