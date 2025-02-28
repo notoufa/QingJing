@@ -13,15 +13,25 @@
             "base_url": "https://api.ppinfra.com/v3/openai",
             "api_key_env": "DEEPSEEK_API_KEY",
             "model": "deepseek/deepseek-v3",
-            "temperature": 0,
-            "stream": true
+            "temperature": 0
         },
         {
             "config_name": "HUST",
             "type": "OPENAI",
             "base_url": "http://demo.masterpool.cn:29005/api/v1",
             "model": "default",
-            "temperature": 0
+            "temperature": 0,
+            "stream": true
         }
-    ]
+    ],
+    "module_config": {
+        "enable_update_decomposition": true,
+        "enable_summary": true,
+        "enable_correct": false,
+        "enable_export_api_response": false,
+        "vote_times": 1,
+        "max_workers_main": 20,
+        "max_workers_subtask": 5,
+        "max_function_calling_iterations": 6
+    }
 }

@@ -12,17 +12,18 @@ from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 from openai.types.chat import ChatCompletion
 import traceback
 import os
-from solution import ApiConfig
+from solution import ApiConfig, ModuleConfig
 
-api_config_file = "config.json"
+config_file = "config.json"
 
 api_config = None
+module_config = None
 
 
-def load_config(config_name: str) -> ApiConfig:
+def load_api_config(config_name: str) -> ApiConfig:
     """加载 API 配置"""
     global api_config
-    with open(api_config_file, "r", encoding="utf-8") as file:
+    with open(config_file, "r", encoding="utf-8") as file:
         data = json.load(file)
     api_configs = [
         ApiConfig.from_dict(config) for config in data.get("api_configs", [])
@@ -32,6 +33,15 @@ def load_config(config_name: str) -> ApiConfig:
         None,
     )
     return api_config
+
+
+def load_module_config() -> ModuleConfig:
+    """加载模块配置"""
+    global module_config
+    with open(config_file, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    module_config = ModuleConfig.from_dict(data["module_config"])
+    return module_config
 
 
 def check_api_key(api_key_env: str) -> str:
@@ -83,6 +93,41 @@ def parse_code(response):
         return res
     except Exception:
         return res
+
+
+def save_submit_result(submit_result_list, submit_path: str):
+    """
+    保存提交结果
+    """
+    submit_result_list.sort(key=lambda x: x["id"])
+    with open(submit_path, "w", encoding="utf-8") as f:
+        for result in submit_result_list:
+            f.write(
+                json.dumps(
+                    result,
+                    ensure_ascii=False,
+                    default=custom_serializer,
+                )
+                + "\n"
+            )
+
+
+def save_solutions(vote_results, result_path: str):
+    """
+    保存解答过程
+    """
+    vote_results.sort(key=lambda x: x.id)
+    with open(result_path, "w", encoding="utf-8") as f:
+        f.write(
+            json.dumps(
+                [
+                    vote_res.to_dict(module_config.enable_export_api_response)
+                    for vote_res in vote_results
+                ],
+                ensure_ascii=False,
+                default=custom_serializer,
+            )
+        )
 
 
 def get_completion(

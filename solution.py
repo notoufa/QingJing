@@ -9,6 +9,52 @@ import logger
 from typing import Optional
 
 
+class ModuleConfig:
+    def __init__(
+        self,
+        enable_update_decomposition=True,
+        enable_summary=True,
+        enable_correct=False,
+        enable_rewrite_atomic_question=True,
+        vote_times=1,
+        max_workers_main=20,
+        max_workers_subtask=5,
+        max_function_calling_iterations=6,
+        enable_export_api_response=False,
+    ):
+        self.enable_update_decomposition = enable_update_decomposition
+        self.enable_summary = enable_summary
+        self.enable_correct = enable_correct
+        self.enable_rewrite_atomic_question = enable_rewrite_atomic_question
+        self.vote_times = vote_times
+        self.max_workers_main = max_workers_main
+        self.max_workers_subtask = max_workers_subtask
+        self.enable_export_api_response = enable_export_api_response
+        self.max_function_calling_iterations = max_function_calling_iterations
+
+    def to_dict(self):
+        """将配置转换为字典"""
+        return {
+            "enable_update_decomposition": self.enable_update_decomposition,
+            "enable_summary": self.enable_summary,
+            "enable_correct": self.enable_correct,
+            "enable_rewrite_atomic_question": self.enable_rewrite_atomic_question,
+            "vote_times": self.vote_times,
+            "max_workers_main": self.max_workers_main,
+            "max_workers_subtask": self.max_workers_subtask,
+            "enable_export_api_response": self.enable_export_api_response,
+            "max_function_calling_iterations": self.max_function_calling_iterations,
+        }
+
+    @classmethod
+    def from_dict(cls, config_dict):
+        """从字典创建配置对象"""
+        return cls(**config_dict)
+
+    def __repr__(self):
+        return f"ModuleConfig({self.to_dict()})"
+
+
 class ApiConfig:
     """API 配置对象"""
 
@@ -54,9 +100,9 @@ class ReasoningAnswer:
     带有推理过程的答案
     """
 
-    def __init__(self):
+    def __init__(self, answer: str = None):
         self.reasoning: str = None
-        self.answer: str = None
+        self.answer: str = answer
         self.corrected_reasoning: str = None
         self.corrected_answer: str = None
         self.correct: str = None
@@ -68,7 +114,17 @@ class ReasoningAnswer:
         return self.corrected_reasoning if self.corrected_reasoning else self.reasoning
 
     def __repr__(self):
-        return f"思维过程：\n{self.get_correct_reasoning()}\n纠错步骤：\n{self.correct}\n最终答案：\n{self.get_correct_answer()}"
+        result = "思维过程：\n"
+        reasoning = self.get_correct_reasoning()
+        if reasoning is not None:
+            result += reasoning + "\n"
+        if self.correct is not None:
+            result += f"纠错步骤：\n{self.correct}\n"
+        answer = self.get_correct_answer()
+        if answer is not None:
+            result += f"最终答案：\n{answer}"
+
+        return result
 
     def to_dict(self):
         return {
@@ -157,7 +213,9 @@ class ApiResponse:
 
 
 class Subtask:
-    def __init__(self, task_id, level, question, parent_ids, answer=None, function_results=None):
+    def __init__(
+        self, task_id, level, question, parent_ids, answer=None, function_results=None
+    ):
         self.task_id: int = task_id
         self.level: int = level
         self.question: str = question
@@ -182,8 +240,8 @@ class Subtask:
             level=data["level"],
             question=data["question"],
             parent_ids=data["parent_ids"],
-            answer = data.get("answer"), 
-            function_results = data.get("function_results"),
+            answer=data.get("answer"),
+            function_results=data.get("function_results"),
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -288,7 +346,7 @@ class Decomposition:
         }
 
     def to_update_dict(self):
-        """返回一个字典表示，不包含api_response"""
+        """返回一个字典表示，不包含api_response，用于更新任务分解树"""
         return {
             "contains_time": self.contains_time,
             "format_requirement": self.format_requirement,

@@ -12,7 +12,7 @@ atomic_questions_file = "knowledge/atomic_questions.json"
 prompt_task_decomposition_file = "prompts/task_decomposition.md"
 prompt_update_decomposition_file = "prompts/update_decomposition.md"
 prompt_vote_file = "prompts/vote.md"
-prompt_pre_atomic_question_file = "prompts/pre_atomic_question.md"
+prompt_rewrite_atomic_question_file = "prompts/rewrite_atomic_question.md"
 prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
 prompt_atomic_question_file = "prompts/atomic_question.md"
 prompt_summary_file = "prompts/summary.md"
@@ -78,7 +78,7 @@ def get_prompt_task_decomposition(question: str, tool_names: list[str]) -> str:
     return res
 
 
-def get_prompt_update_decomposition() -> str:
+def get_prompt_update_decomposition(question: str) -> str:
     """
     获得任务分解更新模板
 
@@ -87,6 +87,7 @@ def get_prompt_update_decomposition() -> str:
     """
     with open(prompt_update_decomposition_file, "r", encoding="utf-8") as file:
         res = file.read()
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 
 
@@ -101,17 +102,17 @@ def get_prompt_vote() -> str:
     return res
 
 
-def get_prompt_pre_atomic_question(
+def get_prompt_rewrite_atomic_question(
     task: Subtask, assumption: str, chain_of_subtasks: str
 ) -> tuple[str, str]:
     """
-    获得预回答原子问题模板
+    获得重写原子问题模板
 
     :param task: 原子问题
     :param assumption: 假设条件
     """
     question = task.question
-    with open(prompt_pre_atomic_question_file, "r", encoding="utf-8") as file:
+    with open(prompt_rewrite_atomic_question_file, "r", encoding="utf-8") as file:
         system_prompt = file.read()
 
     system_prompt = system_prompt.replace(

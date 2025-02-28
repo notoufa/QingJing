@@ -31,8 +31,6 @@
 2. 运行`data_process.py`文件，预处理数据集至`data`文件夹：`python data_process.py`
 3. 运行`main.py`文件，依次回答问题，得到结果：`python main.py -p`
    - 可以指定问题文件路径：`python main.py -p -q questions/question.json`
-   - 可以指定投票次数(默认为 1 次)：`python main.py -p -v 3`
-   - 可以指定最大并发线程数(默认为 20 个)：`python main.py -p -m 20`
 
 #### 三、目录结构
 

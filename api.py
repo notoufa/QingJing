@@ -15,6 +15,7 @@ import functions
 import prompts
 import logger
 from utils import *
+import utils
 
 
 def vote(id: str, question: str, vote_times: int) -> VoteResult:
@@ -35,11 +36,13 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
             logger.success(
-                f"【第{i+1}次得到的最终答案】: \n{str(solution.reasoning_answer)}"
+                f"【第{i+1}次得到的最终答案】",
+                str(solution.reasoning_answer),
             )
         except Exception as e:
-            logger.error(f"【第{i+1}次获取问题的答案出错】: {e}")
-            logger.error(traceback.format_exc())
+            logger.error(
+                f"【第{i+1}次获取问题的答案出错】错误堆栈：\n{traceback.format_exc()}"
+            )
 
     if len(vote_res.solutions) == 1:
         vote_res.final_reasoning_answer = vote_res.solutions[0].reasoning_answer
@@ -78,21 +81,15 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
 
-    tasks_by_level = {}
-    for task in decomposition.subtasks:
-        if task.level not in tasks_by_level:
-            tasks_by_level[task.level] = []
-        tasks_by_level[task.level].append(task)
-
-    sorted_levels = sorted(tasks_by_level.keys())
+    tasks_by_level, sorted_levels = group_tasks_by_level(decomposition.subtasks)
     current_index = 0
 
     while current_index < len(sorted_levels):
-        level = sorted_levels[current_index]
-        level_tasks = tasks_by_level[level]
+        current_level = sorted_levels[current_index]
+        level_tasks = tasks_by_level[current_level]
 
-        if len(level_tasks) > 7:
-            max_workers = max(max_workers, 5)
+        if len(level_tasks) > utils.module_config.max_workers_subtask * 1.5:
+            max_workers = max(max_workers, utils.module_config.max_workers_subtask)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = []
@@ -103,27 +100,48 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
             for future in concurrent.futures.as_completed(futures):
                 future.result()
 
-        if level != sorted_levels[-1]:
-            solution.decomposition = update_decomposition(question, decomposition) # decomposition更新后，需要重置最高级level
-            decomposition = solution.decomposition
-            tasks_by_level = {}
-            for task in decomposition.subtasks:
-                if task.level not in tasks_by_level:
-                    tasks_by_level[task.level] = []
-                tasks_by_level[task.level].append(task)
-            sorted_levels = sorted(tasks_by_level.keys()) # 判断更新后的decomposition的最高级level
-            if level == sorted_levels[-1]:
-                break # 如果更新后的decomposition的最高级level和原来的最高级level相同，则不再继续处理下一个level
+        if (
+            utils.module_config.enable_update_decomposition
+            and current_level != sorted_levels[-1]
+        ):
+            decomposition = update_decomposition(question, decomposition)
+            solution.decomposition = decomposition
+            tasks_by_level, sorted_levels = group_tasks_by_level(decomposition.subtasks)
+            if current_level == sorted_levels[-1]:
+                break
 
-        current_index += 1  # 继续处理下一个任务
+        current_index += 1
 
-    reasoning_answer, api_response = get_summary(solution)
-    solution.reasoning_answer = reasoning_answer
-    solution.summary_api_response = api_response
-    # # reasoning_answer, api_response = correct(solution)
-    # solution.reasoning_answer = reasoning_answer
-    # solution.correct_api_response = api_response
+    solution.reasoning_answer = ReasoningAnswer(
+        solution.decomposition.subtasks[-1].answer
+    )
+    if utils.module_config.enable_summary:
+        reasoning_answer, api_response = get_summary(solution)
+        solution.reasoning_answer = reasoning_answer
+        solution.summary_api_response = api_response
+    if utils.module_config.enable_correct:
+        reasoning_answer, api_response = get_correct(solution)
+        solution.reasoning_answer = reasoning_answer
+        solution.correct_api_response = api_response
     return solution
+
+
+def group_tasks_by_level(subtasks):
+    """
+    将子任务按级别分组，并返回按级别排序的任务字典。
+
+    :param subtasks: 子任务列表，包含多个任务对象，每个任务对象需要有 `level` 属性。
+    :return: 一个字典，按任务级别分组，并且级别已排序。
+    """
+    tasks_by_level = {}
+
+    for task in subtasks:
+        if task.level not in tasks_by_level:
+            tasks_by_level[task.level] = []
+        tasks_by_level[task.level].append(task)
+
+    sorted_levels = sorted(tasks_by_level.keys())
+    return tasks_by_level, sorted_levels
 
 
 def handle_task(task: Subtask, decomposition: Decomposition):
@@ -170,11 +188,10 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题总结出错】: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(f"【问题总结出错】错误堆栈：\n{traceback.format_exc()}")
 
 
-def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
+def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
     """
     获得问题纠错的答案
 
@@ -204,7 +221,7 @@ def correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题纠错出错】: {e}\n{traceback.format_exc()}")
+        logger.error(f"【问题纠错出错】错误堆栈：\n{traceback.format_exc()}")
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
@@ -241,31 +258,29 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
     :param decomposition: 问题的分解结果
     :return: 更新后的decomposition
     """
-    logger.debug("【询问是否需要更新任务分解树】")
-    user_prompt = '已知初始总任务问题：<<question>> \n 当前任务分解树如下:<<decomposition>>\n 已知背景知识：\n<<knowledge>>\n 是否需要更新任务分解树？' 
-    knowledge = prompts.get_knowledge_by_question(question)
+    logger.debug("【开始更新任务分解树】")
+    user_prompt = "已知初始总任务问题：<<question>> \n 当前任务分解树如下:<<decomposition>>\n 是否需要更新任务分解树？"
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_update_decomposition(),
+            "content": prompts.get_prompt_update_decomposition(question),
         },
         {
             "role": "user",
-            "content": user_prompt
-            .replace('<<question>>', str(question))
-            .replace('<<decomposition>>', str(decomposition.to_simple_dict()))
-            .replace('<<knowledge>>', str(knowledge)),
+            "content": user_prompt.replace("<<question>>", str(question)).replace(
+                "<<decomposition>>", str(decomposition.to_update_dict())
+            ),
         },
     ]
     response = get_completion(messages)
 
-    try:        
+    try:
         res = json.loads(parse_res(response))
     except Exception as e:
-        logger.error(f"【更新任务分解树出错】: {e}")
+        logger.error(f"【更新任务分解树出错】错误堆栈：\n{traceback.format_exc()}")
         logger.error(f"{parse_res(response)}")
         return decomposition
-    
+
     res_decomposition = Decomposition.from_dict(res)
     for subtask in res_decomposition.subtasks:
         init_task = decomposition.get_task_by_id(subtask.task_id)
@@ -291,50 +306,8 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
-    if task.has_parent_task():
-        system_prompt, user_prompt = prompts.get_prompt_pre_atomic_question(
-            task,
-            decomposition.assumption,
-            decomposition.chain_of_subtasks,
-        )
-        pre_messages = [
-            {
-                "role": "system",
-                "content": system_prompt,
-            },
-            {
-                "role": "user",
-                "content": user_prompt,
-            },
-        ]
-        pre_response = get_completion(pre_messages)
-
-        try:
-            content = pre_response.choices[0].message.content
-            cleaned_content = (
-                content.strip()
-                .replace("json\n", "")
-                .replace("\n", "")
-                .replace("```", "")
-            )
-            pre_task = json.loads(cleaned_content)
-            logger.special("【原子问题预处理】", pre_task)
-            # is_answer = pre_task["can_answer_directly"]
-            # if is_answer:
-            #     logger.special("【原子问题答案】", pre_task["response"])
-            #     task.answer = pre_task["response"]
-            #     task.api_response = ApiResponse(pre_messages, pre_response)
-            #     return
-            # else:
-            logger.special(
-                    "【重写原子问题】",
-                    f"原问题：{task.question}----->重写后的问题：{pre_task['response']}",
-                )
-            task.question = pre_task["response"]
-        except Exception as e:
-            logger.error(f"【原子问题预处理出错】: {e}")
-            logger.error(traceback.format_exc())
-
+    if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
+        rewrite_atomic_question(decomposition, task)
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
         task,
         decomposition.assumption,
@@ -353,10 +326,8 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     ]
     response = get_completion(messages, tool_list)
     messages.append(response.choices[0].message.model_dump())
-    # 循环调用函数
     function_results = []
-    max_iterations = 6
-    for _ in range(max_iterations):
+    for _ in range(utils.module_config.max_function_calling_iterations):
         if response.choices[0].message.tool_calls:
             for tool_call in response.choices[0].message.tool_calls:
                 function_name = tool_call.function.name
@@ -387,6 +358,41 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     task.api_response = api_response
     task.need_tools = [item["function"]["name"] for item in tool_list]
     task.need_tables = [table["table_name"] for table in table_meta_list]
+
+
+def rewrite_atomic_question(decomposition: Decomposition, task: Subtask):
+    """
+    重写原子问题
+
+    :param decomposition: 问题的分解结果
+    :param task: 原子问题
+    """
+    logger.debug("【开始重写原子问题】", task.question)
+    system_prompt, user_prompt = prompts.get_prompt_rewrite_atomic_question(
+        task,
+        decomposition.assumption,
+        decomposition.chain_of_subtasks,
+    )
+    messages = [
+        {
+            "role": "system",
+            "content": system_prompt,
+        },
+        {
+            "role": "user",
+            "content": user_prompt,
+        },
+    ]
+    response = get_completion(messages)
+    try:
+        pre_task = json.loads(json.loads(parse_res(response)))
+        logger.special(
+            "【重写原子问题】",
+            f"原问题：{task.question}----->重写后的问题：{pre_task['response']}",
+        )
+        task.question = pre_task["response"]
+    except Exception as e:
+        logger.error(f"【原子问题预处理出错】错误堆栈：\n{traceback.format_exc()}")
 
 
 def get_tool(question: str) -> list:

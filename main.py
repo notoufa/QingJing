@@ -8,11 +8,10 @@ import argparse
 from solution import VoteResult
 import logger
 import utils
-from tools import load_tools
+import tools
 
 submit_dir = "results"
 solution_dir = "solutions"
-export_api_response = False
 
 test_input_path = "questions/test.jsonl"
 production_input_path = "questions/question_new.jsonl"
@@ -29,13 +28,7 @@ def parse_args():
         action="store_true",
         help="仅处理问题文件中的第一个问题，用于测试",
     )
-    parser.add_argument(
-        "-m", "--max_workers", type=int, default=20, help="最大并发线程数，默认为20"
-    )
     parser.add_argument("-q", "--question_file", type=str, help="指定问题文件")
-    parser.add_argument(
-        "-v", "--vote_times", type=int, default=1, help="指定投票次数，默认为1"
-    )
     parser.add_argument(
         "-c",
         "--api_config_name",
@@ -48,12 +41,16 @@ def parse_args():
     if not args.test and not args.production:
         parser.error("必须指定 -t（测试模式）或 -p（生产模式）之一。")
 
-    if not utils.load_config(args.api_config_name):
+    if not utils.load_api_config(args.api_config_name):
         parser.error(f"未找到名称为 {args.api_config_name} 的 API 配置。")
+
     return args
 
 
 def handle_question(query):
+    """
+    预处理问题
+    """
     replace_dict = {
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
@@ -68,52 +65,58 @@ def handle_question(query):
 
 
 def process_one(line: dict) -> VoteResult | dict:
+    """
+    获取一个问题的解决过程及答案
+    """
     id = line["id"]
     question = handle_question(line["question"])
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
-        vote_res = api.vote(id, question, vote_times).clone()
+        vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
         logger.special(
-            f"【{id}的最终答案】: \n{vote_res.final_reasoning_answer.get_correct_answer()}"
+            f"【{id}的最终答案】:\n",
+            vote_res.final_reasoning_answer.get_correct_answer(),
         )
         return vote_res
     except Exception as e:
-        trace = traceback.format_exc()
-        logger.error(f"【获取问题{id}的答案出错】: {e}")
-        logger.error(trace)
+        logger.error(f"【获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}")
         return {"id": id, "question": question, "answer": str(e)}
 
 
+def init():
+    """
+    初始化
+    """
+    logger.init()
+    tools.load_tools()
+    utils.load_module_config()
+    os.makedirs(submit_dir, exist_ok=True)
+    os.makedirs(solution_dir, exist_ok=True)
+
+
 def main():
+    init()
     args = parse_args()
     is_test = args.test
-    max_workers = args.max_workers
     question_path = args.question_file or (
         test_input_path if is_test else production_input_path
     )
     splice_index = args.splice_index
-    api_config_name = args.api_config_name
-
-    global vote_times
-    vote_times = args.vote_times
-
-    logger.init()
-    load_tools()
-
-    os.makedirs(submit_dir, exist_ok=True)
-    os.makedirs(solution_dir, exist_ok=True)
+    max_workers_main = utils.module_config.max_workers_main
+    max_workers_subtask = utils.module_config.max_workers_subtask
 
     with open(question_path, "r", encoding="utf-8") as f:
-        q_json_list = [json.loads(line.strip()) for line in f]
+        question_list = [json.loads(line.strip()) for line in f]
     if splice_index:
-        q_json_list = q_json_list[:1]
+        question_list = question_list[:1]
 
     logger.debug(
         f"【运行模式】: {'测试' if is_test else '生产'},",
-        f"【API 配置】: {api_config_name},",
-        f"【问题总数】: {len(q_json_list)},",
-        f"【投票次数】: {vote_times},",
-        f"【最大并发线程数】: {max_workers},",
+        f"【API 配置】: {utils.api_config.config_name},",
+        f"【问题总数】: {len(question_list)},",
+        f"【投票次数】: {utils.module_config.vote_times},",
+        f"【问题并发线程数】: {max_workers_main},",
+        f"【子任务并发线程数】: {max_workers_subtask},",
         f"【仅处理第一个问题】: {splice_index},",
         f"【问题文件】: {question_path}",
     )
@@ -125,8 +128,8 @@ def main():
     vote_results = []
     submit_result_list = []
 
-    with cf.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_list = [executor.submit(process_one, q_json) for q_json in q_json_list]
+    with cf.ThreadPoolExecutor(max_workers=max_workers_main) as executor:
+        future_list = [executor.submit(process_one, item) for item in question_list]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
             if isinstance(vote_res, VoteResult):
@@ -136,30 +139,11 @@ def main():
                     if isinstance(vote_res, VoteResult)
                     else vote_res
                 )
-                save_submit_result(submit_result_list, submit_path)
-                save_solutions(vote_results, solution_path)
+                utils.save_submit_result(submit_result_list, submit_path)
+                utils.save_solutions(vote_results, solution_path)
             else:
                 submit_result_list.append(vote_res)
-                save_submit_result(submit_result_list, submit_path)
-
-
-def save_submit_result(submit_result_list, submit_path):
-    submit_result_list.sort(key=lambda x: x["id"])
-    with open(submit_path, "w", encoding="utf-8") as f:
-        for result in submit_result_list:
-            f.write(json.dumps(result, ensure_ascii=False) + "\n")
-
-
-def save_solutions(vote_results: list[VoteResult], result_path):
-    vote_results.sort(key=lambda x: x.id)
-    with open(result_path, "w", encoding="utf-8") as f:
-        f.write(
-            json.dumps(
-                [vote_res.to_dict(export_api_response) for vote_res in vote_results],
-                ensure_ascii=False,
-                default=utils.custom_serializer,
-            )
-        )
+                utils.save_submit_result(submit_result_list, submit_path)
 
 
 if __name__ == "__main__":
