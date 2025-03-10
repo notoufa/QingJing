@@ -14,7 +14,7 @@ submit_dir = "results"
 solution_dir = "solutions"
 
 test_input_path = "questions/test.jsonl"
-production_input_path = "questions/question_new.jsonl"
+production_input_path = "questions/rematch_A.jsonl"
 
 
 def parse_args():

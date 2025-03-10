@@ -14,7 +14,7 @@
   - jupyter_core : 5.7.2
   - traitlets : 5.14.3
 - 安装依赖：`pip install -r requirements.txt`
-- 数据集：将数据集放置在`assets/初赛数据`文件夹下
+- 数据集：将数据集放置在`assets/复赛数据`文件夹下
 - 环境变量：设置 GLM 的 API KEY，环境变量名为`ZHIPUAI_API_KEY`
 
 ### 二、运行代码
