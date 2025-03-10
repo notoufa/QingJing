@@ -385,7 +385,7 @@ def rewrite_atomic_question(decomposition: Decomposition, task: Subtask):
     ]
     response = get_completion(messages)
     try:
-        pre_task = json.loads(json.loads(parse_res(response)))
+        pre_task = json.loads(parse_res(response))
         logger.special(
             "【重写原子问题】",
             f"原问题：{task.question}----->重写后的问题：{pre_task['response']}",
