@@ -3,13 +3,11 @@
 import json
 import json
 import numpy as np
-from openai import OpenAI
 import logger
 from zhipuai import ZhipuAI
 from zhipuai.core import StreamResponse
 from zhipuai.types.chat.chat_completion import Completion
 from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from openai.types.chat import ChatCompletion
 import traceback
 import os
 from solution import ApiConfig, ModuleConfig
@@ -148,6 +146,8 @@ def get_completion(
     stream = api_config.stream
     try:
         if api_config.type.upper() == "OPENAI":
+            from openai import OpenAI
+            from openai.types.chat import ChatCompletion
             if not api_config.base_url:
                 raise RuntimeError("通用OpenAI接口配置 需要 base_url 参数")
             client = OpenAI(
@@ -184,7 +184,7 @@ def get_completion(
         raise e
 
 
-def convert_stream_to_completion(stream_response) -> ChatCompletion:
+def convert_stream_to_completion(stream_response):
     """
     将流式对话结果转换为对话结果
 
@@ -225,6 +225,8 @@ def convert_stream_to_completion(stream_response) -> ChatCompletion:
                         )
 
     tool_calls_list = list(tool_calls.values())
+
+    from openai.types.chat import ChatCompletion
 
     completion = ChatCompletion(
         id=first_chunk.id,

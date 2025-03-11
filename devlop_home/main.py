@@ -36,6 +36,11 @@ def process_one(line: dict) -> VoteResult | dict:
     """
     id = line["id"]
     question = handle_question(line["question"])
+    return {
+        "id": id,
+        "question": question,
+        "answer": question,
+    }
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()

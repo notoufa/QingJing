@@ -30,4 +30,9 @@ echo 构建 Docker 镜像
 docker build --build-arg ZHIPUAI_API_KEY=%ZHIPUAI_API_KEY% -t hubdocker.aminer.cn/%ACCOUNT%/%TAG% .
 
 echo Docker 镜像构建完成
-docker push hubdocker.aminer.cn/%ACCOUNT%/%TAG%
+
+set /p PUSH="是否推送镜像? (y/n): "
+if /i "%PUSH%"=="y" (
+    docker push hubdocker.aminer.cn/%ACCOUNT%/%TAG%
+    echo 镜像已推送
+)
