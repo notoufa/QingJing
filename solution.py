@@ -282,7 +282,7 @@ class Subtask:
             "answer": self.answer,
         }
 
-    def get_parent_tasks_desc(self) -> str:
+    def get_parent_tasks_desc(self) -> list[dict]:
         if not self.has_parent_task():
             return ""
         return [task.to_simple_dict() for task in self.parent_tasks]
