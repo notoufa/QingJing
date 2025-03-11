@@ -304,10 +304,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     :param task: 原子问题
     :param parent_tasks: 父任务
     """
-    table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     logger.info("【开始获取原子问题答案】", task.question)
     if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
         rewrite_atomic_question(decomposition, task)
+        
+    # 重写问题后再获取所需要的base table和tools
+    table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
         task,
         decomposition.assumption,
