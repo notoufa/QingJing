@@ -3,8 +3,8 @@ import json
 tools = []
 tools_description = []
 
-tools_file = "knowledge/tools.json"
-tools_description_file = "knowledge/tools_description.json"
+tools_file = "devlop_home/knowledge/tools.json"
+tools_description_file = "devlop_home/knowledge/tools_description.json"
 
 calculate_tools_name = [
     "calculate_math_operations",

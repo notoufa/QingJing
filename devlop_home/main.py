@@ -10,7 +10,7 @@ import logger
 import utils
 import tools
 
-solution_dir = "solutions"
+solution_dir = "devlop_home/solutions"
 
 
 def handle_question(query):
@@ -53,8 +53,8 @@ def init():
     """
     初始化
     """
-    logger.init()
     tools.load_tools()
+    utils.load_api_config()
     utils.load_module_config()
     os.makedirs(solution_dir, exist_ok=True)
 
@@ -64,8 +64,9 @@ def main():
     in_param_path = sys.argv[1]
     out_path = sys.argv[2]
 
-    with open(in_param_path, "r") as load_f:
-        input_params = json.load(load_f)
+    with open(in_param_path, "r", encoding="utf-8") as load_f:
+        content = load_f.read()
+        input_params = json.loads(content)
 
     question_path = input_params["fileData"]["questionFilePath"]
 
@@ -105,6 +106,7 @@ def main():
 
 
 if __name__ == "__main__":
+    logger.init()
     start_time = time.time()
     logger.info(
         "------------------------------【程序开始】------------------------------"

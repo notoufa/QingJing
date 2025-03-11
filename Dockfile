@@ -1,0 +1,17 @@
+FROM hubdocker.aminer.cn/library/python-base:1.0.0
+
+COPY devlop_home/requirements.txt devlop_home/knowledge devlop_home/prompts devlop_home/actions.py devlop_home/api.py devlop_home/functions.py devlop_home/data_process.py devlop_home/functions.py devlop_home/logger.py devlop_home/main.py devlop_home/prompts.py devlop_home/solution.py devlop_home/tools.py devlop_home/utils.py /app/devlop_home/
+
+RUN apt-get update && \
+    apt-get install -y <package> && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir -r /app/devlop_home/requirements.txt && \
+    pip install jupyter
+
+ARG ZHIPUAI_API_KEY
+ENV ZHIPUAI_API_KEY=${ZHIPUAI_API_KEY}
+
+WORKDIR /app/
+
+CMD [""]

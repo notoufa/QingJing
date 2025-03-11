@@ -11,7 +11,7 @@ from utils import *
 
 import logger
 
-table_meta_file = "knowledge/table_meta.json"
+table_meta_file = "devlop_home/knowledge/table_meta.json"
 
 
 def get_text_table(result: dict) -> str:

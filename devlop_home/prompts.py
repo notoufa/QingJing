@@ -5,19 +5,19 @@ from solution import Subtask
 import tools
 import logger
 
-table_meta_file = "knowledge/table_meta.json"
-knowledge_file = "knowledge/knowledge.json"
-atomic_questions_file = "knowledge/atomic_questions.json"
+table_meta_file = "devlop_home/knowledge/table_meta.json"
+knowledge_file = "devlop_home/knowledge/knowledge.json"
+atomic_questions_file = "devlop_home/knowledge/atomic_questions.json"
 
-prompt_task_decomposition_file = "prompts/task_decomposition.md"
-prompt_update_decomposition_file = "prompts/update_decomposition.md"
-prompt_vote_file = "prompts/vote.md"
-prompt_rewrite_atomic_question_file = "prompts/rewrite_atomic_question.md"
-prompt_get_table_meta_and_tool_file = "prompts/get_table_meta_and_tool.md"
-prompt_atomic_question_file = "prompts/atomic_question.md"
-prompt_summary_file = "prompts/summary.md"
-prompt_correct_file = "prompts/correct.md"
-prompt_get_tool_file = "prompts/get_tool.md"
+prompt_task_decomposition_file = "devlop_home/prompts/task_decomposition.md"
+prompt_update_decomposition_file = "devlop_home/prompts/update_decomposition.md"
+prompt_vote_file = "devlop_home/prompts/vote.md"
+prompt_rewrite_atomic_question_file = "devlop_home/prompts/rewrite_atomic_question.md"
+prompt_get_table_meta_and_tool_file = "devlop_home/prompts/get_table_meta_and_tool.md"
+prompt_atomic_question_file = "devlop_home/prompts/atomic_question.md"
+prompt_summary_file = "devlop_home/prompts/summary.md"
+prompt_correct_file = "devlop_home/prompts/correct.md"
+prompt_get_tool_file = "devlop_home/prompts/get_tool.md"
 
 
 def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:

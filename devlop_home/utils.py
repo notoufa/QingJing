@@ -14,13 +14,13 @@ import traceback
 import os
 from solution import ApiConfig, ModuleConfig
 
-config_file = "config.json"
+config_file = "devlop_home/config.json"
 
 api_config = None
 module_config = None
 
 
-def load_api_config(config_name: str) -> ApiConfig:
+def load_api_config(config_name: str = "GLM") -> ApiConfig:
     """加载 API 配置"""
     global api_config
     with open(config_file, "r", encoding="utf-8") as file:
