@@ -1,10 +1,10 @@
 import json
 import concurrent.futures as cf
 import os
+import sys
 import traceback
 import api
 import time
-import argparse
 from solution import VoteResult
 import logger
 import utils
@@ -56,7 +56,6 @@ def init():
     tools.load_tools()
     utils.load_api_config()
     utils.load_module_config()
-    os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
 
 
@@ -73,28 +72,21 @@ def main():
 
     with open(question_path, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
-    if splice_index:
-        question_list = question_list[:1]
 
     logger.debug(
-        f"【运行模式】: {'测试' if is_test else '生产'},",
         f"【API 配置】: {utils.api_config.config_name},",
         f"【问题总数】: {len(question_list)},",
         f"【投票次数】: {utils.module_config.vote_times},",
-        f"【问题并发线程数】: {max_workers_main},",
-        f"【子任务并发线程数】: {max_workers_subtask},",
-        f"【仅处理第一个问题】: {splice_index},",
         f"【问题文件】: {question_path}",
     )
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
-    submit_path = os.path.join(submit_dir, f"试试又不会怎样_result_{date_str}.jsonl")
     solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
 
     vote_results = []
     submit_result_list = []
 
-    with cf.ThreadPoolExecutor(max_workers=max_workers_main) as executor:
+    with cf.ThreadPoolExecutor(max_workers=20) as executor:
         future_list = [executor.submit(process_one, item) for item in question_list]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
@@ -105,11 +97,11 @@ def main():
                     if isinstance(vote_res, VoteResult)
                     else vote_res
                 )
-                utils.save_submit_result(submit_result_list, submit_path)
+                utils.save_submit_result(submit_result_list, out_path)
                 utils.save_solutions(vote_results, solution_path)
             else:
                 submit_result_list.append(vote_res)
-                utils.save_submit_result(submit_result_list, submit_path)
+                utils.save_submit_result(submit_result_list, out_path)
 
 
 if __name__ == "__main__":
