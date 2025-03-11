@@ -18,3 +18,5 @@ test_data/**
 tmps_data/**
 .vscode/**
 data1/**
+demo.py
+.env
