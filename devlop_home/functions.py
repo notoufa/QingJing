@@ -74,7 +74,7 @@ def get_data_by_time_range(
     }
 
     try:
-        df = pd.read_csv(f"data/{table_name}.csv")
+        df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
     except FileNotFoundError:
         return {
             "error": f"数据表 {table_name} 不存在",
@@ -284,7 +284,7 @@ def aggregate_data(
     }
 
     try:
-        df = pd.read_csv(f"data/{table_name}.csv")
+        df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
     except FileNotFoundError:
         return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
@@ -450,7 +450,7 @@ def get_actions_by_time_range(start_time, end_time):
         }
 
         try:
-            df = pd.read_csv(f"data/{table_name}.csv")
+            df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
         except FileNotFoundError:
             return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
@@ -510,7 +510,7 @@ def get_device_parameter_by_name(parameter_name_cn):
         "parameter_name_cn": parameter_name_cn,
     }
 
-    df = pd.read_csv("data/设备参数详情表.csv")
+    df = pd.read_csv("devlop_data/data/设备参数详情表.csv")
     if not df["Channel_Text_CN"].str.contains(parameter_name_cn).any():
         return {
             "error": f"未找到包含 '{parameter_name_cn}' 的参数中文名",
