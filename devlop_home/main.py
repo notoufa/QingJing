@@ -10,7 +10,8 @@ import logger
 import utils
 import tools
 
-solution_dir = "devlop_home/solutions"
+result_dir = "devlop_output/results"
+solution_dir = "devlop_output/solutions"
 
 
 def handle_question(query):
@@ -61,13 +62,21 @@ def init():
     tools.load_tools()
     utils.load_api_config()
     utils.load_module_config()
+    os.makedirs(result_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
 
 
 def main():
     init()
     in_param_path = sys.argv[1]
-    out_path = sys.argv[2]
+
+    date_str = time.strftime("%Y-%m-%d", time.localtime())
+    solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
+    if len(sys.argv) < 3:
+        out_path = os.path.join(result_dir, f"result_{date_str}.json")
+    else:
+        out_path = sys.argv[2]
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     with open(in_param_path, "r", encoding="utf-8") as load_f:
         content = load_f.read()
@@ -83,10 +92,14 @@ def main():
         f"【问题总数】: {len(question_list)},",
         f"【投票次数】: {utils.module_config.vote_times},",
         f"【问题文件】: {question_path}",
+        f"【输出文件】: {out_path}",
     )
 
-    date_str = time.strftime("%Y-%m-%d", time.localtime())
-    solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
+    with open("devlop_home/test.jsonl", "r", encoding="utf-8") as src, open(
+        out_path, "w", encoding="utf-8"
+    ) as dst:
+        dst.write(src.read())
+    return
 
     vote_results = []
     submit_result_list = []

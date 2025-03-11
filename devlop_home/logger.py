@@ -10,7 +10,7 @@ LEVELS = ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "SUCCESS", "SPECIAL"]
 console_level = "DEBUG"
 file_level = "TRACE"
 
-logs_path = "devlop_home/logs"
+logs_path = "devlop_output/logs"
 log_file_path = None
 
 COLORS = {

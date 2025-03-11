@@ -8,31 +8,23 @@ IF "%ZHIPUAI_API_KEY%"=="" (
 )
 
 IF "%1"=="" (
-    echo 错误：未指定用户
+    echo 错误：未指定镜像版本号
     pause
     exit /b 1
 )
 
-set ACCOUNT=%1
-
-IF "%2"=="" (
-    echo 错误：未指定镜像标签
-    pause
-    exit /b 1
-)
-
-set TAG=%2
+set VERSION=%1
 
 echo 生成数据处理脚本
 jupyter nbconvert --to script devlop_home/data_process.ipynb
 
 echo 构建 Docker 镜像
-docker build --build-arg ZHIPUAI_API_KEY=%ZHIPUAI_API_KEY% -t hubdocker.aminer.cn/%ACCOUNT%/%TAG% .
+docker build --build-arg ZHIPUAI_API_KEY=%ZHIPUAI_API_KEY% -t hubdocker.aminer.cn/013861b58d084a79866ded8df8801da1/qingjing:%VERSION% .
 
 echo Docker 镜像构建完成
 
 set /p PUSH="是否推送镜像? (y/n): "
 if /i "%PUSH%"=="y" (
-    docker push hubdocker.aminer.cn/%ACCOUNT%/%TAG%
+    docker push hubdocker.aminer.cn/013861b58d084a79866ded8df8801da1/qingjing:%VERSION%
     echo 镜像已推送
 )
