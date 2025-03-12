@@ -35,7 +35,7 @@
 - contains_time：问题中是否包含时间（true/false）
 - subtasks：子问题列表，每个子问题均为原子问题，包含以下字段：
   - task_id：唯一标识，原始问题的 ID 固定为 0，子问题 ID 从 1 开始递增
-  - level：子任务层级，从 1 开始计数
+  - level：子任务层级，从 1 开始计数；ID 较大的子问题的 level 应大于等于 ID 较小的子问题
   - question：子问题描述，不包含假设条件和格式要求
   - parent_ids：依赖的父问题 ID 列表（无依赖则为[0]）
 - chain_of_subtasks：子问题的执行顺序和依赖关系
