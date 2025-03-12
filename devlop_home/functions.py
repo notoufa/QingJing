@@ -12,7 +12,7 @@ from utils import *
 import logger
 
 table_meta_file = "devlop_home/knowledge/table_meta.json"
-
+table_base_path = "devlop_data/data"
 
 def get_text_table(result: dict) -> str:
     if not result:
@@ -74,7 +74,7 @@ def get_data_by_time_range(
     }
 
     try:
-        df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
+        df = pd.read_csv(f"{table_base_path}/{table_name}.csv")
     except FileNotFoundError:
         return {
             "error": f"数据表 {table_name} 不存在",
@@ -284,7 +284,7 @@ def aggregate_data(
     }
 
     try:
-        df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
+        df = pd.read_csv(f"{table_base_path}/{table_name}.csv")
     except FileNotFoundError:
         return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
@@ -450,7 +450,7 @@ def get_actions_by_time_range(start_time, end_time):
         }
 
         try:
-            df = pd.read_csv(f"devlop_data/data/{table_name}.csv")
+            df = pd.read_csv(f"{table_base_path}/{table_name}.csv")
         except FileNotFoundError:
             return {"error": f"数据表 {table_name} 不存在", "metadata": metadata}
 
@@ -510,7 +510,7 @@ def get_device_parameter_by_name(parameter_name_cn):
         "parameter_name_cn": parameter_name_cn,
     }
 
-    df = pd.read_csv("devlop_data/data/设备参数详情表.csv")
+    df = pd.read_csv("{table_base_path}/设备参数详情表.csv")
     if not df["Channel_Text_CN"].str.contains(parameter_name_cn).any():
         return {
             "error": f"未找到包含 '{parameter_name_cn}' 的参数中文名",
@@ -660,7 +660,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         result = total_energy
     else:
         table_name, power_column = device_config[device_name]
-        file_path = f"data/{table_name}.csv"
+        file_path = f"{table_base_path}/{table_name}.csv"
         try:
             filtered_data = load_and_filter_data(
                 file_path, start_time, end_time, power_column
@@ -697,25 +697,25 @@ def get_running_duration_by_time_range(start_time, end_time, type, index=None):
 
     device_config = {
         "折臂吊车运行时长": (
-            "data/折臂吊车与小艇动作表.csv",
+            f"{table_base_path}/折臂吊车与小艇动作表.csv",
             "status",
             "折臂吊车开机",
             "折臂吊车关机",
         ),
         "A架运行时长": (
-            "data/A架动作表.csv",
+            f"{table_base_path}/A架动作表.csv",
             "status",
             "A架开机",
             "A架关机",
         ),
         "作业时长": (
-            "data/艏推系统DP动作表.csv",
+            f"{table_base_path}/艏推系统DP动作表.csv",
             "status",
             "ON DP",
             "OFF DP",
         ),
         "A架实际运行时长": (
-            "data/A架动作表.csv",
+            f"{table_base_path}/A架动作表.csv",
             "check_current_presence",
             "有电流",
             "无电流",
@@ -888,7 +888,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
         mj_result = total_mj_energy
     else:
         file_name, field_name = device_config[type][device_name]
-        file_path = f"data/{file_name}.csv"
+        file_path = f"{table_base_path}/{file_name}.csv"
         try:
             filtered_data = load_and_filter_data(
                 file_path, start_time, end_time, field_name
@@ -1513,7 +1513,8 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
+    print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
+    # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(
     #         "device_1_2_meter_102",
