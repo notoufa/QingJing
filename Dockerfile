@@ -1,4 +1,4 @@
-FROM hubdocker.aminer.cn/library/python-base:1.0.0
+FROM hubdocker.aminer.cn/013861b58d084a79866ded8df8801da1/qingjing:0.0.1
 
 COPY devlop_home /app/devlop_home/
 
