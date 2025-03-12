@@ -13,3 +13,4 @@ ARG ZHIPUAI_API_KEY
 ENV ZHIPUAI_API_KEY=${ZHIPUAI_API_KEY}
 
 WORKDIR /app/
+CMD ["bash", "-c", "exec /app/py_devlop.sh /app/devlop_data/input_param.json /app/devlop_result/answer.json"]
