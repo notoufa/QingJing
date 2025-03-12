@@ -38,8 +38,8 @@ def process_one(line: dict, answer_list: list[dict] = None) -> VoteResult | dict
     """
     id = line["id"]
     question = handle_question(line["question"])
-    if id != "gysxdmx_00001":
-        return {"id": id, "question": question, "answer": question}
+    # if id != "gysxdmx_00001":
+    #     return {"id": id, "question": question, "answer": question}
     # answer = None
     # if answer_list:
     #     for item in answer_list:
