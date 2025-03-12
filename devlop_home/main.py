@@ -12,7 +12,7 @@ import tools
 
 result_dir = "devlop_output/results"
 solution_dir = "devlop_output/solutions"
-answer_file = "devlop_home/test.jsonl"
+answer_filepath = "devlop_home/test.jsonl"
 
 
 def handle_question(query):
@@ -32,13 +32,19 @@ def handle_question(query):
     return query
 
 
-def process_one(line: dict) -> VoteResult | dict:
+def process_one(line: dict, answer_list: list[dict] = None) -> VoteResult | dict:
     """
     获取一个问题的解决过程及答案
     """
     id = line["id"]
     question = handle_question(line["question"])
-    # return {"id": id, "question": question, "answer": question}
+    answer = None
+    if answer_list:
+        for item in answer_list:
+            if item["id"] == id:
+                answer = item["answer"]
+                break
+    return {"id": id, "question": question, "answer": answer}
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
@@ -66,44 +72,39 @@ def init():
 def main():
     init()
     in_param_path = sys.argv[1]
-
-    date_str = time.strftime("%Y-%m-%d", time.localtime())
-    solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
-    if len(sys.argv) < 3:
-        out_path = os.path.join(result_dir, f"result_{date_str}.json")
-    else:
-        out_path = sys.argv[2]
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    out_path = sys.argv[2]
 
     with open(in_param_path, "r", encoding="utf-8") as load_f:
         content = load_f.read()
         input_params = json.loads(content)
 
-    question_path = input_params["fileData"]["questionFilePath"]
+    question_filepath = input_params["fileData"]["questionFilePath"]
 
-    with open(question_path, "r", encoding="utf-8") as f:
+    date_str = time.strftime("%Y-%m-%d", time.localtime())
+    solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
+
+    with open(answer_filepath, "r", encoding="utf-8") as f:
+        answer_list = [json.loads(line.strip()) for line in f]
 
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
         f"【问题总数】: {len(question_list)},",
         f"【投票次数】: {utils.module_config.vote_times},",
-        f"【问题文件】: {question_path}",
+        f"【问题文件】: {question_filepath}",
         f"【输出文件】: {out_path}",
     )
-
-    with open(answer_file, "r", encoding="utf-8") as src, open(
-        out_path, "w", encoding="utf-8"
-    ) as dst:
-        content = src.read()
-        dst.write(content)
-    return
 
     vote_results = []
     submit_result_list = []
 
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
-        future_list = [executor.submit(process_one, item) for item in question_list]
+        future_list = [
+            executor.submit(process_one, item, answer_list) for item in question_list
+        ]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
             if isinstance(vote_res, VoteResult):
