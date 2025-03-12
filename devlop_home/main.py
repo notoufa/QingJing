@@ -95,7 +95,8 @@ def main():
     with open(answer_file, "r", encoding="utf-8") as src, open(
         out_path, "w", encoding="utf-8"
     ) as dst:
-        dst.write(src.read())
+        content = src.read()
+        dst.write(content)
     return
 
     vote_results = []
