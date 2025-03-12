@@ -18,8 +18,12 @@ set VERSION=%1
 echo 生成数据处理脚本
 jupyter nbconvert --to script devlop_home/data_process.ipynb
 
+echo 压缩复赛数据
+tar -czf devlop_home/复赛数据.tar.gz devlop_data/assets/复赛数据
+
 echo 构建 Docker 镜像
 docker build --build-arg ZHIPUAI_API_KEY=%ZHIPUAI_API_KEY% -t hubdocker.aminer.cn/013861b58d084a79866ded8df8801da1/qingjing:%VERSION% .
+del devlop_home\复赛数据.tar.gz
 
 echo Docker 镜像构建完成
 
