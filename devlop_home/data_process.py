@@ -24,14 +24,13 @@ output_path = "devlop_data/data"
 os.makedirs(output_path, exist_ok=True)
 
 
-# In[2]:
+# In[ ]:
 
 
 # 合并数据
 import shutil
 
 def cp_csv_files(input_path, out_path):
-    # 复制原文件到输出目录
     for file_name in os.listdir(input_path):
         if file_name.endswith(".csv") and "字段释义" not in file_name:
             src = os.path.join(input_path, file_name)
@@ -39,8 +38,6 @@ def cp_csv_files(input_path, out_path):
             shutil.copy(src, dst)
             print(f"复制文件 {src} -> {dst}")
     
-
-
 cp_csv_files(data_path, output_path)
 
 
