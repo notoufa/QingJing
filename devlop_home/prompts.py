@@ -122,16 +122,16 @@ def get_prompt_rewrite_atomic_question(
         system_prompt = system_prompt.replace("<<assumption>>", assumption)
 
     user_prompt = """
-    已知初始任务为：<<<init_question>>>
+    已知初始任务为：<<init_question>>
 
-    当前要求解的子任务为：<<<question>>>
+    当前要求解的子任务为：<<question>>
 
     已知上游任务执行结果：<<parent_tasks_desc>>
     """
 
     user_prompt = user_prompt.replace(
         "<<question>>", f"【子任务{task.task_id}】{question}"
-    ).replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]['answer']).replace("<<<init_question>>>", init_question)
+    ).replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]['answer']).replace("<<init_question>>", init_question)
 
     return system_prompt, user_prompt
 
