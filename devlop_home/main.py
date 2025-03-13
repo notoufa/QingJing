@@ -48,6 +48,8 @@ def process_one(line: dict, answer_list: list[dict] = None) -> VoteResult | dict
                 answer = item["answer"]
                 if isinstance(answer, dict):
                     answer = json.dumps(answer, ensure_ascii=False)
+                if not answer:
+                    answer = ''
                 break
     return {"id": id, "question": question, "answer": answer}
     try:
