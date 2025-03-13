@@ -103,7 +103,10 @@ def get_prompt_vote() -> str:
 
 
 def get_prompt_rewrite_atomic_question(
-    init_question: str, task: Subtask, assumption: str, chain_of_subtasks: str
+    task: Subtask,
+    assumption: str,
+    chain_of_subtasks: str,
+    init_question: str,
 ) -> tuple[str, str]:
     """
     获得重写原子问题模板
@@ -132,7 +135,7 @@ def get_prompt_rewrite_atomic_question(
     user_prompt = (
         user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
         .replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]["answer"])
-        .replace("<<<init_question>>>", init_question)
+        .replace("<<<init_question>>>", str(init_question))
     )
 
     return system_prompt, user_prompt
@@ -172,7 +175,7 @@ def get_prompt_atomic_question(
     return system_prompt, user_prompt
 
 
-def get_prompt_summary(question: str) -> str:
+def get_prompt_summary() -> str:
     """
     获得问题总结模板
 
