@@ -113,11 +113,7 @@ def main():
             vote_res = future.result()
             if isinstance(vote_res, VoteResult):
                 vote_results.append(vote_res)
-                submit_result_list.append(
-                    vote_res.to_submit_json()
-                    if isinstance(vote_res, VoteResult)
-                    else vote_res
-                )
+                submit_result_list.append(vote_res.to_submit_json())
                 utils.save_submit_result(submit_result_list, out_path)
                 utils.save_solutions(vote_results, solution_path)
             else:
