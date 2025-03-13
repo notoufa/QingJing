@@ -23,7 +23,7 @@ def get_text_table(result: dict) -> str:
     table.set_deco(Texttable.HEADER)
 
     column_widths = [
-        10 if header not in ["csvTime", "check_current_presence"] else 20
+        10 if header not in ["csvTime", "current_status"] else 20
         for header in result.keys()
     ]
     table.set_cols_width(column_widths)
@@ -487,7 +487,7 @@ def get_actions_by_time_range(start_time, end_time):
         filtered_data = df[
             (df["csvTime"] >= start_time_dt)
             & (df["csvTime"] <= end_time_dt)
-            & (df["status"] != "False")
+            & (df["key_action"] != "False")
         ]
 
         if filtered_data.empty:
@@ -496,13 +496,13 @@ def get_actions_by_time_range(start_time, end_time):
                 "metadata": metadata,
             }
 
-        if "status" not in filtered_data.columns:
+        if "key_action" not in filtered_data.columns:
             return {
                 "error": f"数据表 {table_name} 中不存在 'status' 列",
                 "metadata": metadata,
             }
 
-        status_changes = filtered_data[["csvTime", "status"]].copy()
+        status_changes = filtered_data[["csvTime", "key_action"]].copy()
 
         status_changes["csvTime"] = status_changes["csvTime"].dt.strftime(
             "%Y-%m-%d %H:%M:%S"
@@ -705,100 +705,6 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         "metadata": metadata,
     }
 
-
-def get_running_duration_by_time_range(start_time, end_time, type, index=None):
-    """
-    根据开始时间和结束时间，查询设备在指定时间范围内的'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'。
-
-    :param start_time: 查询的开始时间（字符串或 datetime 类型）
-    :param end_time: 查询的结束时间（字符串或 datetime 类型）
-    :param type: 查询类型，'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'
-    :param index: 查询第几次
-    :return: 包含三种格式运行时长的字符串
-    """
-    metadata = {
-        "function_name": "get_running_duration_by_time_range",
-        "start_time": start_time,
-        "end_time": end_time,
-        "type": type,
-    }
-
-    device_config = {
-        "折臂吊车运行时长": (
-            f"{table_base_path}/折臂吊车与小艇动作表.csv",
-            "status",
-            "折臂吊车开机",
-            "折臂吊车关机",
-        ),
-        "A架运行时长": (
-            f"{table_base_path}/A架动作表.csv",
-            "status",
-            "A架开机",
-            "A架关机",
-        ),
-        "作业时长": (
-            f"{table_base_path}/艏推系统DP动作表.csv",
-            "status",
-            "ON DP",
-            "OFF DP",
-        ),
-        "A架实际运行时长": (
-            f"{table_base_path}/A架动作表.csv",
-            "check_current_presence",
-            "有电流",
-            "无电流",
-        ),
-    }
-
-    if type not in device_config:
-        return {
-            "error": f"未知的类型: {type}",
-            "metadata": metadata,
-        }
-
-    file_path, check_field_name, start_status, end_status = device_config[type]
-
-    df = pd.read_csv(file_path)
-
-    df["csvTime"] = pd.to_datetime(df["csvTime"])
-
-    start_time = start_time.replace("24:00:00", "23:59:59")
-    end_time = end_time.replace("24:00:00", "23:59:59")
-
-    start_time = pd.to_datetime(start_time)
-    end_time = pd.to_datetime(end_time)
-
-    df_filtered = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
-
-    total_duration = pd.Timedelta(0)
-    start_uptime = None
-    current_index = 0
-    current_duration = pd.Timedelta(0)
-    index_map = {}
-
-    for _, row in df_filtered.iterrows():
-        if row[check_field_name] == start_status:
-            start_uptime = row["csvTime"]
-        elif row[check_field_name] == end_status and start_uptime is not None:
-            end_uptime = row["csvTime"]
-            current_index += 1
-            current_duration = end_uptime - start_uptime
-            if current_index == index:
-                index_map[f"第{current_index}次{type}"] = convert_seconds(
-                    current_duration.total_seconds()
-                )
-            total_duration += current_duration
-            start_uptime = None
-
-    if not index:
-        index_map[f"总{type}"] = convert_seconds(total_duration.total_seconds())
-
-    return {
-        "result": index_map,
-        "metadata": metadata,
-    }
-
-
 def get_total_energy_generation_or_fuel_consumption_by_time_range(
     start_time: str,
     end_time: str,
@@ -946,7 +852,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
 
 
 def calculate_action_proportion(
-    start_time: str, end_time: str, action: str, time_point: str
+    start_time: str, end_time: str, key_action: str, time_point: str
 ):
     """
     计算指定时间段内指定动作在指定时间点前发生的比例
@@ -962,7 +868,7 @@ def calculate_action_proportion(
         "function_name": "calculate_action_proportion",
         "start_time": start_time,
         "end_time": end_time,
-        "action": action,
+        "action": key_action,
         "time_point": time_point,
     }
 
@@ -974,18 +880,18 @@ def calculate_action_proportion(
         year=start_dt.year, month=start_dt.month, day=start_dt.day
     )
 
-    if action not in action_table_configs.keys():
+    if key_action not in action_table_configs.keys():
         return {
-            "error": f"动作 {action} 不存在",
+            "error": f"动作 {key_action} 不存在",
             "metadata": metadata,
         }
 
     get_data_result = get_data_by_time_range(
-        action_table_configs[action],
+        action_table_configs[key_action],
         start_time,
         end_time,
         columns=["csvTime"],
-        conditions=[{"column": "status", "operator": "==", "value": action}],
+        conditions=[{"column": "key_action", "operator": "==", "value": key_action}],
     )
 
     print(get_data_result)
@@ -1534,7 +1440,6 @@ function_map: dict[str, callable] = {
     "get_actions_by_time_range": get_actions_by_time_range,
     "get_device_parameter_by_name": get_device_parameter_by_name,
     "get_total_energy_consumption_by_time_range": get_total_energy_consumption_by_time_range,
-    "get_running_duration_by_time_range": get_running_duration_by_time_range,
     "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
     "calculate_action_proportion": calculate_action_proportion,
     "calculate_math_operations": calculate_math_operations,

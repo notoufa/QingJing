@@ -11,6 +11,7 @@ from datetime import datetime
 import json
 import logger
 import traceback
+import shutil
 
 table_name_map = {
     "Ajia_plc_1.csv": "A架动作表.csv",
@@ -22,27 +23,37 @@ data_path = "devlop_data/assets/复赛数据/"
 output_path = "devlop_data/data"
 
 os.makedirs(output_path, exist_ok=True)
+logger.init()
+
+key_action_field = "key_action"
+no_key_action_flag = "False"
+running_status_field = "running_status"
+stage_field = "stage"
+no_stage_field = "False"
+current_status_field = "current_status"
+no_current_status_flag = "False"
+running_flag = "开机运行中"
+not_running_flag = "未运行"
 
 
 # In[ ]:
 
 
 # 合并数据
-import shutil
-
 def cp_csv_files(input_path, out_path):
     for file_name in os.listdir(input_path):
         if file_name.endswith(".csv") and "字段释义" not in file_name:
             src = os.path.join(input_path, file_name)
             dst = os.path.join(out_path, file_name)
-            
+
             df = pd.read_csv(src)
-            if 'csvTime' in df.columns:
+            if "csvTime" in df.columns:
                 df = df.sort_values(by="csvTime").reset_index(drop=True)
-            
+
             df.to_csv(dst, index=False)
-            print(f"已排序并复制文件 {src} -> {dst}")
-    
+            logger.info(f"已排序并复制文件 {src} -> {dst}")
+
+
 cp_csv_files(data_path, output_path)
 
 
@@ -51,7 +62,6 @@ cp_csv_files(data_path, output_path)
 
 # 判定A架的开关机和有无电流
 table_key = "Ajia_plc_1.csv"
-logger.init()
 
 
 def convert_to_numeric(value):
@@ -67,13 +77,11 @@ def convert_to_numeric(value):
 logger.special("开始判定A架开关机和有无电流")
 
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
 df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
-df["status"] = "False"
-df["check_current_presence"] = "False"
-df["work_status"] = "未工作"
+df[key_action_field] = no_key_action_flag
+df[running_status_field] = not_running_flag
+df[current_status_field] = no_current_status_flag
 have_boot = -1
 not_have_boot = -1
 
@@ -84,37 +92,37 @@ for i in range(1, df.shape[0]):
     curr_ajia5 = df.loc[i, "Ajia-5_v"]
 
     # 停电条件：当前 Ajia-5_v == -1，且前一时刻 Ajia-5_v > 0 或 0
-    if curr_ajia5 == -1 and (prev_ajia5 >= 0):
-        df.loc[i, "status"] = "停电"
+    # if curr_ajia5 == -1 and (prev_ajia5 >= 0):
+    #     df.loc[i, key_action_field] = "停电"
 
     # A架开机条件：前一时刻 Ajia-3_v == -1，且当前 Ajia-3_v >= 0
     if prev_ajia3 == -1 and curr_ajia3 >= 0:
-        df.loc[i, "status"] = "A架开机"
+        df.loc[i, key_action_field] = "A架开机"
         have_boot = i
     if prev_ajia5 == -1 and curr_ajia5 >= 0:
-        df.loc[i, "status"] = "A架开机"
+        df.loc[i, key_action_field] = "A架开机"
         have_boot = i
 
     # A架关机条件：当前 Ajia-3_v == -1，且前一时刻 Ajia-3_v >= 0
     if curr_ajia3 == -1 and prev_ajia3 >= 0:
-        df.loc[i, "status"] = "A架关机"
+        df.loc[i, key_action_field] = "A架关机"
         not_have_boot = i
     if curr_ajia5 == -1 and prev_ajia5 >= 0:
-        df.loc[i, "status"] = "A架关机"
+        df.loc[i, key_action_field] = "A架关机"
         not_have_boot = i
 
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot + 1):
-            df.loc[j, "work_status"] = "开机工作中"
+            df.loc[j, running_status_field] = running_flag
         have_boot = -1
         not_have_boot = -1
 
     # 有电流条件：前一时刻有一个或全部为0，下一刻均不为0
     if (prev_ajia3 <= 0 or prev_ajia5 <= 0) and (curr_ajia3 > 0 and curr_ajia5 > 0):
-        df.loc[i, "check_current_presence"] = "有电流"
+        df.loc[i, current_status_field] = "有电流"
     # 无电流条件：前一时刻均不为0，下一刻有一个或全部为0
     elif prev_ajia3 > 0 and prev_ajia5 > 0 and (curr_ajia3 <= 0 or curr_ajia5 <= 0):
-        df.loc[i, "check_current_presence"] = "无电流"
+        df.loc[i, current_status_field] = "无电流"
 
 logger.success("A架开关机和有无电流判定完成")
 
@@ -262,9 +270,9 @@ start_time = None
 segments = []
 
 for index, row in df.iterrows():
-    if row["status"] == "A架开机":
+    if row[key_action_field] == "A架开机":
         start_time = row["csvTime"]
-    elif row["status"] == "A架关机" and start_time is not None:
+    elif row[key_action_field] == "A架关机" and start_time is not None:
         end_time = row["csvTime"]
         segments.append((start_time, end_time))
         start_time = None
@@ -397,9 +405,9 @@ def extract_daily_power_on_times(df):
         start_time = None
 
         for index, row in group.iterrows():
-            if row["status"] == "A架开机":
+            if row[key_action_field] == "A架开机":
                 start_time = row["csvTime"]
-            elif row["status"] == "A架关机" and start_time is not None:
+            elif row[key_action_field] == "A架关机" and start_time is not None:
                 end_time = row["csvTime"]
                 segments.append((start_time, end_time))
                 start_time = None
@@ -525,8 +533,8 @@ def extract_peak_pattern(current_presence_data):
             event_end = current_presence_data.iloc[i + 1]
             # 确保第一个事件是“有电流”，第二个事件是“无电流”
             if (
-                event_start["check_current_presence"] == "有电流"
-                and event_end["check_current_presence"] == "无电流"
+                event_start[current_status_field] == "有电流"
+                and event_end[current_status_field] == "无电流"
             ):
                 event_start_time = event_start["csvTime"]
                 event_end_time = event_end["csvTime"]
@@ -580,7 +588,7 @@ for segment in segments:
     current_presence_data = df[
         (df["csvTime"] >= start)
         & (df["csvTime"] <= end)
-        & (df["check_current_presence"].isin(["有电流", "无电流"]))
+        & (df[current_status_field].isin(["有电流", "无电流"]))
     ]
     peak_pattern = extract_peak_pattern(current_presence_data)
     logger.info(f"【处理时间段】区间类型：{peak_pattern}")
@@ -614,24 +622,24 @@ for segment in segments:
         indices = between_data.index[
             between_data["Ajia-5_v"] == first_increasing_value
         ].tolist()
-        df.loc[indices, "status"] = "征服者起吊"
+        df.loc[indices, key_action_field] = "征服者起吊"
         # 缆绳解除：电流从高值回落至稳定值（50多），取50
         stable_value = find_stable_value(
             ajia_5_data, ajia_3_data, peak_L[len_peaks - 2], peak_L[len_peaks - 1]
         )
         indices = between_data.index[between_data["Ajia-5_v"] == stable_value].tolist()
-        df.loc[indices, "status"] = "缆绳解除"
+        df.loc[indices, key_action_field] = "缆绳解除"
         # 征服者入水：缆绳解除的时间点往前推一分钟
         previous_indices = [idx - 1 for idx in indices if idx > 0]
-        df.loc[previous_indices, "status"] = "征服者入水"
+        df.loc[previous_indices, key_action_field] = "征服者入水"
         # A架摆回：征服者入水后，电流重新增加到峰值（最大值点）
         indices = between_data.index[
             between_data["Ajia-5_v"] == peak_L[len_peaks - 1]
         ].tolist()
-        df.loc[indices, "status"] = "A架摆回"
-        df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-        df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
+        df.loc[indices, key_action_field] = "A架摆回"
+        df.loc[df["csvTime"] == start, stage_field] = "布放阶段开始"
+        df.loc[df["csvTime"] == end, stage_field] = "布放阶段结束"
+        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "布放阶段中"
     elif peak_pattern == [1, 2] or peak_pattern == [1, 1]:
         # 回收阶段
         logger.info(f"【处理时间段】回收阶段")
@@ -647,7 +655,7 @@ for segment in segments:
         # A架摆出：征服者起吊前，电流到达峰值（取峰值）
         first_increasing_value = find_first_increasing_value(ajia_5_data)
         indices = between_data.index[between_data["Ajia-5_v"] == peak_L[0]].tolist()
-        df.loc[indices, "status"] = "A架摆出"
+        df.loc[indices, key_action_field] = "A架摆出"
         # 第二个事件对
         event_start_time = current_presence_data.iloc[2]["csvTime"]
         event_end_time = current_presence_data.iloc[3]["csvTime"]
@@ -661,19 +669,19 @@ for segment in segments:
 
         # 征服者出水：电流峰值（取峰值）
         indices = between_data.index[between_data["Ajia-5_v"] == max_value].tolist()
-        df.loc[indices, "status"] = "征服者出水"
+        df.loc[indices, key_action_field] = "征服者出水"
         # 缆绳挂妥：征服者出水往前推一分钟
         previous_indices = [idx - 1 for idx in indices if idx > 0]
-        df.loc[previous_indices, "status"] = "缆绳挂妥"
+        df.loc[previous_indices, key_action_field] = "缆绳挂妥"
         # 征服者落座：电流从高值回落至稳定值（50多）（取50）
         first_stable_after_peak = find_first_stable_after_peak(ajia_5_data, max_value)
         indices = between_data.index[
             between_data["Ajia-5_v"] == first_stable_after_peak
         ].tolist()
-        df.loc[indices, "status"] = "征服者落座"
-        df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
-        df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
-        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
+        df.loc[indices, key_action_field] = "征服者落座"
+        df.loc[df["csvTime"] == start, stage_field] = "回收阶段开始"
+        df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
+        df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
     elif len(peak_pattern) > 0:
         LLM_predict_count += 1
         LLM_predict_results[LLM_predict_count] = PredictResult(start, end)
@@ -719,42 +727,42 @@ for segment in segments:
                 indices = segment_data.index[
                     segment_data["predict_column"] == a
                 ].tolist()
-                df.loc[indices, "status"] = "征服者起吊"
+                df.loc[indices, key_action_field] = "征服者起吊"
 
                 indices = segment_data.index[
                     segment_data["predict_column"] == b
                 ].tolist()
-                df.loc[indices, "status"] = "缆绳解除"
+                df.loc[indices, key_action_field] = "缆绳解除"
                 previous_indices = [idx - 1 for idx in indices if idx > 0]
-                df.loc[previous_indices, "status"] = "征服者入水"
+                df.loc[previous_indices, key_action_field] = "征服者入水"
 
                 indices = segment_data.index[
                     segment_data["predict_column"] == c
                 ].tolist()
-                df.loc[indices, "status"] = "A架摆回"
-                df.loc[df["csvTime"] == start, "work_status"] = "布放阶段开始"
-                df.loc[df["csvTime"] == end, "work_status"] = "布放阶段结束"
-                df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "布放阶段中"
+                df.loc[indices, key_action_field] = "A架摆回"
+                df.loc[df["csvTime"] == start, stage_field] = "布放阶段开始"
+                df.loc[df["csvTime"] == end, stage_field] = "布放阶段结束"
+                df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "布放阶段中"
             else:
                 indices = segment_data.index[
                     segment_data["predict_column"] == a
                 ].tolist()
-                df.loc[indices, "status"] = "A架摆出"
+                df.loc[indices, key_action_field] = "A架摆出"
 
                 indices = segment_data.index[
                     segment_data["predict_column"] == b
                 ].tolist()
-                df.loc[indices, "status"] = "征服者出水"
+                df.loc[indices, key_action_field] = "征服者出水"
                 previous_indices = [idx - 1 for idx in indices if idx > 0]
-                df.loc[previous_indices, "status"] = "缆绳挂妥"
+                df.loc[previous_indices, key_action_field] = "缆绳挂妥"
 
                 indices = segment_data.index[
                     segment_data["predict_column"] == c
                 ].tolist()
-                df.loc[indices, "status"] = "征服者落座"
-                df.loc[df["csvTime"] == start, "work_status"] = "回收阶段开始"
-                df.loc[df["csvTime"] == end, "work_status"] = "回收阶段结束"
-                df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), "work_status"] = "回收阶段中"
+                df.loc[indices, key_action_field] = "征服者落座"
+                df.loc[df["csvTime"] == start, stage_field] = "回收阶段开始"
+                df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
+                df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
 
         if is_hour_greater_than_12 or is_hour_smaller_than_2 or (first_value in second_start_times):
             predict(segment_data, False)
@@ -794,26 +802,24 @@ logger.success("A架数据保存成功")
 table_key = "Port3_ksbg_9.csv"
 logger.special("开始判定ON DP和OFF DP")
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
-df["status"] = "False"
-df["work_status"]= "未开机"
+df[key_action_field] = no_key_action_flag
+df[running_status_field]= not_running_flag
 have_boot = -1
 not_have_boot = -1
 
 for i in range(1, df.shape[0]):
     # ON DP
     if df.loc[i - 1, "P3_33"] == 0 and df.loc[i, "P3_33"] > 0:
-        df.loc[i, "status"] = "ON DP"
+        df.loc[i, key_action_field] = "ON DP"
         have_boot = i
     # OFF DP
     if df.loc[i - 1, "P3_33"] > 0 and df.loc[i, "P3_33"] == 0:
-        df.loc[i, "status"] = "OFF DP"
+        df.loc[i, key_action_field] = "OFF DP"
         not_have_boot = i
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot):
-            df.loc[j, "work_status"] = "开机工作中"
+            df.loc[j, running_status_field] = running_flag
         have_boot = -1
         not_have_boot = -1
         
@@ -825,18 +831,44 @@ logger.success("ON DP和OFF DP数据保存成功")
 # In[ ]:
 
 
+# 处理发电机运行时长
+logger.special("开始处理发电机运行时长")
+dynamo_run_map = {
+    f"No_1_{running_status_field}": ("Port1_ksbg_3.csv", "P1_88.14"),
+    f"No_2_{running_status_field}": ("Port1_ksbg_4.csv", "P1_90.5"),
+    f"No_3_{running_status_field}": ("Port2_ksbg_3.csv", "P2_73.8"),
+    f"No_4_{running_status_field}": ("Port2_ksbg_3.csv", "P2_74.15"),
+}
+
+
+def mark_dynamo_run_status(data, field, run_status):
+    data[run_status] = not_running_flag
+    for i in range(0, data.shape[0]):
+        if data.loc[i, field] == 1:
+            data.loc[i, run_status] = running_flag
+    return data
+
+
+for run_status, (table_name, field) in dynamo_run_map.items():
+    df = pd.read_csv(os.path.join(output_path, table_name))
+    if field in df.columns:
+        df = mark_dynamo_run_status(df, field, run_status)
+        df.to_csv(os.path.join(output_path, table_name), index=False)
+        logger.special(f"已处理 {table_name} 的 {field} 字段，标注 {run_status} 状态")
+
+
+# In[ ]:
+
+
 # 处理折臂吊车
 from collections import Counter
 table_key = "device_13_11_meter_1311.csv"
 
 logger.special("开始判定折臂吊车关键动作")
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
-df["status"] = "False"
-df["action"] = "False"
-
+df[key_action_field] = no_key_action_flag
+df[stage_field] = "False"
 
 def sliding_window_5(arr):
     """滑动窗口大小为5的逻辑"""
@@ -887,37 +919,37 @@ df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
 logger.success("【处理折臂吊车】滑动窗口逻辑应用完成")
 
 logger.info("【处理折臂吊车】开始判定折臂吊车的开机和关机事件")
-df["work_status"]= "未工作"
+df[running_status_field]= "未运行"
 have_boot = -1
 not_have_boot = -1
 for i in range(1, df.shape[0]):
     # 开机
     if df.iloc[i - 1]["13-11-6_v"] == 0 and df.iloc[i]["13-11-6_v"] > 0:
-        df.at[df.index[i], "status"] = "折臂吊车开机"
+        df.at[df.index[i], key_action_field] = "折臂吊车开机"
         have_boot = i
     # 关机
     if df.iloc[i - 1]["13-11-6_v"] > 0 and df.iloc[i]["13-11-6_v"] == 0:
-        df.at[df.index[i], "status"] = "折臂吊车关机"
+        df.at[df.index[i], key_action_field] = "折臂吊车关机"
         not_have_boot = i
     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
         for j in range(have_boot, not_have_boot+1):
-            df.loc[j, "work_status"] = "开机工作中"
+            df.loc[j, running_status_field] = running_flag
         have_boot = -1
         not_have_boot = -1
     # 检测由待机进入工作和由工作进入待机的事件
     if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] > 10:
-        df.at[df.index[i], "action"] = "由待机进入工作"
+        df.at[df.index[i], stage_field] = "由待机进入工作"
     if df.iloc[i - 1]["13-11-6_v_new"] > 10 and df.iloc[i]["13-11-6_v_new"] < 10:
-        df.at[df.index[i], "action"] = "由工作进入待机"
+        df.at[df.index[i], stage_field] = "由工作进入待机"
 logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
 
 logger.info("【处理折臂吊车】根据折臂吊车的开机和关机事件划分时间段")
 segments = []
 start_time = None
 for index, row in df.iterrows():
-    if row["status"] == "折臂吊车开机":
+    if row[key_action_field] == "折臂吊车开机":
         start_time = row["csvTime"]
-    elif row["status"] == "折臂吊车关机" and start_time is not None:
+    elif row[key_action_field] == "折臂吊车关机" and start_time is not None:
         end_time = row["csvTime"]
         segments.append((start_time, end_time))
         start_time = None
@@ -938,7 +970,7 @@ for segment in segments:
     actions_data = df[
         (df["csvTime"] >= start)
         & (df["csvTime"] <= end)
-        & (df["action"].isin(["由待机进入工作", "由工作进入待机"]))
+        & (df[stage_field].isin(["由待机进入工作", "由工作进入待机"]))
     ]
     segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
     # 检查事件数量是否为偶数且等于6
@@ -962,8 +994,8 @@ for segment in segments:
             event_end = actions_data.iloc[i + 1]
 
             if (
-                event_start["action"] == "由待机进入工作"
-                and event_end["action"] == "由工作进入待机"
+                event_start[stage_field] == "由待机进入工作"
+                and event_end[stage_field] == "由工作进入待机"
             ):
                 event_start_time = event_start["csvTime"]
                 event_end_time = event_end["csvTime"]
@@ -985,11 +1017,11 @@ for segment in segments:
                     # 根据事件对的顺序更新status
                     if last_index is not None:
                         if i == 0:
-                            df.loc[last_index, "status"] = "小艇检查完毕"
+                            df.loc[last_index, key_action_field] = "小艇检查完毕"
                         elif i == 2:
-                            df.loc[last_index, "status"] = "小艇入水"
+                            df.loc[last_index, key_action_field] = "小艇入水"
                         elif i == 4:
-                            df.loc[last_index, "status"] = "小艇落座"
+                            df.loc[last_index, key_action_field] = "小艇落座"
                 else:
                     logger.info("列表中没有大于 9 的值")
     if actions_data.shape[0] == 4:
@@ -998,8 +1030,8 @@ for segment in segments:
             event_start = actions_data.iloc[i]
             event_end = actions_data.iloc[i + 1]
             if (
-                event_start["action"] == "由待机进入工作"
-                and event_end["action"] == "由工作进入待机"
+                event_start[stage_field] == "由待机进入工作"
+                and event_end[stage_field] == "由工作进入待机"
             ):
                 event_start_time = event_start["csvTime"]
                 event_end_time = event_end["csvTime"]
@@ -1021,16 +1053,16 @@ for segment in segments:
                     # 根据事件对的顺序更新status
                     if (
                         last_index is not None
-                        and df.loc[last_index, "status"] == "False"
+                        and df.loc[last_index, key_action_field] == "False"
                     ):
                         if i == 0:
-                            df.loc[last_index, "status"] = "小艇入水"
+                            df.loc[last_index, key_action_field] = "小艇入水"
                         elif i == 2:
-                            df.loc[last_index, "status"] = "小艇落座"
+                            df.loc[last_index, key_action_field] = "小艇落座"
                 else:
                     print("列表中没有大于 9 的值")
                 # 保存结果
-# df = df.drop(columns=['action'])
+# df = df.drop(columns=[stage_field])
 df = df.drop(columns=['13-11-6_v_new'])
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)

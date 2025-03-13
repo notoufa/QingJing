@@ -273,47 +273,6 @@
     {
         "type": "function",
         "function": {
-            "name": "get_running_duration_by_time_range",
-            "description": "查询指定时间段内折臂吊车运行时长、A架运行时长、A架实际运行时长或作业时长。返回三种格式（秒，分，时）的时长结果。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "start_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "查询的开始时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 00:00:00'。"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。"
-                    },
-                    "type": {
-                        "type": "string",
-                        "description": "查询类型，支持以下值：'折臂吊车运行时长'、'A架运行时长'、'A架实际运行时长'、'作业时长'。",
-                        "enum": [
-                            "折臂吊车运行时长",
-                            "A架运行时长",
-                            "A架实际运行时长",
-                            "作业时长"
-                        ]
-                    },
-                    "index": {
-                        "type": "number",
-                        "description": "查询第几次运行时长，不填则为时间段内的全部运行时长"
-                    }
-                },
-                "required": [
-                    "start_time",
-                    "end_time",
-                    "type"
-                ]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
             "description": "查询指定时间段内的理论发电量、实际发电量或燃油消耗量。返回值为理论发电量（kWh，float 类型）、实际发电量（kWh，float 类型）或燃油消耗量（L，float 类型）。",
             "parameters": {
@@ -383,7 +342,7 @@
                         "type": "string",
                         "description": "时间段结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
                     },
-                    "action": {
+                    "key_action": {
                         "type": "string",
                         "description": "需要计算比例的动作名称，支持以下值：A架开机、ON DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座"
                     },
@@ -395,7 +354,7 @@
                 "required": [
                     "start_time",
                     "end_time",
-                    "action",
+                    "key_action",
                     "time_point"
                 ]
             }
