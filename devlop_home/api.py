@@ -371,10 +371,10 @@ def rewrite_atomic_question(decomposition: Decomposition, task: Subtask, init_qu
     """
     logger.debug("【开始重写原子问题】", task.question)
     system_prompt, user_prompt = prompts.get_prompt_rewrite_atomic_question(
-        init_question,
         task,
         decomposition.assumption,
         decomposition.chain_of_subtasks,
+        init_question,
     )
     messages = [
         {

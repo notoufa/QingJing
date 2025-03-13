@@ -47,6 +47,10 @@ def cp_csv_files(input_path, out_path):
             dst = os.path.join(out_path, file_name)
 
             df = pd.read_csv(src)
+
+            if df.columns[0] == "Unnamed: 0":
+                df.rename(columns={df.columns[0]: "index"}, inplace=True)
+
             if "csvTime" in df.columns:
                 df = df.sort_values(by="csvTime").reset_index(drop=True)
 

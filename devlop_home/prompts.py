@@ -103,7 +103,10 @@ def get_prompt_vote() -> str:
 
 
 def get_prompt_rewrite_atomic_question(
-    init_question: str, task: Subtask, assumption: str, chain_of_subtasks: str
+    task: Subtask,
+    assumption: str,
+    chain_of_subtasks: str,
+    init_question: str,
 ) -> tuple[str, str]:
     """
     获得重写原子问题模板
@@ -170,7 +173,7 @@ def get_prompt_atomic_question(
     return system_prompt, user_prompt
 
 
-def get_prompt_summary(question: str) -> str:
+def get_prompt_summary() -> str:
     """
     获得问题总结模板
 
