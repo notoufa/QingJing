@@ -20,38 +20,36 @@ def handle_question(query):
     预处理问题
     """
     replace_dict = {
+        "运行时间定义为发电机在额定转速下的运行时间，额定转速运行值为1表示发电机运行了1分钟。": "",
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
         "开机时长": "运行时长",
-        "开机总时长": "运行总时长",
+        "开机总时长": "总运行时长",
         "从征服者出水（约-43°）到落座（约35°）A架右舷摆过的角度可以记为一次完整的摆动（反之亦然），": "",
         "假设A架右舷同一方向上摆动超过10°即可算作一次摆动，": "同方向摆动，",
-        "运行时间定义为发电机在额定转速下的运行时间，额定转速运行值为1表示发电机运行了1分钟。": "",
+        "发电机的运行时间": "发电机的运行时长",
     }
     for key, value in replace_dict.items():
         query = query.replace(key, value)
     return query
 
 
-def process_one(line: dict, answer_list: list[dict] = None) -> VoteResult | dict:
+def process_one(line: dict) -> VoteResult | dict:
     """
     获取一个问题的解决过程及答案
     """
     id = line["id"]
     question = handle_question(line["question"])
-    # if id != "gysxdmx_00001":
-    #     return {"id": id, "question": question, "answer": question}
-    # answer = None
-    if answer_list:
-        for item in answer_list:
-            if item["id"] == id:
-                answer = item["answer"]
-                if isinstance(answer, dict):
-                    answer = json.dumps(answer, ensure_ascii=False)
-                if not answer:
-                    answer = ''
-                break
-    return {"id": id, "question": question, "answer": answer}
+
+    with open(answer_filepath, "r", encoding="utf-8") as f:
+        answer_list = [json.loads(line.strip()) for line in f]
+    answer = None
+    for item in answer_list:
+        if item["id"] == id:
+            answer = item["answer"]
+            break
+    return {"id": id, "question": question, "answer": utils.strtify(answer)}
+
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
@@ -94,9 +92,6 @@ def main():
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
 
-    with open(answer_filepath, "r", encoding="utf-8") as f:
-        answer_list = [json.loads(line.strip()) for line in f]
-
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
         f"【问题总数】: {len(question_list)},",
@@ -109,9 +104,7 @@ def main():
     submit_result_list = []
 
     with cf.ThreadPoolExecutor(max_workers=20) as executor:
-        future_list = [
-            executor.submit(process_one, item, answer_list) for item in question_list
-        ]
+        future_list = [executor.submit(process_one, item) for item in question_list]
         for future in cf.as_completed(future_list):
             vote_res = future.result()
             if isinstance(vote_res, VoteResult):

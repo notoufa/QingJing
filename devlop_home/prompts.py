@@ -48,7 +48,7 @@ def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
                     knowledge += f"（示例：{item['example']}）"
                 knowledge_set.add(knowledge)
     if log:
-        logger.debug("【背景知识】\n", "\n".join(list(knowledge_set)))
+        logger.debug("【背景知识】\n", "\n".join(list(knowledge_set)), sep="")
     return list(knowledge_set)
 
 
