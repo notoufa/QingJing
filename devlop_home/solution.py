@@ -524,6 +524,8 @@ class VoteResult:
         answer_str = self.final_reasoning_answer.get_correct_answer()
         if isinstance(answer_str, dict):
             answer_str = json.dumps(answer_str, ensure_ascii=False)
+        else:
+            answer_str = str(answer_str)
         return {
             "id": self.id,
             "question": self.question,

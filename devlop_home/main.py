@@ -38,17 +38,19 @@ def process_one(line: dict, answer_list: list[dict] = None) -> VoteResult | dict
     """
     id = line["id"]
     question = handle_question(line["question"])
-    if id != "gysxdmx_00001":
-        return {"id": id, "question": question, "answer": question}
+    # if id != "gysxdmx_00001":
+    #     return {"id": id, "question": question, "answer": question}
     # answer = None
-    # if answer_list:
-    #     for item in answer_list:
-    #         if item["id"] == id:
-    #             answer = item["answer"]
-    #             if isinstance(answer, dict):
-    #                 answer = json.dumps(answer, ensure_ascii=False)
-    #             break
-    # return {"id": id, "question": question, "answer": answer}
+    if answer_list:
+        for item in answer_list:
+            if item["id"] == id:
+                answer = item["answer"]
+                if isinstance(answer, dict):
+                    answer = json.dumps(answer, ensure_ascii=False)
+                if not answer:
+                    answer = ''
+                break
+    return {"id": id, "question": question, "answer": answer}
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
