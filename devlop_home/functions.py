@@ -894,8 +894,15 @@ def calculate_action_proportion(
         conditions=[{"column": "key_action", "operator": "==", "value": key_action}],
     )
 
-    print(get_data_result)
-    table_data = get_data_result["result"]
+    try:
+        logger.info("【calculate_action_proportion中间结果】", get_data_result)
+        table_data = get_data_result["result"]
+    except:
+        return {
+            "result": 0,
+            "unit": "%",
+            "metadata": metadata,
+        }
 
     before_count = 0
     total_count = 0
