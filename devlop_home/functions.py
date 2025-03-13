@@ -538,7 +538,7 @@ def get_device_parameter_by_name(parameter_name_cn):
         "parameter_name_cn": parameter_name_cn,
     }
 
-    df = pd.read_csv("{table_base_path}/设备参数详情表.csv")
+    df = pd.read_csv(f"{table_base_path}/设备参数详情.csv")
     if not df["Channel_Text_CN"].str.contains(parameter_name_cn).any():
         return {
             "error": f"未找到包含 '{parameter_name_cn}' 的参数中文名",

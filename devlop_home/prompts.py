@@ -48,7 +48,7 @@ def get_knowledge_by_question(question: str, log: bool = True) -> list[str]:
                     knowledge += f"（示例：{item['example']}）"
                 knowledge_set.add(knowledge)
     if log:
-        logger.debug("【背景知识】\n", "\n".join(list(knowledge_set)))
+        logger.debug("【背景知识】\n", "\n".join(list(knowledge_set)), sep="")
     return list(knowledge_set)
 
 
@@ -129,9 +129,11 @@ def get_prompt_rewrite_atomic_question(
     已知上游任务执行结果：<<parent_tasks_desc>>
     """
 
-    user_prompt = user_prompt.replace(
-        "<<question>>", f"【子任务{task.task_id}】{question}"
-    ).replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]['answer']).replace("<<<init_question>>>", init_question)
+    user_prompt = (
+        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+        .replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]["answer"])
+        .replace("<<<init_question>>>", init_question)
+    )
 
     return system_prompt, user_prompt
 

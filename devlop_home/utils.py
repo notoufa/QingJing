@@ -53,6 +53,13 @@ def check_api_key(api_key_env: str) -> str:
         )
     return api_key
 
+def strtify(obj):
+    """
+    将对象转换为字符串
+    """
+    if isinstance(obj, dict):
+        return json.dumps(obj, ensure_ascii=False)
+    return str(obj)
 
 def parse_res(response):
     """

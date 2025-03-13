@@ -52,12 +52,14 @@ def handle_question(query):
     预处理问题
     """
     replace_dict = {
+        "运行时间定义为发电机在额定转速下的运行时间，额定转速运行值为1表示发电机运行了1分钟。": "",
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
         "开机时长": "运行时长",
-        "开机总时长": "运行总时长",
+        "开机总时长": "总运行时长",
         "从征服者出水（约-43°）到落座（约35°）A架右舷摆过的角度可以记为一次完整的摆动（反之亦然），": "",
         "假设A架右舷同一方向上摆动超过10°即可算作一次摆动，": "同方向摆动，",
+        "发电机的运行时间": "发电机的运行时长",
     }
     for key, value in replace_dict.items():
         query = query.replace(key, value)
@@ -76,6 +78,7 @@ def process_one(line: dict) -> VoteResult | dict:
         logger.special(
             f"【{id}的最终答案】:\n",
             vote_res.final_reasoning_answer.get_correct_answer(),
+            sep="",
         )
         return vote_res
     except Exception as e:
