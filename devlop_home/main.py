@@ -41,14 +41,14 @@ def process_one(line: dict) -> VoteResult | dict:
     id = line["id"]
     question = handle_question(line["question"])
 
-    with open(answer_filepath, "r", encoding="utf-8") as f:
-        answer_list = [json.loads(line.strip()) for line in f]
-    answer = None
-    for item in answer_list:
-        if item["id"] == id:
-            answer = item["answer"]
-            break
-    return {"id": id, "question": question, "answer": utils.strtify(answer)}
+    # with open(answer_filepath, "r", encoding="utf-8") as f:
+    #     answer_list = [json.loads(line.strip()) for line in f]
+    # answer = None
+    # for item in answer_list:
+    #     if item["id"] == id:
+    #         answer = item["answer"]
+    #         break
+    # return {"id": id, "question": question, "answer": utils.strtify(answer)}
 
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)

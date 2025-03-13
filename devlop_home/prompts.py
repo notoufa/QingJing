@@ -132,9 +132,11 @@ def get_prompt_rewrite_atomic_question(
     已知上游任务执行结果：<<parent_tasks_desc>>
     """
 
-    user_prompt = user_prompt.replace(
-        "<<question>>", f"【子任务{task.task_id}】{question}"
-    ).replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]['answer']).replace("<<init_question>>", init_question)
+    user_prompt = (
+        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+        .replace("<<parent_tasks_desc>>", task.get_parent_tasks_desc()[0]["answer"])
+        .replace("<<init_question>>", str(init_question))
+    )
 
     return system_prompt, user_prompt
 
