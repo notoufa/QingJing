@@ -35,8 +35,13 @@ def cp_csv_files(input_path, out_path):
         if file_name.endswith(".csv") and "字段释义" not in file_name:
             src = os.path.join(input_path, file_name)
             dst = os.path.join(out_path, file_name)
-            shutil.copy(src, dst)
-            print(f"复制文件 {src} -> {dst}")
+            
+            df = pd.read_csv(src)
+            if 'csvTime' in df.columns:
+                df = df.sort_values(by="csvTime").reset_index(drop=True)
+            
+            df.to_csv(dst, index=False)
+            print(f"已排序并复制文件 {src} -> {dst}")
     
 cp_csv_files(data_path, output_path)
 
@@ -45,8 +50,9 @@ cp_csv_files(data_path, output_path)
 
 
 # 判定A架的开关机和有无电流
-table_key="Ajia_plc_1.csv"
+table_key = "Ajia_plc_1.csv"
 logger.init()
+
 
 def convert_to_numeric(value):
     """
@@ -61,7 +67,8 @@ def convert_to_numeric(value):
 logger.special("开始判定A架开关机和有无电流")
 
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by='csvTime')
+df = df.sort_values(by="csvTime")
+df.reset_index(drop=True, inplace=True)
 df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
 df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
 df["status"] = "False"
@@ -112,7 +119,7 @@ for i in range(1, df.shape[0]):
 logger.success("A架开关机和有无电流判定完成")
 
 
-# In[4]:
+# In[ ]:
 
 
 # 处理A架角度数据
@@ -221,7 +228,7 @@ logger.success("A架角度范围处理完成")
 # logger.success("处理完成")
 
 
-# In[5]:
+# In[ ]:
 
 
 # 检查Ajia-0_v摆动至最小值和最大值
@@ -246,7 +253,7 @@ def check_ajia_0_v_extremes(df):
 # df["ajia_0_v_extremes"] = check_ajia_0_v_extremes(df)
 
 
-# In[6]:
+# In[ ]:
 
 
 # 根据开关机事件，将A架数据分为若干段
@@ -267,7 +274,7 @@ for i, (start_time, end_time) in enumerate(segments):
     logger.info(f"第{i+1}段：{start_time} - {end_time}")
 
 
-# In[7]:
+# In[ ]:
 
 
 # 让LLM预测不好判断的动作
@@ -364,7 +371,7 @@ def get_predict_result(L_sequence, is_xiafang: bool):
             return -100, -100, -100
 
 
-# In[8]:
+# In[ ]:
 
 
 # 判断A架关键动作的辅助函数
@@ -539,7 +546,7 @@ def extract_peak_pattern(current_presence_data):
     return peak_pattern
 
 
-# In[9]:
+# In[ ]:
 
 
 # 判定A架的关键动作
@@ -757,7 +764,7 @@ for segment in segments:
     logger.success(f"【处理时间段完成】开机时间: {start}, 关机时间: {end}")
 
 
-# In[10]:
+# In[ ]:
 
 
 print("LLM预测总数：", LLM_predict_count)
@@ -768,7 +775,7 @@ with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
         f.write(f"{key}: {value}\n")
 
 
-# In[11]:
+# In[ ]:
 
 
 # 保存A架数据
@@ -780,13 +787,15 @@ df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("A架数据保存成功")
 
 
-# In[12]:
+# In[ ]:
 
 
 # 判定ON DP和OFF DP
 table_key = "Port3_ksbg_9.csv"
 logger.special("开始判定ON DP和OFF DP")
 df = pd.read_csv(os.path.join(output_path, table_key))
+df = df.sort_values(by="csvTime")
+df.reset_index(drop=True, inplace=True)
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
 df["status"] = "False"
 df["work_status"]= "未开机"
@@ -822,6 +831,8 @@ table_key = "device_13_11_meter_1311.csv"
 
 logger.special("开始判定折臂吊车关键动作")
 df = pd.read_csv(os.path.join(output_path, table_key))
+df = df.sort_values(by="csvTime")
+df.reset_index(drop=True, inplace=True)
 df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
 df["status"] = "False"
 df["action"] = "False"
