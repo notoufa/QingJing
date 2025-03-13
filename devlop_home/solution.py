@@ -3,6 +3,7 @@
 """
 
 import copy
+import json
 
 import logger
 
@@ -520,8 +521,11 @@ class VoteResult:
 
     def to_submit_json(self):
         """返回一个字典表示，用于提交"""
+        answer_str = self.final_reasoning_answer.get_correct_answer()
+        if isinstance(answer_str, dict):
+            answer_str = json.dumps(answer_str, ensure_ascii=False)
         return {
             "id": self.id,
             "question": self.question,
-            "answer": self.final_reasoning_answer.get_correct_answer(),
+            "answer": answer_str,
         }

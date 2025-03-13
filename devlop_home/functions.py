@@ -92,11 +92,21 @@ def get_data_by_time_range(
         start_time.minute == end_time.minute
         and start_time.hour == end_time.hour
         and start_time.day == end_time.day
+        and start_time.second != end_time.second
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-
-    filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
+    
+    if start_time == end_time:
+        closest_data = df.iloc[(df['csvTime'] - start_time).abs().argsort()[:1]]
+        if closest_data.empty:
+            return {
+                "error": f"在数据表 {table_name} 中未找到时间点 {start_time} 附近的数据",
+                "metadata": metadata,
+            }
+        filtered_data = closest_data
+    else:
+        filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
 
     if filtered_data.empty:
         return {
@@ -185,6 +195,9 @@ def get_data_by_time_range(
             "error": f"列名 {missing_columns} 在数据表 {table_name} 中不存在",
             "metadata": metadata,
         }
+        
+    if "csvTime" not in columns and "csvTime" in filtered_data.columns:
+        columns.append("csvTime")
 
     result = {}
     for column in columns:
@@ -203,7 +216,6 @@ def get_data_by_time_range(
         "column_desc": get_meta_by_table_columns(table_name, columns),
         "metadata": metadata,
     }
-
 
 def get_meta_by_table_columns(table_name, columns):
     """
@@ -296,11 +308,25 @@ def aggregate_data(
     start_time = pd.to_datetime(start_time.replace("24:00:00", "23:59:59"))
     end_time = pd.to_datetime(end_time.replace("24:00:00", "23:59:59"))
 
-    if start_time == end_time:
+    if (
+        start_time.minute == end_time.minute
+        and start_time.hour == end_time.hour
+        and start_time.day == end_time.day
+        and start_time.second != end_time.second
+    ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-
-    filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
+    
+    if start_time == end_time:
+        closest_data = df.iloc[(df['csvTime'] - start_time).abs().argsort()[:1]]
+        if closest_data.empty:
+            return {
+                "error": f"在数据表 {table_name} 中未找到时间点 {start_time} 附近的数据",
+                "metadata": metadata,
+            }
+        filtered_data = closest_data
+    else:
+        filtered_data = df[(df["csvTime"] >= start_time) & (df["csvTime"] <= end_time)]
 
     if conditions:
         logic = conditions_logic.upper()
@@ -1513,7 +1539,8 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
+    print(get_data_by_time_range('Port1_ksbg_3','2024-08-19 13:34:27','2024-08-19 13:34:27',['P1_66']))
+    # print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(

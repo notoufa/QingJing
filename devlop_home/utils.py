@@ -167,7 +167,6 @@ def get_completion(
             stream=stream,
             messages=messages,
             tools=tools,
-            response_format=response_format,
             temperature=temperature,
         )
 
