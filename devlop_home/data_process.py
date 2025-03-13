@@ -67,8 +67,6 @@ def convert_to_numeric(value):
 logger.special("开始判定A架开关机和有无电流")
 
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["Ajia-3_v"] = df["Ajia-3_v"].apply(convert_to_numeric)
 df["Ajia-5_v"] = df["Ajia-5_v"].apply(convert_to_numeric)
 df["status"] = "False"
@@ -794,8 +792,6 @@ logger.success("A架数据保存成功")
 table_key = "Port3_ksbg_9.csv"
 logger.special("开始判定ON DP和OFF DP")
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["P3_33"] = pd.to_numeric(df["P3_33"], errors="coerce")
 df["status"] = "False"
 df["work_status"]= "未开机"
@@ -831,8 +827,6 @@ table_key = "device_13_11_meter_1311.csv"
 
 logger.special("开始判定折臂吊车关键动作")
 df = pd.read_csv(os.path.join(output_path, table_key))
-df = df.sort_values(by="csvTime")
-df.reset_index(drop=True, inplace=True)
 df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
 df["status"] = "False"
 df["action"] = "False"
