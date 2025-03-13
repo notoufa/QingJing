@@ -371,7 +371,7 @@
         "type": "function",
         "function": {
             "name": "calculate_action_proportion",
-            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24-8/30在9点前开始作业的比例（%，保留2位小数）",
+            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24在9点前开始作业的比例（%，保留2位小数）",
             "parameters": {
                 "type": "object",
                 "properties": {

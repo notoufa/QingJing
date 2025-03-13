@@ -14,6 +14,7 @@ import logger
 table_meta_file = "devlop_home/knowledge/table_meta.json"
 table_base_path = "devlop_data/data"
 
+
 def get_text_table(result: dict) -> str:
     if not result:
         return
@@ -96,9 +97,9 @@ def get_data_by_time_range(
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-    
+
     if start_time == end_time:
-        closest_data = df.iloc[(df['csvTime'] - start_time).abs().argsort()[:1]]
+        closest_data = df.iloc[(df["csvTime"] - start_time).abs().argsort()[:1]]
         if closest_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到时间点 {start_time} 附近的数据",
@@ -195,7 +196,7 @@ def get_data_by_time_range(
             "error": f"列名 {missing_columns} 在数据表 {table_name} 中不存在",
             "metadata": metadata,
         }
-        
+
     if "csvTime" not in columns and "csvTime" in filtered_data.columns:
         columns.append("csvTime")
 
@@ -216,6 +217,7 @@ def get_data_by_time_range(
         "column_desc": get_meta_by_table_columns(table_name, columns),
         "metadata": metadata,
     }
+
 
 def get_meta_by_table_columns(table_name, columns):
     """
@@ -316,9 +318,9 @@ def aggregate_data(
     ):
         start_time = start_time.replace(second=0)
         end_time = end_time.replace(second=59)
-    
+
     if start_time == end_time:
-        closest_data = df.iloc[(df['csvTime'] - start_time).abs().argsort()[:1]]
+        closest_data = df.iloc[(df["csvTime"] - start_time).abs().argsort()[:1]]
         if closest_data.empty:
             return {
                 "error": f"在数据表 {table_name} 中未找到时间点 {start_time} 附近的数据",
@@ -978,13 +980,16 @@ def calculate_action_proportion(
             "metadata": metadata,
         }
 
-    table_data = get_data_by_time_range(
+    get_data_result = get_data_by_time_range(
         action_table_configs[action],
         start_time,
         end_time,
         columns=["csvTime"],
-        status=action,
-    )["result"]
+        conditions=[{"column": "status", "operator": "==", "value": action}],
+    )
+
+    print(get_data_result)
+    table_data = get_data_result["result"]
 
     before_count = 0
     total_count = 0
@@ -1286,29 +1291,32 @@ def sort_only_by_time(
         "conditions": conditions,
     }
     try:
+
         def parse_value_date(value):
             """解析日期时间字符串，提取时间部分"""
             dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
             return dt.time()
-        
+
         def parse_value_time(value):
             """解析时间字符串"""
             return datetime.strptime(value, "%H:%M:%S").time()
 
         # 按时间部分排序
-        sorted_list = sorted(input_list, key=parse_value_date, reverse=(order == "desc"))
+        sorted_list = sorted(
+            input_list, key=parse_value_date, reverse=(order == "desc")
+        )
 
         if conditions:
             logic = conditions_logic.upper()
             if logic not in ["AND", "OR"]:
                 return {"error": f"不支持的逻辑操作符: {logic}", "metadata": metadata}
-            
+
             mask = (
                 [False] * len(sorted_list)
                 if logic == "OR"
                 else [True] * len(sorted_list)
             )
-            
+
             for condition in conditions:
                 operator, value = (
                     condition["operator"],
@@ -1319,7 +1327,7 @@ def sort_only_by_time(
                         "error": f"不支持的操作符: {operator}",
                         "metadata": metadata,
                     }
-                
+
                 try:
                     parsed_value = parse_value_time(value)  # 解析条件中的时间
                 except ValueError as e:
@@ -1327,7 +1335,7 @@ def sort_only_by_time(
                         "error": str(e),
                         "metadata": metadata,
                     }
-                
+
                 condition_mask = []
                 for item in sorted_list:
                     try:
@@ -1335,7 +1343,7 @@ def sort_only_by_time(
                     except ValueError:
                         condition_mask.append(False)
                         continue
-                    
+
                     if operator == "==":
                         condition_mask.append(parsed_item == parsed_value)
                     elif operator == "!=":
@@ -1359,14 +1367,14 @@ def sort_only_by_time(
                                 "metadata": metadata,
                             }
                         condition_mask.append(parsed_item in value_list)
-                
+
                 if logic == "AND":
                     mask = [m1 & m2 for m1, m2 in zip(mask, condition_mask)]
                 else:
                     mask = [m1 | m2 for m1, m2 in zip(mask, condition_mask)]
-            
+
             sorted_list = [item for item, keep in zip(sorted_list, mask) if keep]
-        
+
         dates = sorted(
             {
                 datetime.strptime(x, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
@@ -1384,6 +1392,7 @@ def sort_only_by_time(
             "error": f"排序失败: {e}",
             "metadata": metadata,
         }
+
 
 def get_list_length(input_list: list):
     """
@@ -1539,7 +1548,11 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(get_data_by_time_range('Port1_ksbg_3','2024-08-19 13:34:27','2024-08-19 13:34:27',['P1_66']))
+    print(
+        get_data_by_time_range(
+            "Port1_ksbg_3", "2024-08-19 13:34:27", "2024-08-19 13:34:27", ["P1_66"]
+        )
+    )
     # print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
