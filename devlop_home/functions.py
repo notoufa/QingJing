@@ -657,7 +657,8 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
         "绞车变频器": ("device_1_15_meter_115", "1-15-6_v"),
-        "推进系统": ["一号推进变频器", "二号推进变频器", "可伸缩推", "侧推"],
+        "推进系统": ["主推", "可伸缩推", "侧推"],
+        "主推": ["一号推进变频器", "二号推进变频器"],
         "一号推进变频器": ("Port3_ksbg_8", "P3_15"),
         "二号推进变频器": ("Port4_ksbg_7", "P4_16"),
         "可伸缩推": ("Port4_ksbg_8", "P4_21"),
@@ -704,6 +705,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         "unit": "kWh",
         "metadata": metadata,
     }
+
 
 def get_total_energy_generation_or_fuel_consumption_by_time_range(
     start_time: str,
