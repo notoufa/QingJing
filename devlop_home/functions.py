@@ -1355,7 +1355,7 @@ def convert_seconds(seconds):
         "result": {
             "by_seconds": f"{seconds}秒",
             "by_minutes": f"{minutes}分钟{remaining_seconds}秒",
-            "by_integer_minutes": f"{int(demical_minutes)}分钟",
+            "by_integer_minutes": f"{round(demical_minutes)}分钟",
             "by_demical_minutes": f"{demical_minutes}分钟",
             "by_hours": f"{hours}小时{remaining_minutes}分钟{remaining_seconds}秒",
             "by_demical_hours": f"{demical_hours}小时",
