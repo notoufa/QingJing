@@ -120,10 +120,6 @@ def get_prompt_rewrite_atomic_question(
 
     system_prompt = system_prompt.replace(
         "<<knowledge>>", str(get_knowledge_by_question(question))
-    ).replace(
-        "<<init_question>>", init_question
-    ).replace(
-        "<<chain_of_subtasks>>", str(chain_of_subtasks)
     )
 
     if assumption:
@@ -131,17 +127,22 @@ def get_prompt_rewrite_atomic_question(
 
     user_prompt = """
     当前要求解的子任务为：<<question>>
+    
+    已知初始问题：<<init_question>>
+
+    已知任务分解链：<<chain_of_subtasks>>
 
     已知其上游任务执行结果：<<parent_tasks_desc>>
     """
     parent_tasks_desc = ""
     for task_desc in task.get_parent_tasks_desc():
-        parent_tasks_desc += task_desc['answer'] + "\n"
+        parent_tasks_desc += task_desc["answer"] + "\n"
 
-    user_prompt = user_prompt.replace(
-        "<<question>>", f"【子任务{task.task_id}】{question}"
-    ).replace(
-        "<<parent_tasks_desc>>", parent_tasks_desc
+    user_prompt = (
+        user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
+        .replace("<<parent_tasks_desc>>", parent_tasks_desc)
+        .replace("<<init_question>>", str(init_question))
+        .replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
     )
 
     return system_prompt, user_prompt
