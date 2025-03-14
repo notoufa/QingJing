@@ -39,13 +39,16 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
                 f"【第{i+1}次得到的最终答案】",
                 str(solution.reasoning_answer),
             )
-        except Exception as e:
+        except Exception:
             logger.error(
                 f"【第{i+1}次获取问题的答案出错】错误堆栈：\n{traceback.format_exc()}"
             )
 
     if len(vote_res.solutions) == 1:
         vote_res.final_reasoning_answer = vote_res.solutions[0].reasoning_answer
+        return vote_res
+    elif len(vote_res.solutions) == 0:
+        vote_res.final_reasoning_answer = ReasoningAnswer(answer="")
         return vote_res
 
     logger.info(f"【开始投票】")
@@ -95,7 +98,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
             futures = []
             for task in level_tasks:
                 if not task.completed():
-                    futures.append(executor.submit(handle_task, task, decomposition, question))
+                    futures.append(
+                        executor.submit(handle_task, task, decomposition, question)
+                    )
 
             for future in concurrent.futures.as_completed(futures):
                 future.result()
@@ -307,7 +312,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask, init_question
     logger.info("【开始获取原子问题答案】", task.question)
     if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
         rewrite_atomic_question(decomposition, task, init_question)
-        
+
     # 重写问题后再获取所需要的base table和tools
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
@@ -362,7 +367,9 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask, init_question
     task.need_tables = [table["table_name"] for table in table_meta_list]
 
 
-def rewrite_atomic_question(decomposition: Decomposition, task: Subtask, init_question: str):
+def rewrite_atomic_question(
+    decomposition: Decomposition, task: Subtask, init_question: str
+):
     """
     重写原子问题
 
