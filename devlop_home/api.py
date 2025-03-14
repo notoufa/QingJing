@@ -282,10 +282,15 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
     try:
         res = json.loads(parse_res(response))
     except Exception as e:
-        logger.error(f"【更新任务分解树出错】错误堆栈：\n{traceback.format_exc()}")
-        logger.error(f"{parse_res(response)}")
-        return decomposition
-
+        try:
+            logger.error(f"【更新任务分解树出错】错误堆栈：\n{traceback.format_exc()}")
+            logger.info("【尝试修改任务分解树Json格式】")
+            res = json.loads(parse_res(response).replace("None", "null"))
+            logger.info("【修改成功】\n")
+        except Exception as e:
+            logger.error("【修改失败，直接返回原任务分解树】\n")
+            return decomposition
+        
     res_decomposition = Decomposition.from_dict(res)
     for subtask in res_decomposition.subtasks:
         init_task = decomposition.get_task_by_id(subtask.task_id)

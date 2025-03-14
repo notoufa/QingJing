@@ -164,12 +164,14 @@ def get_prompt_atomic_question(
 
     system_prompt = system_prompt.replace(
         "<<knowledge>>", str(get_knowledge_by_question(question))
-    ).replace("<<table_meta_list>>", str(table_meta_list))
+    ).replace(
+        "<<table_meta_list>>", str(table_meta_list)
+    ).replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
+
     if assumption:
         system_prompt = system_prompt.replace("<<assumption>>", assumption)
 
     user_prompt = """
-    已知子任务链：<<chain_of_subtasks>>
     已知上游任务执行结果：<<parent_tasks_desc>>
     当前要求解的子任务为：<<<question>>>
     """
@@ -177,8 +179,8 @@ def get_prompt_atomic_question(
     user_prompt = (
         user_prompt.replace("<<question>>", f"【子任务{task.task_id}】{question}")
         .replace("<<parent_tasks_desc>>", str(task.get_parent_tasks_desc()))
-        .replace("<<chain_of_subtasks>>", str(chain_of_subtasks))
     )
+    
     return system_prompt, user_prompt
 
 
