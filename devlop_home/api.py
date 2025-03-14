@@ -171,7 +171,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_summary(solution.question),
+            "content": prompts.get_prompt_summary(),
         },
         {
             "role": "user",
