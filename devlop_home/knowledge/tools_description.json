@@ -31,7 +31,7 @@
     {
         "function_name": "get_total_energy_consumption_by_time_range",
         "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）",
-        "output": "该设备在指定时间范围内的总能耗（单位：kWh）",
+        "output": "该设备在指定时间范围内的总能耗/总做功（单位：kWh）",
         "notices": [
             "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算总值"
         ]

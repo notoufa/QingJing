@@ -81,6 +81,8 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     solution = ProblemSolution(id, question)
     decomposition, api_response = get_task_decomposition(solution.question)
     solution.init_decomposition = decomposition.clone()
+    if not decomposition.raw_question:
+        decomposition.raw_question = solution.question
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
 
@@ -98,9 +100,7 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
             futures = []
             for task in level_tasks:
                 if not task.completed():
-                    futures.append(
-                        executor.submit(handle_task, task, decomposition, question)
-                    )
+                    futures.append(executor.submit(handle_task, task, decomposition))
 
             for future in concurrent.futures.as_completed(futures):
                 future.result()
@@ -149,7 +149,7 @@ def group_tasks_by_level(subtasks):
     return tasks_by_level, sorted_levels
 
 
-def handle_task(task: Subtask, decomposition: Decomposition, init_question: str):
+def handle_task(task: Subtask, decomposition: Decomposition):
     """
     在单独的线程中处理每个子任务
 
@@ -162,7 +162,7 @@ def handle_task(task: Subtask, decomposition: Decomposition, init_question: str)
         if parent_task:
             parent_tasks.append(parent_task)
     task.parent_tasks = parent_tasks
-    get_atomic_answer(decomposition, task, init_question)
+    get_atomic_answer(decomposition, task)
 
 
 def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
@@ -297,11 +297,12 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
             subtask.parent_tasks = init_task.parent_tasks
             subtask.api_response = init_task.api_response
     res_decomposition.need_tools = decomposition.need_tools
+    res_decomposition.raw_question = decomposition.raw_question
     res_decomposition.draw_table()
     return res_decomposition
 
 
-def get_atomic_answer(decomposition: Decomposition, task: Subtask, init_question: str):
+def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     """
     获得原子问题的答案
 
@@ -311,7 +312,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask, init_question
     """
     logger.info("【开始获取原子问题答案】", task.question)
     if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
-        rewrite_atomic_question(decomposition, task, init_question)
+        rewrite_atomic_question(decomposition, task)
 
     # 重写问题后再获取所需要的base table和tools
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
@@ -368,7 +369,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask, init_question
 
 
 def rewrite_atomic_question(
-    decomposition: Decomposition, task: Subtask, init_question: str
+    decomposition: Decomposition, task: Subtask
 ):
     """
     重写原子问题
@@ -381,7 +382,7 @@ def rewrite_atomic_question(
         task,
         decomposition.assumption,
         decomposition.chain_of_subtasks,
-        init_question,
+        decomposition.raw_question,
     )
     messages = [
         {

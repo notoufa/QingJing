@@ -297,9 +297,16 @@ class Subtask:
 
 class Decomposition:
     def __init__(
-        self, contains_time, format_requirement, assumption, subtasks, chain_of_subtasks
+        self,
+        contains_time,
+        format_requirement,
+        assumption,
+        subtasks,
+        chain_of_subtasks,
+        raw_question,
     ):
         self.contains_time: bool = contains_time
+        self.raw_question: str = raw_question
         self.format_requirement: str = format_requirement
         self.assumption: str = assumption
         self.subtasks: list[Subtask] = subtasks
@@ -331,6 +338,7 @@ class Decomposition:
             assumption=data.get("assumption", ""),
             subtasks=subtasks,
             chain_of_subtasks=data.get("chain_of_subtasks", ""),
+            raw_question=data.get("raw_question", ""),
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -339,6 +347,7 @@ class Decomposition:
             "contains_time": self.contains_time,
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
+            "raw_question": self.raw_question,
             "subtasks": [
                 subtask.to_dict(export_api_response) for subtask in self.subtasks
             ],
@@ -352,6 +361,7 @@ class Decomposition:
             "contains_time": self.contains_time,
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
+            "raw_question": self.raw_question,
             "subtasks": [subtask.to_update_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
         }
@@ -362,6 +372,7 @@ class Decomposition:
             "contains_time": self.contains_time,
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
+            "raw_question": self.raw_question,
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
         }
@@ -401,7 +412,8 @@ class Decomposition:
         logger.special(
             "\n",
             f"假设条件：{self.assumption}\n",
-            f"格式要求：{self.format_requirement}",
+            f"格式要求：{self.format_requirement}\n",
+            f"原始问题：{self.raw_question}",
             "\n",
             table.draw(),
         )

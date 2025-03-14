@@ -53,6 +53,7 @@ def check_api_key(api_key_env: str) -> str:
         )
     return api_key
 
+
 def strtify(obj):
     """
     将对象转换为字符串
@@ -60,6 +61,7 @@ def strtify(obj):
     if isinstance(obj, dict):
         return json.dumps(obj, ensure_ascii=False)
     return str(obj)
+
 
 def parse_res(response):
     """
@@ -138,7 +140,6 @@ def save_solutions(vote_results, result_path: str):
 def get_completion(
     messages: list[dict],
     tools: list[dict] = [],
-    json_output: bool = False,
 ) -> Completion | StreamResponse[ChatCompletionChunk]:
     """
     获得对话结果
@@ -154,7 +155,7 @@ def get_completion(
     try:
         if api_config.type.upper() == "OPENAI":
             from openai import OpenAI
-            from openai.types.chat import ChatCompletion
+
             if not api_config.base_url:
                 raise RuntimeError("通用OpenAI接口配置 需要 base_url 参数")
             client = OpenAI(
@@ -164,10 +165,6 @@ def get_completion(
         elif api_config.type.upper() == "ZHIPUAI":
             client = ZhipuAI(api_key=check_api_key(api_config.api_key_env))
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
-        if json_output:
-            response_format = {"type": "json_object"}
-        else:
-            response_format = {"type": "text"}
 
         response = client.chat.completions.create(
             model=model,
