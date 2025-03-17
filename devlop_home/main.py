@@ -23,6 +23,7 @@ def handle_question(query):
         "运行时间定义为发电机在额定转速下的运行时间，额定转速运行值为1表示发电机运行了1分钟。": "",
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
+        "总运行时间": "总运行时长",
         # "开机时长": "运行时长",
         # "开机总时长": "总运行时长",
         "从征服者出水（约-43°）到落座（约35°）A架右舷摆过的角度可以记为一次完整的摆动（反之亦然），": "",
@@ -81,7 +82,6 @@ def main():
     init()
     in_param_path = sys.argv[1]
     out_path = sys.argv[2]
-    out_prepath = "devlop_home/answer.jsonl"
 
     with open(in_param_path, "r", encoding="utf-8") as load_f:
         content = load_f.read()
@@ -91,7 +91,7 @@ def main():
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
     solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
-    os.makedirs(os.path.dirname(out_prepath), exist_ok=True)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
@@ -114,16 +114,12 @@ def main():
             if isinstance(vote_res, VoteResult):
                 vote_results.append(vote_res)
                 submit_result_list.append(vote_res.to_submit_json())
-                utils.save_submit_result(submit_result_list, out_prepath)
+                utils.save_submit_result(submit_result_list, out_path)
                 utils.save_solutions(vote_results, solution_path)
             else:
                 submit_result_list.append(vote_res)
-                utils.save_submit_result(submit_result_list, out_prepath)
+                utils.save_submit_result(submit_result_list, out_path)
     
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    utils.save_submit_result(submit_result_list, out_path)
-
-
 if __name__ == "__main__":
     logger.init()
     start_time = time.time()

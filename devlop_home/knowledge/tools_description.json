@@ -47,11 +47,6 @@
         ]
     },
     {
-        "function_name": "calculate_action_proportion",
-        "input": "时间范围（开始时间、结束时间）、指定动作、时间点（如 09:00）",
-        "output": "指定动作在该时间点前发生的比例（%）"
-    },
-    {
         "function_name": "calculate_math_operations",
         "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值）、操作数列表",
         "output": "运算结果"

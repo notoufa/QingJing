@@ -116,7 +116,7 @@ def get_data_by_time_range(
         }
 
     # filter_work_status = False
-
+    condition_columns = []
     if conditions:
         logic = conditions_logic.upper()
         if logic not in ["AND", "OR"]:
@@ -128,6 +128,8 @@ def get_data_by_time_range(
                 condition["operator"],
                 condition["value"],
             )
+
+            condition_columns.append(cond_col)
 
             if cond_col not in filtered_data.columns:
                 return {
@@ -199,6 +201,10 @@ def get_data_by_time_range(
 
     if "csvTime" not in columns and "csvTime" in filtered_data.columns:
         columns.append("csvTime")
+
+    for col in condition_columns:
+        if col not in columns and col in filtered_data.columns:
+            columns.append(col)
 
     result = {}
     for column in columns:
@@ -685,7 +691,9 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
                 if energy is not None:
                     total_energy += energy
             except Exception as e:
-                logger.error(f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}")
+                logger.error(
+                    f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}"
+                )
         result = total_energy
     else:
         table_name, power_column = device_config[device_name]
@@ -701,7 +709,9 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
                 total_energy_kWh = filtered_data["energy_kWh"].sum()
                 result = total_energy_kWh
         except Exception as e:
-            logger.error(f"计算设备 {device_name} 能耗时出错: {e},{traceback.format_exc()}")
+            logger.error(
+                f"计算设备 {device_name} 能耗时出错: {e},{traceback.format_exc()}"
+            )
     return {
         "result": result,
         "unit": "kWh",
@@ -1467,7 +1477,11 @@ function_map: dict[str, callable] = {
 if __name__ == "__main__":
     print(
         get_data_by_time_range(
-            "Port1_ksbg_3", "2024-08-19 13:34:27", "2024-08-19 13:34:27", ["P1_66"]
+            "A架动作表",
+            "2024-05-19 00:00:00",
+            "2024-05-19 23:59:59",
+            ["csvTime"],
+            conditions= [{"column": "stage", "operator": "==", "value": "回收阶段结束"}],
         )
     )
     # print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
