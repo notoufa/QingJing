@@ -643,7 +643,7 @@ for segment in segments:
         peak_pattern == [2]
         or peak_pattern == [3]
         or peak_pattern == [1, 3]
-    ) and not deployment_complete_today:
+    ):
         # 下放阶段
         logger.info(f"【处理时间段】下放阶段")
         if peak_pattern == [2] or peak_pattern == [3]:
@@ -681,7 +681,7 @@ for segment in segments:
         df.loc[df["csvTime"] == start, stage_field] = "布放阶段开始"
         df.loc[df["csvTime"] == end, stage_field] = "布放阶段结束"
         df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "布放阶段中"
-    elif (peak_pattern == [1, 2] or peak_pattern == [1, 1]) and deployment_complete_today:
+    elif (peak_pattern == [1, 2] or peak_pattern == [1, 1]):
         # 回收阶段
         logger.info(f"【处理时间段】回收阶段")
         # 第一个事件对
@@ -722,7 +722,7 @@ for segment in segments:
         df.loc[df["csvTime"] == start, stage_field] = "回收阶段开始"
         df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
         df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
-    elif len(peak_pattern) > 0 and 1==0:
+    elif len(peak_pattern) > 0:
         LLM_predict_count += 1
         LLM_predict_results[LLM_predict_count] = PredictResult(start, end)
         logger.info("【处理时间段】交由大模型预测")
@@ -808,9 +808,9 @@ for segment in segments:
                 df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
                 df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
 
-        if (is_hour_greater_than_12 or (is_hour_smaller_than_2 and is_lasttime_smaller_than_8) or (first_value in second_start_times)) and  deployment_complete_today:
+        if (is_hour_greater_than_12 or (is_hour_smaller_than_2 and is_lasttime_smaller_than_8) or (first_value in second_start_times)):
             predict(segment_data, False)
-        elif not deployment_complete_today:
+        else:
             predict(segment_data, True)
 
     logger.success(f"【处理时间段完成】开机时间: {start}, 关机时间: {end}")
