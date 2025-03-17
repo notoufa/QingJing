@@ -20,8 +20,8 @@ table_name_map = {
     "Port3_ksbg_9.csv": "艏推系统DP动作表.csv",
 }
 
-data_path = "devlop_data/assets/复赛数据/"
-output_path = "devlop_data/data"
+data_path = "devlop_home/复赛数据/"
+output_path = "devlop_home/data"
 
 os.makedirs(output_path, exist_ok=True)
 logger.init()

@@ -3,3 +3,4 @@ devlop_result/**
 devlop_data/questions/test.jsonl
 devlop_data/tmp/**
 devlop_home/tests/**
+.history/**

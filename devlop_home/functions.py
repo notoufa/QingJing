@@ -12,7 +12,7 @@ from utils import *
 import logger
 
 table_meta_file = "devlop_home/knowledge/table_meta.json"
-table_base_path = "devlop_data/data"
+table_base_path = "devlop_home/data"
 
 
 def get_text_table(result: dict) -> str:

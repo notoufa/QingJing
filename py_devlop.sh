@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "开始解压数据"
-mkdir -p /app/devlop_data/assets/复赛数据
-tar -xzf /app/devlop_data/复赛数据.tar.gz -C /app/devlop_data/assets/
+mkdir -p /app/devlop_home/复赛数据
+tar -xzf /app/devlop_home/复赛数据.tar.gz -C /app/devlop_home/
 echo "数据解压完成"
 
 cd /app/
