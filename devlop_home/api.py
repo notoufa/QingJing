@@ -289,6 +289,7 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
             logger.info("【修改成功】\n")
         except Exception as e:
             logger.error("【修改失败，直接返回原任务分解树】\n")
+            logger.error(f"{parse_res(response)}")
             return decomposition
         
     res_decomposition = Decomposition.from_dict(res)
