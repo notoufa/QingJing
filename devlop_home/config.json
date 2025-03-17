@@ -25,7 +25,7 @@
         }
     ],
     "module_config": {
-        "enable_update_decomposition": true,
+        "enable_update_decomposition": false,
         "enable_summary": true,
         "enable_correct": false,
         "enable_export_api_response": false,
