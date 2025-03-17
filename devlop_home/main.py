@@ -49,6 +49,8 @@ def process_one(line: dict) -> VoteResult | dict:
     #         answer = item["answer"]
     #         break
     # return {"id": id, "question": question, "answer": utils.strtify(answer)}
+    # if int(id[-3:]) > 1:
+    #     return {"id": id, "question": question, "answer": question}
 
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
@@ -78,6 +80,7 @@ def main():
     init()
     in_param_path = sys.argv[1]
     out_path = sys.argv[2]
+    out_prepath = "devlop_home/answer.jsonl"
 
     with open(in_param_path, "r", encoding="utf-8") as load_f:
         content = load_f.read()
@@ -87,7 +90,7 @@ def main():
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
     solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    os.makedirs(os.path.dirname(out_prepath), exist_ok=True)
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
@@ -110,11 +113,14 @@ def main():
             if isinstance(vote_res, VoteResult):
                 vote_results.append(vote_res)
                 submit_result_list.append(vote_res.to_submit_json())
-                utils.save_submit_result(submit_result_list, out_path)
+                utils.save_submit_result(submit_result_list, out_prepath)
                 utils.save_solutions(vote_results, solution_path)
             else:
                 submit_result_list.append(vote_res)
-                utils.save_submit_result(submit_result_list, out_path)
+                utils.save_submit_result(submit_result_list, out_prepath)
+    
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    utils.save_submit_result(submit_result_list, out_path)
 
 
 if __name__ == "__main__":

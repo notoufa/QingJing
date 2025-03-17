@@ -122,8 +122,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     )
     if utils.module_config.enable_summary:
         reasoning_answer, api_response = get_summary(solution)
-        solution.reasoning_answer = reasoning_answer
-        solution.summary_api_response = api_response
+        if reasoning_answer:
+            solution.reasoning_answer = reasoning_answer
+            solution.summary_api_response = api_response
     if utils.module_config.enable_correct:
         reasoning_answer, api_response = get_correct(solution)
         solution.reasoning_answer = reasoning_answer
@@ -194,6 +195,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
         )
     except Exception as e:
         logger.error(f"【问题总结出错】错误堆栈：\n{traceback.format_exc()}")
+        return None, None
 
 
 def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:

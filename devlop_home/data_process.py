@@ -12,6 +12,7 @@ import json
 import logger
 import traceback
 import shutil
+from itertools import dropwhile
 
 table_name_map = {
     "Ajia_plc_1.csv": "A架动作表.csv",
@@ -293,41 +294,42 @@ for i, (start_time, end_time) in enumerate(segments):
 
 prompt_ajia_judge_file = "prompts/ajia_judge.md"
 
-XIAFANG = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
+XIAFANG = """你是一个严谨且细心的数据分析助手，请根据给定的电流变化序列数据，准确返回符合规则的三个值。
 
-规则要求：  
-1. 识别最后一段非零数据，该段应至少包含两次升降（即电流从约 56 上升至 70 以上）。  
-2. 结果应从最后一段非零数据中选择，且满足以下条件：  
-   - 第一个值：该段的第一个峰值，且一般大于 70。  
-   - 第二个值：位于第一个和第三个值之间，一般小于 60。  
-   - 第三个值：重新达到峰值，且一般大于 70。  
-3. 忽略大于 200 的异常数据。  
-4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
-5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
+规则要求：
+1. 3个目标数值位于一段连续的非零数据中，该段应至少包含两次升降（即电流从约 56 上升至 80 以上）。  
+2. 结果应满足以下条件：  
+   - 第一个值：该段的第一个峰值，且一般大于 80。  
+   - 第二个值：位于第一个和第三个值之间，由第一个峰值回落至小于60的第一个低值。  
+   - 第三个值：重新达到峰值，且一般大于 80。 
+3. 答案更可能位于峰值较多、非零数据段较长且满足上述要求的一段数据中
+4. 忽略大于 200 的异常数据。  
+5. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。
+6. 若无法找到符合条件的三个值，请返回 [-100, -100, -100]，不要随意捏造。  
 
-示例：  
-输入：  
+示例：
+输入：
 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 56.6478, 56.5133, 60.8637, 56.3751, 56.3777, 56.3601, 61.1564, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 422.499, 56.2896, 66.3951, 60.8928, 57.7813, 56.3871, 66.3077, 62.5263, 56.3937, 58.0826, 90.0969, 87.5592, 83.9934, 56.5033, 59.3441, 58.0018, 56.3027, 56.2845, 56.3666, 101.763, 96.6118, 56.3492, 59.2629, 57.0112, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0]  
 输出：  
 [90.0969, 56.5033, 101.763]  
 
 现有一组新的电流变化序列数据： 
 <<L>>  
-
 请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
 
 
-HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流变化序列数据，准确返回三个值。  
+HUISHOU = """你是一个严谨且细心的数据分析助手，请根据给定的电流变化序列数据，准确返回符合规则的三个值。
 
-规则要求：  
+规则要求：
 1. 数据列表应包含至少两段非零数据。  
 2. 结果应满足以下条件：  
-   - 第一个值：来自非最后一段非零数据的峰值，且一般大于 70。  
-   - 第二个值：来自最后一段非零数据的峰值，且一般应大于 70。  
-   - 第三个值：位于第二个值之后，且一般小于 60，即最后一个峰值回落至低于 60 的点。  
-3. 忽略大于 200 的异常数据。  
-4. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
-5. 若无法找到符合条件的三个值，请返回 `[-100, -100, -100]`，不要随意捏造。  
+   - 第一个值：来自前一段非零数据的峰值，且一般大于 80。  
+   - 第二个值：来自后一段非零数据的峰值，且一般应大于 80。  
+   - 第三个值：位于第二个值之后，且一般小于 60，即从后一个峰值回落至低于 60 的第一个低值。  
+3. 答案更可能位于非零数据段较长且满足上述要求的两段数据中
+4. 忽略大于 200 的异常数据。  
+5. 数据可能存在噪声，请谨慎判断。思考完成后，不需要返回思考过程，以列表形式返回三个值,回答中只有列表。  
+6. 若无法找到符合条件的三个值，请返回 [-100, -100, -100]，不要随意捏造。  
 
 示例：  
 输入：  
@@ -337,15 +339,27 @@ HUISHOU = """你是一个细心的数据分析助手，请根据给定的电流�
 
 现有一组新的电流变化序列数据：  
 <<L>>  
-
 请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
+def limit_consecutive_zeros(lst, max_zeros=10):
+    result = []
+    zero_count = 0
 
+    for num in lst:
+        if num == 0:
+            zero_count += 1
+            if zero_count <= max_zeros:
+                result.append(num)
+        else:
+            zero_count = 0
+            result.append(num)
+
+    return result
 
 def predict_sequence_by_llm(L_sequence, is_xiafang: bool):
     from api import get_completion
     from utils import parse_res,load_api_config
     load_api_config('GLM')
-
+    L_sequence=str(limit_consecutive_zeros(L_sequence))
     # with open(prompt_ajia_judge_file, "r", encoding="utf-8") as file:
     #     ajia_judge = file.read()
 
@@ -529,7 +543,7 @@ def extract_peak_pattern(current_presence_data):
     :return: 返回时间段内各个事件对内的峰值数量
     """
     logger.info(f"【提取事件对】事件数量: {current_presence_data.shape[0]}")
-    print(current_presence_data)
+    # print(current_presence_data)
     peak_pattern = []
     if current_presence_data.shape[0] >= 2 and current_presence_data.shape[0] % 2 == 0:
         for i in range(0, current_presence_data.shape[0], 2):
@@ -563,7 +577,7 @@ def extract_peak_pattern(current_presence_data):
 
 # 判定A架的关键动作
 # 提取每个区段内的“通电流”和“关电流”事件
-
+from itertools import dropwhile
 
 class PredictResult:
     def __init__(self, start_time, end_time):
@@ -576,17 +590,41 @@ class PredictResult:
         self.start_time = start_time
         self.end_time = end_time
         self.prediction: list[float] = None
+        self.peak_pattern: list[int] = None
 
     def __str__(self):
-        return f"预测时间段: {self.start_time} - {self.end_time}, 预测结果: {self.prediction}"
+        return f"预测时间段: {self.start_time} - {self.end_time}, 预测结果: {self.prediction}, 峰值模式: {self.peak_pattern}"
 
+def is_deployment_complete_today(endtime: pd.Timestamp, pd_df: pd.DataFrame) -> bool:
+    """
+    判断当天从 00:00 到 endtime 之间的数据中，是否存在 'stage' 列的值为 '布放阶段结束' 的记录。
+
+    参数：
+    - endtime (pd.Timestamp): 结束时间，datetime 格式。
+    - pd_df (pd.DataFrame): 包含 'csvTime' 和 'stage' 列的数据表。
+
+    返回：
+    - bool: 如果在当天 00:00 到 endtime 之间存在 '布放阶段结束' 记录，则返回 True，否则返回 False。
+    """
+    endtime = pd.to_datetime(endtime)
+    pd_df['csvTime'] = pd.to_datetime(pd_df['csvTime'])
+    # 获取当天 00:00 的时间
+    start_time = endtime.normalize()  # 归一化到当天 00:00:00
+
+    # 筛选当天 00:00 到 endtime 之间的数据
+    mask = (pd_df['csvTime'] >= start_time) & (pd_df['csvTime'] <= endtime)
+    filtered_df = pd_df[mask]
+
+    # 判断 'stage' 列是否存在 '布放阶段结束'
+    return '布放阶段结束' in filtered_df[stage_field].values
 
 LLM_predict_count = 0
 LLM_predict_results: dict[int, tuple] = {}
+df[stage_field]=''
+peak_patterns =set()
 for segment in segments:
     start, end = segment
     logger.success(f"【开始处理时间段】开机时间: {start}, 关机时间: {end}")
-    logger.info(f"【处理时间段】开始提取事件对")
     segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
     logger.info(f"【处理时间段】区间数据：{list(segment_data['Ajia-5_v'])}")
     current_presence_data = df[
@@ -594,27 +632,26 @@ for segment in segments:
         & (df["csvTime"] <= end)
         & (df[current_status_field].isin(["有电流", "无电流"]))
     ]
-    peak_pattern = extract_peak_pattern(current_presence_data)
+    ori_peak_pattern = extract_peak_pattern(current_presence_data)
+    peak_pattern=list(dropwhile(lambda x: x == 0, ori_peak_pattern))
+    current_presence_data=current_presence_data.iloc[2*(len(ori_peak_pattern)-len(peak_pattern)):]
+    peak_patterns.add(tuple(peak_pattern))
     logger.info(f"【处理时间段】区间类型：{peak_pattern}")
+    deployment_complete_today = is_deployment_complete_today(start, df.copy())
+
     if (
         peak_pattern == [2]
-        or peak_pattern == [0, 2]
-        or peak_pattern == [0, 0, 2]
-        or peak_pattern == [0, 3]
-        or peak_pattern == [0, 1, 3]
+        or peak_pattern == [3]
         or peak_pattern == [1, 3]
-    ):
+    ) and not deployment_complete_today:
         # 下放阶段
         logger.info(f"【处理时间段】下放阶段")
-        if peak_pattern == [2]:
+        if peak_pattern == [2] or peak_pattern == [3]:
             event_start_time = current_presence_data.iloc[0]["csvTime"]
             event_end_time = current_presence_data.iloc[1]["csvTime"]
-        elif peak_pattern == [0, 2] or peak_pattern == [0, 3] or peak_pattern == [1, 3]:
+        elif peak_pattern == [1, 3]:
             event_start_time = current_presence_data.iloc[2]["csvTime"]
             event_end_time = current_presence_data.iloc[3]["csvTime"]
-        elif peak_pattern == [0, 0, 2] or peak_pattern == [0, 1, 3]:
-            event_start_time = current_presence_data.iloc[4]["csvTime"]
-            event_end_time = current_presence_data.iloc[5]["csvTime"]
         between_data = df[
             (df["csvTime"] >= event_start_time) & (df["csvTime"] <= event_end_time)
         ]
@@ -644,7 +681,7 @@ for segment in segments:
         df.loc[df["csvTime"] == start, stage_field] = "布放阶段开始"
         df.loc[df["csvTime"] == end, stage_field] = "布放阶段结束"
         df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "布放阶段中"
-    elif peak_pattern == [1, 2] or peak_pattern == [1, 1]:
+    elif (peak_pattern == [1, 2] or peak_pattern == [1, 1]) and deployment_complete_today:
         # 回收阶段
         logger.info(f"【处理时间段】回收阶段")
         # 第一个事件对
@@ -667,7 +704,6 @@ for segment in segments:
             (df["csvTime"] >= event_start_time) & (df["csvTime"] <= event_end_time)
         ]
         ajia_5_data = list(between_data["Ajia-5_v"])
-
         len_peaks, peak_L = find_peaks(ajia_5_data)
         max_value = max([x for x in ajia_5_data if x <= 200])
 
@@ -686,7 +722,7 @@ for segment in segments:
         df.loc[df["csvTime"] == start, stage_field] = "回收阶段开始"
         df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
         df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
-    elif len(peak_pattern) > 0:
+    elif len(peak_pattern) > 0 and 1==0:
         LLM_predict_count += 1
         LLM_predict_results[LLM_predict_count] = PredictResult(start, end)
         logger.info("【处理时间段】交由大模型预测")
@@ -694,9 +730,12 @@ for segment in segments:
         segment_data.loc[:, "csvTime"] = pd.to_datetime(segment_data["csvTime"])
         # 获取第一个值
         first_value = segment_data["csvTime"].iloc[0]
+        #获取最后一个值
+        last_value = segment_data["csvTime"].iloc[-1]
         # 判断小时是否大于12点
         is_hour_greater_than_12 = first_value.hour > 12
         is_hour_smaller_than_2= first_value.hour < 2
+        is_lasttime_smaller_than_8 = last_value.hour < 8
         first_start_times, second_start_times = extract_daily_power_on_times(df=df)
 
         def predict(data, is_xiafang):
@@ -714,12 +753,13 @@ for segment in segments:
             logger.info(str(list(segment_data["predict_column"])))
             try:
                 a, b, c = get_predict_result(
-                    str(list(segment_data["predict_column"])), is_xiafang
+                    list(segment_data["predict_column"]), is_xiafang
                 )
             except Exception as e:
                 logger.error(f"An error occurred: {e}\n{traceback.format_exc()}")
                 a, b, c = -100, -100, -100
             LLM_predict_results[LLM_predict_count].prediction = (a, b, c)
+            LLM_predict_results[LLM_predict_count].peak_pattern = peak_pattern
             logger.success(
                 "【处理时间段】LLM预测结果：",
                 "下放阶段" if is_xiafang else "回收阶段",
@@ -768,12 +808,13 @@ for segment in segments:
                 df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
                 df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
 
-        if is_hour_greater_than_12 or is_hour_smaller_than_2 or (first_value in second_start_times):
+        if (is_hour_greater_than_12 or (is_hour_smaller_than_2 and is_lasttime_smaller_than_8) or (first_value in second_start_times)) and  deployment_complete_today:
             predict(segment_data, False)
-        else:
+        elif not deployment_complete_today:
             predict(segment_data, True)
 
     logger.success(f"【处理时间段完成】开机时间: {start}, 关机时间: {end}")
+print('出现过的峰值模式：',peak_patterns) 
 
 
 # In[ ]:
@@ -792,7 +833,7 @@ with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
 
 # 保存A架数据
 logger.special("开始保存A架数据")
-df = df.drop(columns=["date"])
+# df = df.drop(columns=["date"])
 # df = df.drop(columns=['check_current_presence'])
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
@@ -1067,7 +1108,7 @@ for segment in segments:
                     print("列表中没有大于 9 的值")
                 # 保存结果
 # df = df.drop(columns=[stage_field])
-df = df.drop(columns=['13-11-6_v_new'])
+# df = df.drop(columns=['13-11-6_v_new'])
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("【处理折臂吊车】保存数据完成")
