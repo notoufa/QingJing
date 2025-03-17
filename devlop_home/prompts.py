@@ -136,7 +136,7 @@ def get_prompt_rewrite_atomic_question(
     """
     parent_tasks_desc = ""
     for task_desc in task.get_parent_tasks_desc():
-        if not task_desc["answer"]:
+        if task_desc["answer"]:
             parent_tasks_desc += task_desc["answer"] + "\n"
 
     user_prompt = (

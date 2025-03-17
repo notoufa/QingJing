@@ -499,6 +499,7 @@ class VoteResult:
     def __init__(self, id, question, vote_times):
         self.id: str = id
         self.question: str = question
+        self.init_question: str = question
         self.vote_times: int = vote_times
         self.solutions: list[ProblemSolution] = []
         self.final_reasoning_answer: ReasoningAnswer = None
@@ -515,6 +516,7 @@ class VoteResult:
         return {
             "id": self.id,
             "question": self.question,
+            "init_question": self.init_question,
             "vote_times": self.vote_times,
             "solutions": [
                 solution.to_dict(export_api_response) for solution in self.solutions
@@ -537,6 +539,6 @@ class VoteResult:
 
         return {
             "id": self.id,
-            "question": self.question,
+            "question": self.init_question,
             "answer": strtify(self.final_reasoning_answer.get_correct_answer()),
         }

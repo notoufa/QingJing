@@ -23,8 +23,8 @@ def handle_question(query):
         "运行时间定义为发电机在额定转速下的运行时间，额定转速运行值为1表示发电机运行了1分钟。": "",
         "下放阶段以ON DP和OFF DP为标志，回收阶段以A架开机和关机为标志": "",
         "平均作业时长": "平均每天作业时长",
-        "开机时长": "运行时长",
-        "开机总时长": "总运行时长",
+        # "开机时长": "运行时长",
+        # "开机总时长": "总运行时长",
         "从征服者出水（约-43°）到落座（约35°）A架右舷摆过的角度可以记为一次完整的摆动（反之亦然），": "",
         "假设A架右舷同一方向上摆动超过10°即可算作一次摆动，": "同方向摆动，",
         "发电机的运行时间": "发电机的运行时长",
@@ -55,6 +55,7 @@ def process_one(line: dict) -> VoteResult | dict:
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
+        vote_res.init_question = line["question"]
         logger.special(
             f"【{id}的最终答案】:\n",
             vote_res.final_reasoning_answer.get_correct_answer(),
@@ -62,7 +63,7 @@ def process_one(line: dict) -> VoteResult | dict:
         return vote_res
     except Exception as e:
         logger.error(f"【获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}")
-        return {"id": id, "question": question, "answer": str(e)}
+        return {"id": id, "question": line["question"], "answer": str(e)}
 
 
 def init():

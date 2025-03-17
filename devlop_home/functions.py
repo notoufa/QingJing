@@ -685,7 +685,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
                 if energy is not None:
                     total_energy += energy
             except Exception as e:
-                print(f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}")
+                logger.error(f"计算设备 {sub_device} 能耗时出错: {e},{traceback.format_exc()}")
         result = total_energy
     else:
         table_name, power_column = device_config[device_name]
@@ -694,12 +694,14 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
             filtered_data = load_and_filter_data(
                 file_path, start_time, end_time, power_column
             )
+            logger.trace(filtered_data)
             if filtered_data is None:
                 result = None
-            total_energy_kWh = filtered_data["energy_kWh"].sum()
-            result = total_energy_kWh
+            else:
+                total_energy_kWh = filtered_data["energy_kWh"].sum()
+                result = total_energy_kWh
         except Exception as e:
-            print(f"计算设备 {device_name} 能耗时出错: {e}")
+            logger.error(f"计算设备 {device_name} 能耗时出错: {e},{traceback.format_exc()}")
     return {
         "result": result,
         "unit": "kWh",
@@ -819,7 +821,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
                 if mj_energy is not None:
                     total_mj_energy += mj_energy
             except Exception as e:
-                print(f"计算设备 {sub_device} {type}时出错: {e}")
+                logger.error(f"计算设备 {sub_device} {type}时出错: {e}")
         result = total_energy
         mj_result = total_mj_energy
     else:
@@ -843,7 +845,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
                 result = total_energy_kWh
 
         except Exception as e:
-            print(f"计算设备 {device_name} {type}时出错: {e}")
+            logger.error(f"计算设备 {device_name} {type}时出错: {e}")
     return {
         "result": result,
         "unit": "L" if type == "燃油消耗量" else "kWh",
