@@ -5,22 +5,23 @@
         "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、求和、数据条数",
         "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？",
         "notices": [
-            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data_by_time_range函数",
+            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data函数",
             "可以查询A架的完整摆动和单次摆动的次数",
             "可以查询设备的运行时长"
         ]
     },
     {
-        "function_name": "get_data_by_time_range",
+        "function_name": "get_data",
         "input": "数据表名、开始时间、结束时间、列名（可选）、限制条件（可选）。",
         "output": "指定时间范围内符合限制条件的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等），支持查询特定工作状态（布放、回收、工作）。"
     },
     {
-        "function_name": "get_actions_by_time_range",
+        "function_name": "get_actions",
         "input": "开始时间、结束时间。",
         "output": "指定时间范围内发生的所有关键动作",
         "notices": [
-            "如要查询某具体的关键动作发生的时间点，请调用get_data_by_time_range函数"
+            "如要查询某时间发生的具体动作，请调用get_actions函数",
+            "如要查询某具体的关键动作发生的时间点，请调用get_data函数"
         ]
     },
     {
@@ -29,7 +30,7 @@
         "output": "该参数的上下限范围及触发的机制或事件（如报警值、安全保护设定值及对应措施）"
     },
     {
-        "function_name": "get_total_energy_consumption_by_time_range",
+        "function_name": "get_total_energy_consumption",
         "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）",
         "output": "该设备在指定时间范围内的总能耗/总做功（单位：kWh）",
         "notices": [
@@ -37,7 +38,7 @@
         ]
     },
     {
-        "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
+        "function_name": "get_total_energy_generation_or_fuel_consumption",
         "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组(包括一号/二号/三号/四号)）、查询类型（理论发电量、实际发电量、燃油消耗量）",
         "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）",
         "notices": [

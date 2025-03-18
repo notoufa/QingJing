@@ -891,7 +891,7 @@
             },
             {
                 "name": "key_action",
-                "desc": "DP动作,包括'OFF DP'、'ON DP'"
+                "desc": "DP动作,包括'OFF DP'、'ON DP'。不要查询这两个动作之外的动作"
             },
             {
                 "name": "running_status",

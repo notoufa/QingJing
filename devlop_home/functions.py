@@ -40,7 +40,7 @@ def get_text_table(result: dict) -> str:
     return table.draw()
 
 
-def get_data_by_time_range(
+def get_data(
     table_name,
     start_time: str,
     end_time: str,
@@ -65,7 +65,7 @@ def get_data_by_time_range(
     dict: 包含指定列名和对应值的字典，或错误信息
     """
     metadata = {
-        "function_name": "get_data_by_time_range",
+        "function_name": "get_data",
         "table_name": table_name,
         "start_time": start_time,
         "end_time": end_time,
@@ -441,7 +441,7 @@ def aggregate_data(
     }
 
 
-def get_actions_by_time_range(start_time, end_time):
+def get_actions(start_time, end_time):
     """
     根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备动作列表。
     参数:
@@ -452,7 +452,7 @@ def get_actions_by_time_range(start_time, end_time):
     dict: 包含设备状态变化的时间点和对应状态的字典，或错误信息
     """
     metadata = {
-        "function_name": "get_actions_by_time_range",
+        "function_name": "get_actions",
         "start_time": start_time,
         "end_time": end_time,
     }
@@ -637,7 +637,7 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
     return filtered_data
 
 
-def get_total_energy_consumption_by_time_range(start_time, end_time, device_name):
+def get_total_energy_consumption(start_time, end_time, device_name):
     """
     根据开始时间和结束时间，查询设备在指定时间范围内的总能耗。
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
@@ -646,7 +646,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     :return: 总能耗（kWh，float 类型）
     """
     metadata = {
-        "function_name": "get_total_energy_consumption_by_time_range",
+        "function_name": "get_total_energy_consumption",
         "start_time": start_time,
         "end_time": end_time,
         "device_name": device_name,
@@ -685,7 +685,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
         total_energy = 0
         for sub_device in device_config[device_name]:
             try:
-                energy = get_total_energy_consumption_by_time_range(
+                energy = get_total_energy_consumption(
                     start_time, end_time, device_name=sub_device
                 )["result"]
                 if energy is not None:
@@ -719,7 +719,7 @@ def get_total_energy_consumption_by_time_range(start_time, end_time, device_name
     }
 
 
-def get_total_energy_generation_or_fuel_consumption_by_time_range(
+def get_total_energy_generation_or_fuel_consumption(
     start_time: str,
     end_time: str,
     type: str,
@@ -739,7 +739,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
     :return: 发电量或燃油消耗量
     """
     metadata = {
-        "function_name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
+        "function_name": "get_total_energy_generation_or_fuel_consumption",
         "start_time": start_time,
         "end_time": end_time,
         "type": type,
@@ -815,7 +815,7 @@ def get_total_energy_generation_or_fuel_consumption_by_time_range(
         for sub_device in device_config[type][device_name]:
             try:
                 sub_result = (
-                    get_total_energy_generation_or_fuel_consumption_by_time_range(
+                    get_total_energy_generation_or_fuel_consumption(
                         start_time,
                         end_time,
                         type,
@@ -900,7 +900,7 @@ def calculate_action_proportion(
             "metadata": metadata,
         }
 
-    get_data_result = get_data_by_time_range(
+    get_data_result = get_data(
         action_table_configs[key_action],
         start_time,
         end_time,
@@ -1458,11 +1458,11 @@ def generate_simple_python_code(task_description: str):
 #         print("生成的代码运行错误。")
 
 function_map: dict[str, callable] = {
-    "get_data_by_time_range": get_data_by_time_range,
-    "get_actions_by_time_range": get_actions_by_time_range,
+    "get_data": get_data,
+    "get_actions": get_actions,
     "get_device_parameter_by_name": get_device_parameter_by_name,
-    "get_total_energy_consumption_by_time_range": get_total_energy_consumption_by_time_range,
-    "get_total_energy_generation_or_fuel_consumption_by_time_range": get_total_energy_generation_or_fuel_consumption_by_time_range,
+    "get_total_energy_consumption": get_total_energy_consumption,
+    "get_total_energy_generation_or_fuel_consumption": get_total_energy_generation_or_fuel_consumption,
     "calculate_action_proportion": calculate_action_proportion,
     "calculate_math_operations": calculate_math_operations,
     "calculate_time_interval": calculate_time_interval,
@@ -1476,7 +1476,7 @@ function_map: dict[str, callable] = {
 
 if __name__ == "__main__":
     print(
-        get_data_by_time_range(
+        get_data(
             "A架动作表",
             "2024-05-19 00:00:00",
             "2024-05-19 23:59:59",
@@ -1484,7 +1484,7 @@ if __name__ == "__main__":
             conditions= [{"column": "stage", "operator": "==", "value": "回收阶段结束"}],
         )
     )
-    # print(get_total_energy_consumption_by_time_range('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
+    # print(get_total_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(

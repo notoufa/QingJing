@@ -304,9 +304,11 @@ class Decomposition:
         subtasks,
         chain_of_subtasks,
         raw_question,
+        dependency,
     ):
         self.contains_time: bool = contains_time
         self.raw_question: str = raw_question
+        self.dependency: str = dependency
         self.format_requirement: str = format_requirement
         self.assumption: str = assumption
         self.subtasks: list[Subtask] = subtasks
@@ -339,6 +341,7 @@ class Decomposition:
             subtasks=subtasks,
             chain_of_subtasks=data.get("chain_of_subtasks", ""),
             raw_question=data.get("raw_question", ""),
+            dependency=data.get("dependency", ""),
         )
 
     def to_dict(self, export_api_response: bool = True):
@@ -348,6 +351,7 @@ class Decomposition:
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
             "raw_question": self.raw_question,
+            "dependency": self.dependency,
             "subtasks": [
                 subtask.to_dict(export_api_response) for subtask in self.subtasks
             ],
@@ -362,6 +366,7 @@ class Decomposition:
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
             "raw_question": self.raw_question,
+            "dependency": self.dependency,
             "subtasks": [subtask.to_update_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
         }
@@ -373,6 +378,7 @@ class Decomposition:
             "format_requirement": self.format_requirement,
             "assumption": self.assumption,
             "raw_question": self.raw_question,
+            "dependency": self.dependency,
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
         }
@@ -413,7 +419,8 @@ class Decomposition:
             "\n",
             f"假设条件：{self.assumption}\n",
             f"格式要求：{self.format_requirement}\n",
-            f"原始问题：{self.raw_question}",
+            f"原始问题：{self.raw_question}\n",
+            f"前后依赖：{self.dependency}",
             "\n",
             table.draw(),
         )

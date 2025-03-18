@@ -2,7 +2,7 @@
     {
         "type": "function",
         "function": {
-            "name": "get_data_by_time_range",
+            "name": "get_data",
             "description": "根据数据表名、开始时间、结束时间、列名和状态获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。",
             "parameters": {
                 "type": "object",
@@ -14,12 +14,12 @@
                     "start_time": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "查询的开始时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 00:00:00'。"
+                        "description": "查询的开始时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 00:00:00'。查询某个时间点的数据时，start_time=end_time，如查询2024年8月23日16点24的数据，start_time=end_time='2024-08-23 16:24:00'。"
                     },
                     "end_time": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。"
+                        "description": "查询的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'，例如 '2024-08-23 12:00:00'。查询某个时间点的数据时，start_time=end_time，如查询2024年8月23日16点24的数据，start_time=end_time='2024-08-23 16:24:00'。"
                     },
                     "columns": {
                         "type": "array",
@@ -178,7 +178,7 @@
     {
         "type": "function",
         "function": {
-            "name": "get_actions_by_time_range",
+            "name": "get_actions",
             "description": "根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备及动作列表。",
             "parameters": {
                 "type": "object",
@@ -223,7 +223,7 @@
     {
         "type": "function",
         "function": {
-            "name": "get_total_energy_consumption_by_time_range",
+            "name": "get_total_energy_consumption",
             "description": "查询指定时间段内指定设备的总能耗/总做功。返回值为总能耗/总做功（kWh，float 类型）。支持的设备包括：'全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'A架'、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进器）、'主推'（主推进器）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B'",
             "parameters": {
                 "type": "object",
@@ -274,7 +274,7 @@
     {
         "type": "function",
         "function": {
-            "name": "get_total_energy_generation_or_fuel_consumption_by_time_range",
+            "name": "get_total_energy_generation_or_fuel_consumption",
             "description": "查询指定时间段内的理论发电量、实际发电量或燃油消耗量。返回值为理论发电量（kWh，float 类型）、实际发电量（kWh，float 类型）或燃油消耗量（L，float 类型）。",
             "parameters": {
                 "type": "object",
