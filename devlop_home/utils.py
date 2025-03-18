@@ -255,9 +255,15 @@ def convert_stream_to_completion(stream_response):
     return completion
 
 
-def fetch_response(path):
+def check_jsonl(path_or_data, is_file=True):
+    if not is_file:
+        tmp_path = os.path.join(os.getcwd(), "temp.jsonl")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(path_or_data, ensure_ascii=False))
+        path_or_data = tmp_path
+        print(path_or_data)
     try:
-        with open(path, "rb") as file:
+        with open(path_or_data, "rb") as file:
             response = requests.post(
                 module_config.api_base_url,
                 files={"file": (file.name, file, "text/plain")},

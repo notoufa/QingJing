@@ -25,7 +25,7 @@
         }
     ],
     "module_config": {
-        "api_base_url": "http://59.110.5.157:3009",
+        "api_base_url": "https://glm.cloudchewie.com",
         "enable_update_decomposition": false,
         "enable_summary": true,
         "enable_correct": false,

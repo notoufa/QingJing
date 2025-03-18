@@ -53,7 +53,7 @@ def process_one(line: dict) -> VoteResult | dict:
     #         answer = item["answer"]
     #         break
 
-    if int(id.split("_")[-1]) < 51:
+    if int(id.split("_")[-1]) < 101:
         return {"id": id, "question": question, "answer": ""}
 
     try:
@@ -90,7 +90,6 @@ def main():
         input_params = json.loads(content)
 
     question_filepath = input_params["fileData"]["questionFilePath"]
-    utils.fetch_response(question_filepath)
 
     date_str = time.strftime("%Y-%m-%d", time.localtime())
     solution_path = os.path.join(solution_dir, f"solution_{date_str}.json")
@@ -103,6 +102,7 @@ def main():
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
+    utils.check_jsonl(question_list, False)
 
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
@@ -128,8 +128,8 @@ def main():
                 submit_result_list.append(vote_res)
                 utils.save_submit_result(submit_result_list, out_path)
 
-    utils.fetch_response(out_path)
-    utils.fetch_response(solution_path)
+    utils.check_jsonl(submit_result_list, False)
+    utils.check_jsonl(vote_results, False)
 
 
 if __name__ == "__main__":
