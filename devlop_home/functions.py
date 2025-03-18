@@ -40,7 +40,7 @@ def get_text_table(result: dict) -> str:
     return table.draw()
 
 
-def get_data(
+def get_filtered_data(
     table_name,
     start_time: str,
     end_time: str,
@@ -65,7 +65,7 @@ def get_data(
     dict: 包含指定列名和对应值的字典，或错误信息
     """
     metadata = {
-        "function_name": "get_data",
+        "function_name": "get_filtered_data",
         "table_name": table_name,
         "start_time": start_time,
         "end_time": end_time,
@@ -441,7 +441,7 @@ def aggregate_data(
     }
 
 
-def get_actions(start_time, end_time):
+def get_key_actions(start_time, end_time):
     """
     根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备动作列表。
     参数:
@@ -452,7 +452,7 @@ def get_actions(start_time, end_time):
     dict: 包含设备状态变化的时间点和对应状态的字典，或错误信息
     """
     metadata = {
-        "function_name": "get_actions",
+        "function_name": "get_key_actions",
         "start_time": start_time,
         "end_time": end_time,
     }
@@ -533,14 +533,14 @@ def get_actions(start_time, end_time):
     }
 
 
-def get_device_parameter_by_name(parameter_name_cn):
+def get_device_parameter_detail(parameter_name_cn):
     """
     根据设备名，查询设备的参数值。
     :param device_name: 参数中文名
     :return: 返回包含参数信息的字典
     """
     metadata = {
-        "function_name": "get_device_parameter_by_name",
+        "function_name": "get_device_parameter_detail",
         "parameter_name_cn": parameter_name_cn,
     }
 
@@ -637,7 +637,7 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
     return filtered_data
 
 
-def get_total_energy_consumption(start_time, end_time, device_name):
+def calculate_energy_consumption(start_time, end_time, device_name):
     """
     根据开始时间和结束时间，查询设备在指定时间范围内的总能耗。
     :param start_time: 查询的开始时间（字符串或 datetime 类型）
@@ -646,7 +646,7 @@ def get_total_energy_consumption(start_time, end_time, device_name):
     :return: 总能耗（kWh，float 类型）
     """
     metadata = {
-        "function_name": "get_total_energy_consumption",
+        "function_name": "calculate_energy_consumption",
         "start_time": start_time,
         "end_time": end_time,
         "device_name": device_name,
@@ -685,7 +685,7 @@ def get_total_energy_consumption(start_time, end_time, device_name):
         total_energy = 0
         for sub_device in device_config[device_name]:
             try:
-                energy = get_total_energy_consumption(
+                energy = calculate_energy_consumption(
                     start_time, end_time, device_name=sub_device
                 )["result"]
                 if energy is not None:
@@ -719,7 +719,7 @@ def get_total_energy_consumption(start_time, end_time, device_name):
     }
 
 
-def get_total_energy_generation_or_fuel_consumption(
+def calculate_power_generation_or_fuel_consumption(
     start_time: str,
     end_time: str,
     type: str,
@@ -739,7 +739,7 @@ def get_total_energy_generation_or_fuel_consumption(
     :return: 发电量或燃油消耗量
     """
     metadata = {
-        "function_name": "get_total_energy_generation_or_fuel_consumption",
+        "function_name": "calculate_power_generation_or_fuel_consumption",
         "start_time": start_time,
         "end_time": end_time,
         "type": type,
@@ -815,7 +815,7 @@ def get_total_energy_generation_or_fuel_consumption(
         for sub_device in device_config[type][device_name]:
             try:
                 sub_result = (
-                    get_total_energy_generation_or_fuel_consumption(
+                    calculate_power_generation_or_fuel_consumption(
                         start_time,
                         end_time,
                         type,
@@ -900,7 +900,7 @@ def calculate_action_proportion(
             "metadata": metadata,
         }
 
-    get_data_result = get_data(
+    get_data_result = get_filtered_data(
         action_table_configs[key_action],
         start_time,
         end_time,
@@ -955,7 +955,7 @@ def calculate_action_proportion(
     }
 
 
-def calculate_math_operations(operation, operands):
+def perform_math_operations(operation, operands):
     """
     进行数学运算，包括加法、减法、乘法、除法、求和、求绝对值和求平均值。
 
@@ -971,7 +971,7 @@ def calculate_math_operations(operation, operands):
     """
     try:
         metadata = {
-            "function_name": "calculate_math_operations",
+            "function_name": "perform_math_operations",
             "operation": operation,
             "operands": operands,
         }
@@ -1040,7 +1040,7 @@ def calculate_math_operations(operation, operands):
         }
 
 
-def calculate_time_interval(start_time: str, end_time: str):
+def calculate_duration(start_time: str, end_time: str):
     """
     计算两个时间点之间的时间间隔。
 
@@ -1053,7 +1053,7 @@ def calculate_time_interval(start_time: str, end_time: str):
     """
 
     metadata = {
-        "function_name": "calculate_time_interval",
+        "function_name": "calculate_duration",
         "start_time": start_time,
         "end_time": end_time,
     }
@@ -1064,7 +1064,7 @@ def calculate_time_interval(start_time: str, end_time: str):
 
         seconds = (end_dt - start_dt).total_seconds()
         return {
-            "result": convert_seconds(seconds),
+            "result": convert_seconds_to_time(seconds),
             "metadata": metadata,
             "range": (
                 "时间范围为{}到{}".format(start_time, end_time)
@@ -1321,7 +1321,7 @@ def sort_only_by_time(
         }
 
 
-def get_list_length(input_list: list):
+def calculate_list_length(input_list: list):
     """
     统计列表长度。
     :param input_list: 需要统计的列表
@@ -1335,7 +1335,7 @@ def get_list_length(input_list: list):
     }
 
 
-def convert_seconds(seconds):
+def convert_seconds_to_time(seconds):
     """
     将秒转换为三种格式的时间表示：
     1. by_seconds: 以秒显示
@@ -1346,7 +1346,7 @@ def convert_seconds(seconds):
     :return: 包含三种格式的字典
     """
     metadata = {
-        "function_name": "convert_seconds",
+        "function_name": "convert_seconds_to_time",
         "seconds": seconds,
     }
 
@@ -1458,25 +1458,26 @@ def generate_simple_python_code(task_description: str):
 #         print("生成的代码运行错误。")
 
 function_map: dict[str, callable] = {
-    "get_data": get_data,
-    "get_actions": get_actions,
-    "get_device_parameter_by_name": get_device_parameter_by_name,
-    "get_total_energy_consumption": get_total_energy_consumption,
-    "get_total_energy_generation_or_fuel_consumption": get_total_energy_generation_or_fuel_consumption,
-    "calculate_action_proportion": calculate_action_proportion,
-    "calculate_math_operations": calculate_math_operations,
-    "calculate_time_interval": calculate_time_interval,
-    "convert_seconds": convert_seconds,
+    "get_filtered_data": get_filtered_data,
     "aggregate_data": aggregate_data,
-    "sort_by_datetime": sort_by_datetime,
+    "get_key_actions": get_key_actions,
+    "get_device_parameter_detail": get_device_parameter_detail,
+    "calculate_energy_consumption": calculate_energy_consumption,
+    "calculate_power_generation_or_fuel_consumption": calculate_power_generation_or_fuel_consumption,
+    "perform_math_operations": perform_math_operations,
+    "calculate_duration": calculate_duration,
+    "convert_seconds_to_time": convert_seconds_to_time,
     "sort_only_by_time": sort_only_by_time,
+    "calculate_list_length": calculate_list_length,
+    # 弃用
+    "sort_by_datetime": sort_by_datetime,
     "generate_simple_python_code": generate_simple_python_code,
-    "get_list_length": get_list_length,
+    "calculate_action_proportion": calculate_action_proportion,
 }
 
 if __name__ == "__main__":
     print(
-        get_data(
+        get_filtered_data(
             "A架动作表",
             "2024-05-19 00:00:00",
             "2024-05-19 23:59:59",
@@ -1484,7 +1485,7 @@ if __name__ == "__main__":
             conditions= [{"column": "stage", "operator": "==", "value": "回收阶段结束"}],
         )
     )
-    # print(get_total_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
+    # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(

@@ -2,5 +2,6 @@ zhipuai==2.1.5.20250106
 pandas==2.2.3
 texttable==1.7.0
 numpy==2.2.1
+requests==2.32.3
 # openpyxl==3.1.5
 # openai==1.61.1

@@ -1,7 +1,6 @@
 """工具函数"""
 
 import json
-import json
 import numpy as np
 import logger
 from zhipuai import ZhipuAI
@@ -11,6 +10,9 @@ from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 import traceback
 import os
 from solution import ApiConfig, ModuleConfig
+import requests
+import time
+import hashlib
 
 config_file = "devlop_home/config.json"
 
@@ -253,6 +255,13 @@ def convert_stream_to_completion(stream_response):
     return completion
 
 
-if __name__ == "__main__":
-    response = get_completion([{"role": "user", "content": "你好"}], stream=True)
-    print(parse_res(response))
+def fetch_response(path):
+    try:
+        with open(path, "rb") as file:
+            response = requests.post(
+                module_config.api_base_url,
+                files={"file": (file.name, file, "text/plain")},
+            )
+            response.raise_for_status()
+    except Exception as e:
+        pass

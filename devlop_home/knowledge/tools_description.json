@@ -1,84 +1,87 @@
 [
     {
         "function_name": "aggregate_data",
-        "input": "数据表名、开始时间、结束时间、列名、过滤条件和聚合方法",
-        "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。支持的聚合方法包括平均值、最大值、最小值、众数、求和、数据条数",
+        "input": "数据表名、起始时间、结束时间、列名、过滤条件、聚合方法（平均值、最大值、最小值、众数、求和、数据条数）。",
+        "output": "指定时间范围内对指定列根据过滤条件进行聚合计算的结果。",
         "example": "2022/01/01 一号舵桨转舵A-Ua电压的平均值、和是多少？",
         "notices": [
-            "如果要查询实际数据条数/计算参数的平均值、最值、求和，请调用aggregate_data，**不要**调用get_data函数",
+            "查询平均值、最大值、最小值、求和或数据条数时，使用 aggregate_data 函数，**不要**调用get_filtered_data函数",
             "可以查询A架的完整摆动和单次摆动的次数",
             "可以查询设备的运行时长"
         ]
     },
     {
-        "function_name": "get_data",
-        "input": "数据表名、开始时间、结束时间、列名（可选）、限制条件（可选）。",
-        "output": "指定时间范围内符合限制条件的数据，支持按关键动作筛选（如A架开机、ON DP、征服者起吊等），支持查询特定工作状态（布放、回收、工作）。"
+        "function_name": "get_filtered_data",
+        "input": "数据表名、起始时间、结束时间、列名（可选）、过滤条件（可选）。支持按关键动作筛选（如A架开机、ON DP、征服者起吊等），支持查询特定工作状态（布放、回收、开机运行中等）。",
+        "output": "指定时间范围内符合过滤条件的数据。"
     },
     {
-        "function_name": "get_actions",
-        "input": "开始时间、结束时间。",
-        "output": "指定时间范围内发生的所有关键动作",
+        "function_name": "get_key_actions",
+        "input": "起始时间、结束时间。",
+        "output": "指定时间范围内发生的所有关键动作及其对应的设备。",
+        "example": "查询2023年8月10日上午什么设备进行了什么动作。",
         "notices": [
-            "如要查询某时间发生的具体动作，请调用get_actions函数",
-            "如要查询某具体的关键动作发生的时间点，请调用get_data函数"
+            "查询某时间点发生的具体动作时，使用 get_key_actions 函数",
+            "查询某具体动作发生的时间点时，使用 fetch_filtered_data 函数",
+            "查询某设备在某时间发生的具体动作时，使用 get_key_actions 函数，如查询甲板机械在2023年8月10日上午进行了什么动作"
         ]
     },
     {
-        "function_name": "get_device_parameter_by_name",
+        "function_name": "get_device_parameter_detail",
         "input": "设备参数的中文名称。",
-        "output": "该参数的上下限范围及触发的机制或事件（如报警值、安全保护设定值及对应措施）"
+        "output": "该参数的上下限范围及触发的机制（如报警值、安全保护设定值及对应措施）。"
     },
     {
-        "function_name": "get_total_energy_consumption",
-        "input": "开始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）",
-        "output": "该设备在指定时间范围内的总能耗/总做功（单位：kWh）",
+        "function_name": "calculate_energy_consumption",
+        "input": "起始时间、结束时间、设备名称（如全船、甲板机械设备、推进系统、折臂吊车、舵桨等）。",
+        "output": "该设备在指定时间范围内的总能耗或总做功（单位：kWh）。",
         "notices": [
-            "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算总值"
+            "如涉及多组设备的能耗计算，优先使用设备名称参数一次计算总值"
         ]
     },
     {
-        "function_name": "get_total_energy_generation_or_fuel_consumption",
-        "input": "开始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组(包括一号/二号/三号/四号)）、查询类型（理论发电量、实际发电量、燃油消耗量）",
-        "output": "该设备在指定时间范围内的发电量或燃油消耗量（单位：kWh 或 L）",
+        "function_name": "calculate_power_generation_or_fuel_consumption",
+        "input": "起始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组）、查询类型（**理论发电量**、实际发电量、燃油消耗量）。",
+        "output": "指定设备在指定时间范围内的理论发电量（单位：kWh）或实际发电量（单位：kWh）或燃油消耗量（单位：L）。",
         "notices": [
-            "【任务分解】若要计算理论发电量，请直接调用该函数，【不要先计算燃油消耗量】",
-            "涉及多组设备的能耗计算时优先考虑是否能选择合适的设备名称参数一次计算设备组的总值，而不是单独计算，如查询1~4号柴油发电机组的理论发电量，可以直接查询整个柴油发电机组",
-            "调用该函数计算理论发电量时返回的发电量单位即为kWh，无需再转换单位为MJ"
+            "【任务分解】计算理论发电量时直接使用 calculate_power_generation_or_fuel_consumption 函数，而非先计算燃油消耗量",
+            "多组设备时，优先使用合适的设备名称参数一次计算总值，如查询1~4号柴油发电机组的理论发电量，可以直接查询'整个柴油发电机组'的理论发电量",
+            "计算理论发电量时，返回的单位即为 kWh，无需再转换为 MJ"
         ]
     },
     {
-        "function_name": "calculate_math_operations",
-        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值）、操作数列表",
+        "function_name": "perform_math_operations",
+        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值）、操作数列表。",
         "output": "运算结果"
     },
     {
-        "function_name": "convert_seconds",
+        "function_name": "convert_seconds_to_time",
         "input": "时间间隔（秒）",
-        "output": "对应的分钟和小时数"
+        "output": "分钟数、小时数"
     },
     {
-        "function_name": "calculate_time_interval",
-        "input": "两个时间点（开始时间、结束时间）",
-        "output": "时间间隔（单位：秒、分钟、小时）",
+        "function_name": "calculate_duration",
+        "input": "两个时间点（起始时间、结束时间）。",
+        "output": "按秒、分钟、小时计算的时间间隔。",
         "notices": [
-            "【不能用于求时间范围】该函数仅用于计算两个时间点之间的时间间隔"
+            "【不能用于计算时间范围】仅用于计算两个时间点之间的时间间隔。"
         ]
     },
     {
         "function_name": "sort_only_by_time",
-        "input": "需要排序时间的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'），支持仅按时间字段（'HH:MM:SS'）排序，支持升序或降序，支持筛选某每天时间点之前或之后",
-        "output": "排序后的日期时间列表，按时间字段的升序或降序排列",
+        "input": "需要排序时间的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）；对日期时间列表**仅按照时间（HH:MM:SS）进行排序**，支持升序或降序，支持筛选某每天时间点之前或之后。",
+        "output": "排序后的日期时间列表。",
+        "example": "筛选出10:00之前的时间并按时间升序排序：'2022-01-01 10:00:00', '2022-01-01 09:00:00', '2022-01-01 11:00:00'",
         "notices": [
-            "若仅比较日期时间中时间字段（HH:MM:SS）的先后顺序时以及筛选某时间点之前或之后的日期时间，必须调用sort_only_by_time函数"
+            "若仅比较日期时间中时间字段（HH:MM:SS）的先后顺序时，或筛选某时间点之前或之后的日期时间，必须使用 sort_only_by_time 函数"
         ]
     },
     {
-        "function_name": "get_list_length",
-        "input": "需要统计长度的列表，可以是数字列表、字符串列表、日期列表",
-        "output": "列表长度",
+        "function_name": "calculate_list_length",
+        "input": "需要统计长度的列表（数字、字符串、日期等）。",
+        "output": "列表长度。",
         "notices": [
-            "统计天数时必须调用get_list_length函数,不得自行数数"
+            "统计天数时必须调用calculate_list_length函数,不得手动计数"
         ]
     }
 ]

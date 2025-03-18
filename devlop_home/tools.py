@@ -7,12 +7,11 @@ tools_file = "devlop_home/knowledge/tools.json"
 tools_description_file = "devlop_home/knowledge/tools_description.json"
 
 calculate_tools_name = [
-    "calculate_math_operations",
-    "convert_seconds",
-    "calculate_time_interval",
-    "sort_by_datetime",
+    "perform_math_operations",
+    "convert_seconds_to_time",
+    "calculate_duration",
     "sort_only_by_time",
-    "get_list_length",
+    "calculate_list_length",
 ]
 
 

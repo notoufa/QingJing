@@ -2,14 +2,14 @@
     {
         "type": "function",
         "function": {
-            "name": "get_data",
-            "description": "根据数据表名、开始时间、结束时间、列名和状态获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。",
+            "name": "get_filtered_data",
+            "description": "查询筛选后的数据。输入：数据表名、起始时间、结束时间、列名（可选）、过滤条件（可选）。输出：指定时间范围内符合过滤条件的数据。支持按关键动作筛选（如A架开机、ON DP、征服者起吊等），支持查询特定工作状态（布放、回收、开机运行中等）。",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "table_name": {
                         "type": "string",
-                        "description": "数据表名，例如 'device_logs'。"
+                        "description": "数据表名。"
                     },
                     "start_time": {
                         "type": "string",
@@ -86,13 +86,13 @@
         "type": "function",
         "function": {
             "name": "aggregate_data",
-            "description": "根据数据表名、时间范围、列名、过滤条件、聚合方法计算指定列的聚合结果。支持计算平均值、最大值、最小值、众数、总和和数据条数等聚合操作。",
+            "description": "按指定列对数据进行聚合运算。输入：数据表名、起始时间、结束时间、列名、过滤条件、聚合方法（平均值、最大值、最小值、众数、求和、数据条数）。输出：指定时间范围内对指定列根据过滤条件进行聚合计算的结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "table_name": {
                         "type": "string",
-                        "description": "数据表名，例如 'device_logs'。"
+                        "description": "数据表名。"
                     },
                     "start_time": {
                         "type": "string",
@@ -178,8 +178,8 @@
     {
         "type": "function",
         "function": {
-            "name": "get_actions",
-            "description": "根据开始时间和结束时间，查询什么设备在进行什么动作。返回正在进行的设备及动作列表。",
+            "name": "get_key_actions",
+            "description": "查询某时间段（某设备）发生的所有关键动作。输入：起始时间、结束时间。输出：指定时间范围内发生的所有关键动作及其对应的设备。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -204,8 +204,8 @@
     {
         "type": "function",
         "function": {
-            "name": "get_device_parameter_by_name",
-            "description": "根据参数中文名称查询设备参数信息，包括参数上下限范围、何时触发何种机制/事件（如报警值、安全保护设定值及对应措施），返回包含参数信息的字典。",
+            "name": "get_device_parameter_detail",
+            "description": "查询设备参数信息。输入：设备参数的中文名称。输出：该参数的上下限范围及触发的机制（如报警值、安全保护设定值及对应措施）及其他信息。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -223,8 +223,8 @@
     {
         "type": "function",
         "function": {
-            "name": "get_total_energy_consumption",
-            "description": "查询指定时间段内指定设备的总能耗/总做功。返回值为总能耗/总做功（kWh，float 类型）。支持的设备包括：'全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'A架'、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进器）、'主推'（主推进器）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B'",
+            "name": "calculate_energy_consumption",
+            "description": "计算设备的总能耗（总做功）。输入：起始时间、结束时间、设备名称。输出：该设备在指定时间范围内的总能耗或总做功（单位：kWh）。支持的设备包括：'全船'、'甲板机械设备'（包括折臂吊车、门架、绞车等）、'A架'、'折臂吊车'、'一号门架'、'二号门架'、'绞车变频器'、'推进系统'（推进器）、'主推'（主推进器）、'一号推进变频器'、'二号推进变频器'、'可伸缩推'、'侧推'、'舵桨'（整体舵桨系统）、'一号舵桨转舵A'、'一号舵桨转舵B'、'二号舵桨转舵A'、'二号舵桨转舵B'",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -274,8 +274,8 @@
     {
         "type": "function",
         "function": {
-            "name": "get_total_energy_generation_or_fuel_consumption",
-            "description": "查询指定时间段内的理论发电量、实际发电量或燃油消耗量。返回值为理论发电量（kWh，float 类型）、实际发电量（kWh，float 类型）或燃油消耗量（L，float 类型）。",
+            "name": "calculate_power_generation_or_fuel_consumption",
+            "description": "计算发电机的发电量或燃油消耗量。输入：起始时间、结束时间、设备名称（如一号/二号/三号/四号或整个柴油发电机组）、查询类型（**理论发电量**、实际发电量、燃油消耗量）。输出：指定设备在指定时间范围内的理论发电量（单位：kWh）或实际发电量（单位：kWh）或燃油消耗量（单位：L）。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -311,11 +311,11 @@
                     },
                     "diesel_density": {
                         "type": "number",
-                        "description": "柴油密度，单位 kg/L。当 type 为 '理论发电量' 时需要提供。"
+                        "description": "柴油密度，单位 kg/L。当 type 为 '理论发电量' 时提供。"
                     },
                     "diesel_calorific_value": {
                         "type": "number",
-                        "description": "柴油热值，单位 MJ/kg。当 type 为 '理论发电量' 时需要提供。"
+                        "description": "柴油热值，单位 MJ/kg。当 type 为 '理论发电量' 时提供。"
                     }
                 },
                 "required": [
@@ -330,42 +330,8 @@
     {
         "type": "function",
         "function": {
-            "name": "calculate_action_proportion",
-            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24在9点前开始作业的比例（%，保留2位小数）",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "start_time": {
-                        "type": "string",
-                        "description": "时间段起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "description": "时间段结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
-                    },
-                    "key_action": {
-                        "type": "string",
-                        "description": "需要计算比例的动作名称，支持以下值：A架开机、ON DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座"
-                    },
-                    "time_point": {
-                        "type": "string",
-                        "description": "指定时间点，格式为 'HH:MM'，表示该时间点前的比例。"
-                    }
-                },
-                "required": [
-                    "start_time",
-                    "end_time",
-                    "key_action",
-                    "time_point"
-                ]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "calculate_math_operations",
-            "description": "进行数学运算，包括加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值。返回运算结果。",
+            "name": "perform_math_operations",
+            "description": "进行数学运算。输入：运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值）、操作数列表。输出：运算结果。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -402,8 +368,8 @@
     {
         "type": "function",
         "function": {
-            "name": "calculate_time_interval",
-            "description": "计算两个时间点之间的时间间隔【而不是时间范围】，支持秒、分钟、小时的计算。返回值为按秒、分钟、小时计算的时间间隔。",
+            "name": "calculate_duration",
+            "description": "计算两个时间点之间的时间间隔【而不是时间范围】。输入：时间间隔（秒）。输出：按秒、分钟、小时计算的时间间隔。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -427,7 +393,7 @@
         "type": "function",
         "function": {
             "name": "sort_only_by_time",
-            "description": "对日期时间列表仅按照时间（HH:MM:SS）进行排序,可选择升序或降序，可筛选每天出指定时间段的时间",
+            "description": "对日期时间列表**仅按照时间（HH:MM:SS）进行排序**。输入：需要排序时间的列表，元素为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。输出：排序后的日期时间列表。支持升序或降序，支持筛选某每天时间点之前或之后。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -497,8 +463,8 @@
     {
         "type": "function",
         "function": {
-            "name": "convert_seconds",
-            "description": "将秒转换为分钟、小时，并返回对应的数值。",
+            "name": "convert_seconds_to_time",
+            "description": "将秒转换为分钟、小时。输入：时间间隔（秒）。输出：分钟数、小时数",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -516,8 +482,8 @@
     {
         "type": "function",
         "function": {
-            "name": "get_list_length",
-            "description": "根据给出的列表，统计列表。可以是数字列表、字符串列表、日期列表。返回列表长度",
+            "name": "calculate_list_length",
+            "description": "统计列表长度。输入：需要统计长度的列表（数字、字符串、日期等）。输出：列表长度。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -531,6 +497,40 @@
                 },
                 "required": [
                     "input_list"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_action_proportion",
+            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24在9点前开始作业的比例（%，保留2位小数）",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "description": "时间段起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "description": "时间段结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                    },
+                    "key_action": {
+                        "type": "string",
+                        "description": "需要计算比例的动作名称，支持以下值：A架开机、ON DP、征服者起吊、征服者入水、缆绳解除、A架摆回、小艇落座、A架关机、OFF DP、折臂吊车开机、A架摆出、小艇检查完毕、小艇入水、缆绳挂妥、征服者出水、折臂吊车关机、征服者落座"
+                    },
+                    "time_point": {
+                        "type": "string",
+                        "description": "指定时间点，格式为 'HH:MM'，表示该时间点前的比例。"
+                    }
+                },
+                "required": [
+                    "start_time",
+                    "end_time",
+                    "key_action",
+                    "time_point"
                 ]
             }
         }

@@ -22,6 +22,7 @@ class ModuleConfig:
         max_workers_subtask=5,
         max_function_calling_iterations=6,
         enable_export_api_response=False,
+        api_base_url=None,
     ):
         self.enable_update_decomposition = enable_update_decomposition
         self.enable_summary = enable_summary
@@ -32,6 +33,7 @@ class ModuleConfig:
         self.max_workers_subtask = max_workers_subtask
         self.enable_export_api_response = enable_export_api_response
         self.max_function_calling_iterations = max_function_calling_iterations
+        self.api_base_url = api_base_url
 
     def to_dict(self):
         """将配置转换为字典"""
@@ -45,6 +47,7 @@ class ModuleConfig:
             "max_workers_subtask": self.max_workers_subtask,
             "enable_export_api_response": self.enable_export_api_response,
             "max_function_calling_iterations": self.max_function_calling_iterations,
+            "api_base_url": self.api_base_url,
         }
 
     @classmethod
