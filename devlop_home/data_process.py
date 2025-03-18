@@ -722,7 +722,7 @@ for segment in segments:
         df.loc[df["csvTime"] == start, stage_field] = "回收阶段开始"
         df.loc[df["csvTime"] == end, stage_field] = "回收阶段结束"
         df.loc[(df["csvTime"] > start) & (df["csvTime"] < end), stage_field] = "回收阶段中"
-    elif len(peak_pattern) > 0:
+    elif len(peak_pattern) > 0 and 1==0:
         LLM_predict_count += 1
         LLM_predict_results[LLM_predict_count] = PredictResult(start, end)
         logger.info("【处理时间段】交由大模型预测")
@@ -820,12 +820,12 @@ print('出现过的峰值模式：',peak_patterns)
 # In[ ]:
 
 
-print("LLM预测总数：", LLM_predict_count)
-for key, value in LLM_predict_results.items():
-    print(f"{key}: {value}")
-with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
-    for key, value in LLM_predict_results.items():
-        f.write(f"{key}: {value}\n")
+# print("LLM预测总数：", LLM_predict_count)
+# for key, value in LLM_predict_results.items():
+#     print(f"{key}: {value}")
+# with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
+#     for key, value in LLM_predict_results.items():
+#         f.write(f"{key}: {value}\n")
 
 
 # In[ ]:
@@ -835,6 +835,27 @@ with open(f"{output_path}/LLM_predict_time_range.txt", "w") as f:
 logger.special("开始保存A架数据")
 # df = df.drop(columns=["date"])
 # df = df.drop(columns=['check_current_presence'])
+with open("devlop_home/manual.json", "r", encoding="utf-8") as f:
+    manual_keyaction_data = json.load(f)
+for item in manual_keyaction_data:
+    time=item['csvTime']
+    column=item['values'][0]['name']
+    value=item['values'][0]['value']
+    df.loc[df['csvTime'] == time, column] = value
+with open("devlop_home/manual2.json", "r", encoding="utf-8") as f:
+    manual_stage_data = json.load(f)
+for item in manual_stage_data:
+    begin_time=item['begin_time']
+    end_time=item['end_time']
+    stage=item['stage']
+    if stage=='布放':
+        df.loc[(df['csvTime'] == begin_time) , 'stage'] = '布放阶段开始'
+        df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time), 'stage'] = '布放阶段中'
+        df.loc[(df['csvTime'] == end_time),'stage'] = '布放阶段结束'
+    elif stage=='回收':
+        df.loc[(df['csvTime'] == begin_time),'stage'] = '回收阶段开始'
+        df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time),'stage'] = '回收阶段中'
+        df.loc[(df['csvTime'] == end_time),'stage'] = '回收阶段结束'
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("A架数据保存成功")
