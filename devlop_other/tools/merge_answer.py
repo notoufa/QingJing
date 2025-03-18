@@ -4,13 +4,10 @@ import pandas as pd
 from pathlib import Path
 
 input_files = [
-    "submits/初赛B榜成绩/2025-02-24-第1次-83.49.jsonl",
-    "submits/初赛B榜成绩/2025-02-24-第1次-84.01.jsonl",
+    "submits/复赛A榜成绩/result_2025-03-17.jsonl",
+    "submits/复赛A榜成绩/result_2025-03-18.jsonl",
 ]
-output_file = "tmp/compare.csv"
-
-os.makedirs("tmp", exist_ok=True)
-
+output_file = "devlop_output/compare.csv"
 
 def read_jsonl(file):
     with open(file, "r", encoding="utf-8") as f:
