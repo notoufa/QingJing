@@ -40,6 +40,17 @@ not_running_flag = "未运行"
 # In[ ]:
 
 
+import time
+
+program_start_time = time.time()
+logger.info(
+    "------------------------------【数据预处理开始】------------------------------"
+)
+
+
+# In[ ]:
+
+
 # 合并数据
 def cp_csv_files(input_path, out_path):
     for file_name in os.listdir(input_path):
@@ -149,7 +160,7 @@ def find_next_target_value(index, current_target):
             value = float(value)
             if value > 30 and value < 38:
                 df.loc[i, "full_swing"] = True
-                print("完美摆动：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
+                logger.debug("完美摆动：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
                 return i, -43
         elif current_target == -43:
             value = df.loc[i, "Ajia-0_v"]
@@ -158,7 +169,7 @@ def find_next_target_value(index, current_target):
             value = float(value)
             if value < -40 and value > -46:
                 df.loc[i, "full_swing"] = True
-                print("完美摆动：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
+                logger.debug("完美摆动：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
                 return i, 35
     return -1, -1
 
@@ -185,17 +196,17 @@ def detect_swings(df):
         if prev_value*curr_value > 0 :
             if abs(curr_value-prev_value) > 10:
                 df.loc[i, "directional_swing"] = True
-                print("方向摆动超过10°：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
+                logger.debug("方向摆动超过10°：",df.loc[i, "csvTime"],"Ajia-0_v:", df.loc[i, "Ajia-0_v"])
                 prev_value = curr_value
                 continue
             elif abs(curr_value-prev_value) > 1.5 and prev_value< 30 and curr_value >30:
                 prev_value = curr_value
-                print("更新值为：",prev_value,"时间：",df.loc[i, "csvTime"])
+                logger.debug("更新值为：",prev_value,"时间：",df.loc[i, "csvTime"])
                 continue
         if prev_value*curr_value < 0:
             prev_value = curr_value
             continue
-    print("方向摆动超过10°处理完成")
+    logger.info("方向摆动超过10°处理完成")
         
 
 logger.special("开始处理A架角度范围")
@@ -230,7 +241,7 @@ while index1 < df.shape[0]:
     if index1 == -1:
         break
     index1 += 1
-print("完美摆动处理完成")
+logger.info("完美摆动处理完成")
 detect_swings(df)
 logger.success("A架角度范围处理完成")
 # df = detect_swings(df)
@@ -814,7 +825,7 @@ for segment in segments:
             predict(segment_data, True)
 
     logger.success(f"【处理时间段完成】开机时间: {start}, 关机时间: {end}")
-print('出现过的峰值模式：',peak_patterns) 
+logger.trace('出现过的峰值模式：',peak_patterns) 
 
 
 # In[ ]:
@@ -1126,7 +1137,7 @@ for segment in segments:
                         elif i == 2:
                             df.loc[last_index, key_action_field] = "小艇落座"
                 else:
-                    print("列表中没有大于 9 的值")
+                    logger.warning("列表中没有大于 9 的值")
                 # 保存结果
 # df = df.drop(columns=[stage_field])
 # df = df.drop(columns=['13-11-6_v_new'])
@@ -1237,4 +1248,16 @@ logger.special("开始标注航渡状态和伴航状态")
 label_sailing_begin_end(df_merge)
 df_merge.to_csv(os.path.join(output_path, output_filename), index=False)
 logger.special("航行状态标注完毕")
+
+
+# In[ ]:
+
+
+import time
+program_end_time = time.time()
+elapsed_time_minutes = (program_end_time - program_start_time) / 60
+logger.debug(f"【数据预处理运行时间】 {elapsed_time_minutes:.2f} 分钟")
+logger.info(
+    "------------------------------【数据预处理结束】------------------------------"
+)
 
