@@ -30,7 +30,7 @@ key_action_field = "key_action"
 no_key_action_flag = "False"
 running_status_field = "running_status"
 stage_field = "stage"
-no_stage_field = "False"
+no_stage_flag = "False"
 current_status_field = "current_status"
 no_current_status_flag = "False"
 running_flag = "开机运行中"
@@ -631,7 +631,7 @@ def is_deployment_complete_today(endtime: pd.Timestamp, pd_df: pd.DataFrame) -> 
 
 LLM_predict_count = 0
 LLM_predict_results: dict[int, tuple] = {}
-df[stage_field]=''
+df[stage_field]=no_stage_flag
 peak_patterns =set()
 for segment in segments:
     start, end = segment
@@ -859,6 +859,7 @@ for item in manual_stage_data:
     begin_time=item['begin_time']
     end_time=item['end_time']
     stage=item['stage']
+    df.loc[(df['csvTime'] >= begin_time) & (df['csvTime'] <= end_time),key_action_field] =no_key_action_flag
     if stage=='布放':
         df.loc[(df['csvTime'] == begin_time) , 'stage'] = '布放阶段开始'
         df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time), 'stage'] = '布放阶段中'
@@ -867,6 +868,8 @@ for item in manual_stage_data:
         df.loc[(df['csvTime'] == begin_time),'stage'] = '回收阶段开始'
         df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time),'stage'] = '回收阶段中'
         df.loc[(df['csvTime'] == end_time),'stage'] = '回收阶段结束'
+    else:
+        df.loc[(df['csvTime'] >= begin_time) & (df['csvTime'] <= end_time),stage_field] =no_stage_flag
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("A架数据保存成功")
@@ -945,7 +948,7 @@ logger.special("开始判定折臂吊车关键动作")
 df = pd.read_csv(os.path.join(output_path, table_key))
 df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
 df[key_action_field] = no_key_action_flag
-df[stage_field] = "False"
+df[stage_field] = no_stage_flag
 
 def sliding_window_5(arr):
     """滑动窗口大小为5的逻辑"""
