@@ -835,14 +835,14 @@ print('出现过的峰值模式：',peak_patterns)
 logger.special("开始保存A架数据")
 # df = df.drop(columns=["date"])
 # df = df.drop(columns=['check_current_presence'])
-with open("devlop_home/manual.json", "r", encoding="utf-8") as f:
+with open("devlop_home/manual/actions.json", "r", encoding="utf-8") as f:
     manual_keyaction_data = json.load(f)
 for item in manual_keyaction_data:
     time=item['csvTime']
     column=item['values'][0]['name']
     value=item['values'][0]['value']
     df.loc[df['csvTime'] == time, column] = value
-with open("devlop_home/manual2.json", "r", encoding="utf-8") as f:
+with open("devlop_home/manual/stages.json", "r", encoding="utf-8") as f:
     manual_stage_data = json.load(f)
 for item in manual_stage_data:
     begin_time=item['begin_time']

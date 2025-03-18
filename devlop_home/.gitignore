@@ -9,7 +9,6 @@ tmps_data/**
 test_data/**
 tmp/**
 solutions/**
-manual/**
 tests/**
 old_data/**
 questions/test.jsonl
