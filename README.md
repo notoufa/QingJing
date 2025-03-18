@@ -14,7 +14,7 @@
   - jupyter_core : 5.7.2
   - traitlets : 5.14.3
 - 安装依赖：`pip install -r requirements.txt`
-- 数据集：将数据集放置在`assets/复赛数据`文件夹下
+- 数据集：将数据集放置在`devlop_data/assets/复赛数据`文件夹下
 - 环境变量：设置 GLM 的 API KEY，环境变量名为`ZHIPUAI_API_KEY`
 
 ### 二、运行代码
@@ -27,16 +27,15 @@
 
 #### 2.2 手动运行
 
-1. 生成`data_process.py`文件：`jupyter nbconvert --to script data_process.ipynb`
-2. 运行`data_process.py`文件，预处理数据集至`data`文件夹：`python data_process.py`
-3. 运行`main.py`文件，依次回答问题，得到结果：`python main.py -p`
-   - 可以指定问题文件路径：`python main.py -p -q questions/question.json`
+1. 生成`devlop_home/data_process.py`文件：`jupyter nbconvert --to script devlop_home/data_process.ipynb`
+2. 运行`devlop_home/data_process.py`文件，预处理数据集至`data`文件夹：`python devlop_home/data_process.py`
+3. 运行`devlop_home/main.py`文件，依次回答问题，得到结果：`python devlop_home/main.py -p`
    - 可以修改相关配置，查看`config.json`文件
 
 #### 三、目录结构
 
 ```plaintext
-根目录
+devlop_home目录
 ├── data/               预处理后的数据集(运行代码后才有)
 ├── knowledge/          外部知识、表格元信息、函数调用的定义
 ├── prompts/            提示词
