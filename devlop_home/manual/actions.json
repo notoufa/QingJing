@@ -396,6 +396,78 @@
     ]
   },
   {
+    "csvTime": "2024-05-29 08:50:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者起吊"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-29 08:53:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者入水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-29 08:54:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳解除"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-29 09:00:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆回"
+      }
+    ]
+  },
+  {
+    "csvTime": "2204-05-30 16:41:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆出"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-30 17:11:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳挂妥"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-30 17:12:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者出水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-05-30 17:15:48",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者落座"
+      }
+    ]
+  },
+  {
     "csvTime": "2024-05-31 10:56:48",
     "values": [
       {
@@ -648,7 +720,7 @@
     ]
   },
   {
-    "csvTime": "22024-06-06 08:46:46",
+    "csvTime": "2204-06-06 08:46:46",
     "values": [
       {
         "name": "key_action",
@@ -657,7 +729,7 @@
     ]
   },
   {
-    "csvTime": "22024-06-06 08:48:46",
+    "csvTime": "2204-06-06 08:48:46",
     "values": [
       {
         "name": "key_action",
@@ -666,7 +738,7 @@
     ]
   },
   {
-    "csvTime": "22024-06-06 08:49:46",
+    "csvTime": "2204-06-06 08:49:46",
     "values": [
       {
         "name": "key_action",
@@ -837,7 +909,7 @@
     ]
   },
   {
-    "csvTime": "22024-06-17 18:31:44",
+    "csvTime": "2204-06-17 18:31:44",
     "values": [
       {
         "name": "key_action",
@@ -1215,7 +1287,7 @@
     ]
   },
   {
-    "csvTime": "22024-07-05 18:01:41",
+    "csvTime": "2204-07-05 18:01:41",
     "values": [
       {
         "name": "key_action",
@@ -1341,7 +1413,7 @@
     ]
   },
   {
-    "csvTime": "22024-07-17 08:53:39",
+    "csvTime": "2204-07-17 08:53:39",
     "values": [
       {
         "name": "key_action",
@@ -1548,6 +1620,42 @@
     ]
   },
   {
+    "csvTime": "2024-07-21 18:03:38",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆出"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-07-21 18:45:38",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳挂妥"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-07-21 18:46:38",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者出水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-07-21 18:49:38",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者落座"
+      }
+    ]
+  },
+  {
     "csvTime": "2024-07-22 08:46:38",
     "values": [
       {
@@ -1665,7 +1773,7 @@
     ]
   },
   {
-    "csvTime": "22024-07-25 08:51:37",
+    "csvTime": "2024-07-25 08:51:37",
     "values": [
       {
         "name": "key_action",
@@ -2044,6 +2152,123 @@
   },
   {
     "csvTime": "2024-08-20 18:25:09",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者落座"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-25 08:37:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者起吊"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-25 08:41:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者入水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-25 08:42:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳解除"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-25 08:45:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆回"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-26 08:38:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者起吊"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-26 08:41:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者入水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-26 08:42:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳解除"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-26 08:47:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆回"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-26 16:33:08",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆出"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-28 16:19:07",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "A架摆出"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-28 17:15:07",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "缆绳挂妥"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-28 17:16:07",
+    "values": [
+      {
+        "name": "key_action",
+        "value": "征服者出水"
+      }
+    ]
+  },
+  {
+    "csvTime": "2024-08-28 17:19:07",
     "values": [
       {
         "name": "key_action",
