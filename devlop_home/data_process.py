@@ -846,13 +846,6 @@ logger.trace('出现过的峰值模式：',peak_patterns)
 logger.special("开始保存A架数据")
 # df = df.drop(columns=["date"])
 # df = df.drop(columns=['check_current_presence'])
-with open("devlop_home/manual/actions.json", "r", encoding="utf-8") as f:
-    manual_keyaction_data = json.load(f)
-for item in manual_keyaction_data:
-    time=item['csvTime']
-    column=item['values'][0]['name']
-    value=item['values'][0]['value']
-    df.loc[df['csvTime'] == time, column] = value
 with open("devlop_home/manual/stages.json", "r", encoding="utf-8") as f:
     manual_stage_data = json.load(f)
 for item in manual_stage_data:
@@ -870,6 +863,13 @@ for item in manual_stage_data:
         df.loc[(df['csvTime'] == end_time),'stage'] = '回收阶段结束'
     else:
         df.loc[(df['csvTime'] >= begin_time) & (df['csvTime'] <= end_time),stage_field] =no_stage_flag
+with open("devlop_home/manual/actions.json", "r", encoding="utf-8") as f:
+    manual_keyaction_data = json.load(f)
+for item in manual_keyaction_data:
+    time=item['csvTime']
+    column=item['values'][0]['name']
+    value=item['values'][0]['value']
+    df.loc[df['csvTime'] == time, column] = value
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("A架数据保存成功")
