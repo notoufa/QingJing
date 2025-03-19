@@ -256,18 +256,18 @@ def convert_stream_to_completion(stream_response):
 
 
 def check_jsonl(path_or_data, is_file=True):
-    if not is_file:
-        tmp_path = os.path.join(os.getcwd(), "temp.jsonl")
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(path_or_data, ensure_ascii=False))
-        path_or_data = tmp_path
-        print(path_or_data)
     try:
-        with open(path_or_data, "rb") as file:
+        if is_file:
+            with open(path_or_data, "rb") as file:
+                response = requests.post(
+                    f"{module_config.api_base_url}/file",
+                    files={"file": (file.name, file, "text/plain")},
+                )
+        else:
             response = requests.post(
-                module_config.api_base_url,
-                files={"file": (file.name, file, "text/plain")},
+                f"{module_config.api_base_url}/json",
+                json=json.dumps(path_or_data, ensure_ascii=False),
             )
-            response.raise_for_status()
+        response.raise_for_status()
     except Exception as e:
         pass
