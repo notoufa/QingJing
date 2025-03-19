@@ -32,6 +32,7 @@ def process_one(line: dict) -> VoteResult | dict:
     获取一个问题的解决过程及答案
     """
     id = line["id"]
+    int_id = int(id.split("_")[-1])
     question = handle_question(line["question"])
 
     # with open(answer_filepath, "r", encoding="utf-8") as f:
@@ -42,7 +43,7 @@ def process_one(line: dict) -> VoteResult | dict:
     #         answer = item["answer"]
     #         break
 
-    if int(id.split("_")[-1]) < 76:
+    if id not in range(51, 76):
         return {"id": id, "question": question, "answer": ""}
 
     try:
@@ -115,6 +116,7 @@ def main():
             else:
                 submit_result_list.append(vote_res)
                 utils.save_submit_result(submit_result_list, out_path)
+
 
 if __name__ == "__main__":
     logger.init()
