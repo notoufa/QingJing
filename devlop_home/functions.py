@@ -128,7 +128,11 @@ def get_filtered_data(
                 condition["operator"],
                 condition["value"],
             )
-
+            if cond_col =='csvTime':
+                return {
+                            "error": f"过滤条件不支持'csvTime',请使用'start_time'和'end_time'",
+                            "metadata": metadata,
+                        }
             condition_columns.append(cond_col)
 
             if cond_col not in filtered_data.columns:
@@ -143,7 +147,7 @@ def get_filtered_data(
             except ValueError:
                 cond_value = str(cond_value)
                 column_values = filtered_data[cond_col].astype(str)
-
+            
             if operator == "==":
                 condition_mask = column_values == cond_value
             elif operator == "!=":
@@ -1476,15 +1480,14 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(
-        get_filtered_data(
-            "A架动作表",
-            "2024-05-19 00:00:00",
-            "2024-05-19 23:59:59",
-            ["csvTime"],
-            conditions= [{"column": "stage", "operator": "==", "value": "回收阶段结束"}],
-        )
-    )
+    print(get_filtered_data(
+            "Port3_ksbg_10",
+            "2024-08-24 09:00:17",
+            "2024-08-24 09:00:17",
+            ["csvTime",'P3_22'],
+            'AND',
+            conditions= [{'column': 'csvTime', 'operator': '==', 'value': '2024-08-24 09:00:17'}],
+        ))
     # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
