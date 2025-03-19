@@ -634,9 +634,9 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
         filtered_data["csvTime"].diff().dt.total_seconds().shift(-1)
     )
     
-    filtered_data.loc[filtered_data.index[-1], "diff_seconds"] = (
-        (end_time_dt - pd.to_datetime(filtered_data.iloc[-1]["csvTime"])).total_seconds()
-    )
+    # filtered_data.loc[filtered_data.index[-1], "diff_seconds"] = (
+    #     (end_time_dt - pd.to_datetime(filtered_data.iloc[-1]["csvTime"])).total_seconds()
+    # )
 
     filtered_data.loc[:, "energy_kWh"] = (
         filtered_data["diff_seconds"] * filtered_data[power_column] / 3600

@@ -1,1 +1,1 @@
-python devlop_home/main.py .\devlop_data\input_param.json
+python devlop_home/main.py .\devlop_data\input_param.json .\devlop_result\answer.jsonl
