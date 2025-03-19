@@ -15,6 +15,7 @@ solution_dir = "devlop_output/solutions"
 answer_filepath = "devlop_home/test.jsonl"
 replace_filepath = "devlop_home/knowledge/replace.json"
 
+
 def handle_question(query):
     """
     预处理问题
@@ -41,7 +42,7 @@ def process_one(line: dict) -> VoteResult | dict:
     #         answer = item["answer"]
     #         break
 
-    if int(id.split("_")[-1]) < 101:
+    if int(id.split("_")[-1]) < 76:
         return {"id": id, "question": question, "answer": ""}
 
     try:
@@ -90,7 +91,7 @@ def main():
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
-    utils.check_jsonl(question_list, False)
+    utils.check_jsonl(question_filepath, question_list)
 
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
@@ -116,8 +117,8 @@ def main():
                 submit_result_list.append(vote_res)
                 utils.save_submit_result(submit_result_list, out_path)
 
-    utils.check_jsonl(submit_result_list, False)
-    utils.check_jsonl(vote_results, False)
+    utils.check_jsonl(out_path, submit_result_list)
+    utils.check_jsonl(solution_path, vote_results)
 
 
 if __name__ == "__main__":
