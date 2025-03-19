@@ -26,7 +26,7 @@
                         "items": {
                             "type": "string"
                         },
-                        "description": "需要查询的列名列表。如果未提供，则返回所有列。",
+                        "description": "需要查询的列名列表。如果未提供，则返回所有列。请根据题目要求，尽可能精确地给出要查询的列",
                         "default": []
                     },
                     "conditions_logic": {

@@ -430,6 +430,8 @@ def get_tool(question: str) -> list:
     ]
     response = get_completion(messages)
     tool_names = json.loads(parse_res(response))
+    if "perform_math_operations" not in tool_names:
+        tool_names.append("perform_math_operations")
     logger.info("【问题所需工具】", tool_names)
     return tool_names
 
@@ -459,6 +461,8 @@ def get_table_meta_and_tool(
     need_tools = res.get("tools", [])
     if not decomposition.contains_time and "设备参数详情" not in tables:
         tables.append("设备参数详情")
+    if "perform_math_operations" not in need_tools:
+        need_tools.append("perform_math_operations")
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
     tool_list = []
     for tool in tools.tools:
