@@ -808,7 +808,7 @@ def calculate_power_generation_or_fuel_consumption(
         }
 
     result = None
-    mj_result = None
+    # mj_result = None
     if isinstance(device_config[type][device_name], list):
         total_energy = 0
         total_mj_energy = 0
@@ -825,15 +825,15 @@ def calculate_power_generation_or_fuel_consumption(
                     )
                 )
                 energy = sub_result["result"]
-                mj_energy = sub_result["mj_result"]
+                # mj_energy = sub_result["mj_result"]
                 if energy is not None:
                     total_energy += energy
-                if mj_energy is not None:
-                    total_mj_energy += mj_energy
+                # if mj_energy is not None:
+                #     total_mj_energy += mj_energy
             except Exception as e:
-                logger.error(f"计算设备 {sub_device} {type}时出错: {e}")
+                logger.error(f"计算设备 {sub_device} {type}时出错: {traceback.format_exc()}")
         result = total_energy
-        mj_result = total_mj_energy
+        # mj_result = total_mj_energy
     else:
         file_name, field_name = device_config[type][device_name]
         file_path = f"{table_base_path}/{file_name}.csv"
@@ -849,18 +849,18 @@ def calculate_power_generation_or_fuel_consumption(
                     total_energy_kWh * diesel_density * diesel_calorific_value / 3.6
                 )
 
-                mj_result = total_energy_kWh * diesel_density * diesel_calorific_value
+                # mj_result = total_energy_kWh * diesel_density * diesel_calorific_value
 
             else:
                 result = total_energy_kWh
 
         except Exception as e:
-            logger.error(f"计算设备 {device_name} {type}时出错: {e}")
+            logger.error(f"计算设备 {device_name} {type}时出错: {traceback.format_exc()}")
     return {
         "result": result,
         "unit": "L" if type == "燃油消耗量" else "kWh",
-        "mj_result": mj_result,
-        "mj_result_desc": "mj_result表示转换为MJ单位的值",
+        # "mj_result": mj_result,
+        # "mj_result_desc": "mj_result表示转换为MJ单位的值",
         "metadata": metadata,
     }
 
