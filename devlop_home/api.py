@@ -293,7 +293,7 @@ def update_decomposition(question: str, decomposition: Decomposition) -> Decompo
             logger.error("【修改失败，直接返回原任务分解树】\n")
             logger.error(f"{parse_res(response)}")
             return decomposition
-        
+
     res_decomposition = Decomposition.from_dict(res)
     for subtask in res_decomposition.subtasks:
         init_task = decomposition.get_task_by_id(subtask.task_id)
@@ -376,9 +376,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     task.need_tables = [table["table_name"] for table in table_meta_list]
 
 
-def rewrite_atomic_question(
-    decomposition: Decomposition, task: Subtask
-):
+def rewrite_atomic_question(decomposition: Decomposition, task: Subtask):
     """
     重写原子问题
 
@@ -430,6 +428,8 @@ def get_tool(question: str) -> list:
     ]
     response = get_completion(messages)
     tool_names = json.loads(parse_res(response))
+    if "perform_math_operations" not in tool_names:
+        tool_names.append("perform_math_operations")
     logger.info("【问题所需工具】", tool_names)
     return tool_names
 
@@ -459,14 +459,17 @@ def get_table_meta_and_tool(
     need_tools = res.get("tools", [])
     if not decomposition.contains_time and "设备参数详情" not in tables:
         tables.append("设备参数详情")
+    if len(need_tools) == 1 and need_tools[0] in [
+        "calculate_energy_consumption",
+        "calculate_power_generation_or_fuel_consumption",
+    ]:
+        tables = []
+    if "perform_math_operations" not in need_tools:
+        need_tools.append("perform_math_operations")
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
     tool_list = []
     for tool in tools.tools:
         if tool["function"]["name"] in need_tools:
             tool_list.append(tool)
-    if len(tool_list) == 1 and tool_list[0]['function']['name'] in {
-    'calculate_energy_consumption', 'calculate_power_generation_or_fuel_consumption'}:
-        table_meta_list = []
-        tables = []
     logger.info("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     return table_meta_list, tool_list

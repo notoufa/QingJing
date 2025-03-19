@@ -91,7 +91,6 @@ def main():
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
-    utils.check_jsonl(question_filepath, question_list)
 
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
@@ -116,10 +115,6 @@ def main():
             else:
                 submit_result_list.append(vote_res)
                 utils.save_submit_result(submit_result_list, out_path)
-
-    utils.check_jsonl(out_path, submit_result_list)
-    utils.check_jsonl(solution_path, vote_results)
-
 
 if __name__ == "__main__":
     logger.init()
