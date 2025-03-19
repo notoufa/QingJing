@@ -459,10 +459,14 @@ def get_table_meta_and_tool(
     need_tools = res.get("tools", [])
     if not decomposition.contains_time and "设备参数详情" not in tables:
         tables.append("设备参数详情")
-    logger.info("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
     tool_list = []
     for tool in tools.tools:
         if tool["function"]["name"] in need_tools:
             tool_list.append(tool)
+    if len(tool_list) == 1 and tool_list[0]['function']['name'] in {
+    'calculate_energy_consumption', 'calculate_power_generation_or_fuel_consumption'}:
+        table_meta_list = []
+        tables = []
+    logger.info("【原子问题所需数据表】", tables, "【所需工具】", need_tools)
     return table_meta_list, tool_list
