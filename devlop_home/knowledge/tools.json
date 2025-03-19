@@ -443,7 +443,7 @@
                                 },
                                 "value": {
                                     "type": "string",
-                                    "description": "用于过滤的值，为日期字符串（格式为 'YYYY-MM-DD HH:MM:SS'）。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
+                                    "description": "用于过滤的值，为日期字符串（格式为 'HH:MM:SS'）。如果运算符为in，value为以逗号分隔的字符串列表（示例：value1,value2,value3）"
                                 }
                             },
                             "required": [
