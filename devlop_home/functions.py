@@ -633,6 +633,10 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
     filtered_data.loc[:, "diff_seconds"] = (
         filtered_data["csvTime"].diff().dt.total_seconds().shift(-1)
     )
+    
+    filtered_data.loc[filtered_data.index[-1], "diff_seconds"] = (
+        (end_time_dt - pd.to_datetime(filtered_data.iloc[-1]["csvTime"])).total_seconds()
+    )
 
     filtered_data.loc[:, "energy_kWh"] = (
         filtered_data["diff_seconds"] * filtered_data[power_column] / 3600
@@ -1480,14 +1484,19 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(get_filtered_data(
-            "Port3_ksbg_10",
-            "2024-08-24 09:00:17",
-            "2024-08-24 09:00:17",
-            ["csvTime",'P3_22'],
-            'AND',
-            conditions= [{'column': 'csvTime', 'operator': '==', 'value': '2024-08-24 09:00:17'}],
-        ))
+    # print(get_filtered_data(
+    #         "Port3_ksbg_10",
+    #         "2024-08-24 09:00:17",
+    #         "2024-08-24 09:00:17",
+    #         ["csvTime",'P3_22'],
+    #         'AND',
+    #         conditions= [{'column': 'csvTime', 'operator': '==', 'value': '2024-08-24 09:00:17'}],
+    #     ))
+    print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","整个柴油发电机组")['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","一号柴油发电机")['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","二号柴油发电机")['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","三号柴油发电机")['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","四号柴油发电机")['result'])
     # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(

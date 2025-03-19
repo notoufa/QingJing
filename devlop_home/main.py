@@ -43,8 +43,8 @@ def process_one(line: dict) -> VoteResult | dict:
     #         answer = item["answer"]
     #         break
 
-    if id not in range(51, 76):
-        return {"id": id, "question": question, "answer": ""}
+    # if int_id not in range(51, 76):
+    #     return {"id": id, "question": question, "answer": ""}
 
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)
