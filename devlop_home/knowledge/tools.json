@@ -77,7 +77,8 @@
                 "required": [
                     "table_name",
                     "start_time",
-                    "end_time"
+                    "end_time",
+                    "columns"
                 ]
             }
         }
