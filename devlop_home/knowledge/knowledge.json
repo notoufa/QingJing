@@ -260,7 +260,7 @@
     ]
   },
   {
-    "knowledge": "求一个时间范围内深海作业A发生的次数，可直接调用'count_deapsea_operations'函数得到",
+    "knowledge": "求一个时间范围内（一天或多天）深海作业A发生的次数，可直接调用一次'count_deapsea_operations'函数得到",
     "keys": [
       "深海作业&次数"
     ]
