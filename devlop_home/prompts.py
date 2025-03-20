@@ -194,7 +194,6 @@ def get_prompt_summary(question:str) -> str:
     """
     with open(prompt_summary_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 
 
