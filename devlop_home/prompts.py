@@ -185,7 +185,7 @@ def get_prompt_atomic_question(
     return system_prompt, user_prompt
 
 
-def get_prompt_summary() -> str:
+def get_prompt_summary(question:str) -> str:
     """
     获得问题总结模板
 
