@@ -177,7 +177,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     messages = [
         {
             "role": "system",
-            "content": prompts.get_prompt_summary(),
+            "content": prompts.get_prompt_summary(solution.question),
         },
         {
             "role": "user",
@@ -402,12 +402,12 @@ def rewrite_atomic_question(decomposition: Decomposition, task: Subtask):
     ]
     response = get_completion(messages)
     try:
-        pre_task = json.loads(parse_res(response))
+        rewrite_task = str(parse_res(response))
         logger.special(
             "【重写原子问题】",
-            f"原问题：{task.question}----->重写后的问题：{pre_task['response']}",
+            f"原问题：{task.question}----->重写后的问题：{rewrite_task}",
         )
-        task.question = pre_task["response"]
+        task.question = rewrite_task
     except Exception as e:
         logger.error(f"【原子问题预处理出错】错误堆栈：\n{traceback.format_exc()}")
 

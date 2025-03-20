@@ -185,7 +185,7 @@ def get_prompt_atomic_question(
     return system_prompt, user_prompt
 
 
-def get_prompt_summary() -> str:
+def get_prompt_summary(question:str) -> str:
     """
     获得问题总结模板
 
@@ -194,7 +194,7 @@ def get_prompt_summary() -> str:
     """
     with open(prompt_summary_file, "r", encoding="utf-8") as file:
         res = file.read()
-    res = res.replace("<<knowledge>>", str(get_knowledge_by_question("question")))
+    res = res.replace("<<knowledge>>", str(get_knowledge_by_question(question)))
     return res
 
 
