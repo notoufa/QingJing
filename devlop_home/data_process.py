@@ -1017,9 +1017,9 @@ for i in range(1, df.shape[0]):
         have_boot = -1
         not_have_boot = -1
     # 检测由待机进入工作和由工作进入待机的事件
-    if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] > 10:
+    if df.iloc[i - 1]["13-11-6_v_new"] <= 10 and df.iloc[i]["13-11-6_v_new"] > 10:
         df.at[df.index[i], stage_field] = "由待机进入工作"
-    if df.iloc[i - 1]["13-11-6_v_new"] > 10 and df.iloc[i]["13-11-6_v_new"] < 10:
+    if df.iloc[i - 1]["13-11-6_v_new"] > 10 and df.iloc[i]["13-11-6_v_new"] <= 10:
         df.at[df.index[i], stage_field] = "由工作进入待机"
 logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
 
@@ -1043,10 +1043,25 @@ def find_most_frequent_number(lst):
     counter = Counter(lst)
     most_common_number = counter.most_common(1)[0][0]
     return most_common_number
+class Diaoche_Result:
+    def __init__(self, start_time, end_time):
+        """
+        预测结果类
+        :param start_time: 起始时间
+        :param end_time: 结束时间
+        """
+        self.start_time = start_time
+        self.end_time = end_time
+        self.event_pattern: list[int] = []
+ 
+    def __str__(self):
+        return f"时间段: {self.start_time} - {self.end_time}, 事件模式: {self.event_pattern}"
 
+diaoche_results = []
 for segment in segments:
     start, end = segment
     logger.info(f"【开始处理时间段】开始时间：{start}，结束时间：{end}")
+    diaoche_result=Diaoche_Result(start,end)
     actions_data = df[
         (df["csvTime"] >= start)
         & (df["csvTime"] <= end)
@@ -1067,6 +1082,8 @@ for segment in segments:
         actions_data = actions_data.drop(actions_data.index[[min_idx, min_idx + 1]])
         
     logger.info(f"【处理时间段】事件数量: {actions_data.shape[0]}")
+    diaoche_result.event_pattern = actions_data.shape[0]
+    diaoche_results.append(diaoche_result)
     if actions_data.shape[0] == 6:
         # 处理每一对事件
         for i in range(0, 6, 2):
@@ -1144,6 +1161,9 @@ for segment in segments:
                 # 保存结果
 # df = df.drop(columns=[stage_field])
 # df = df.drop(columns=['13-11-6_v_new'])
+with open(f"{output_path}/diaoche_event.txt", "w", encoding="utf-8") as f:
+    for diaoche_result in diaoche_results:
+        f.write(f"{diaoche_result}\n")
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("【处理折臂吊车】保存数据完成")
