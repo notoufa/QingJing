@@ -852,7 +852,7 @@ for item in manual_stage_data:
     begin_time=item['begin_time']
     end_time=item['end_time']
     stage=item['stage']
-    df.loc[(df['csvTime'] >= begin_time) & (df['csvTime'] <= end_time),key_action_field] =no_key_action_flag
+    df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time),key_action_field] =no_key_action_flag
     if stage=='布放':
         df.loc[(df['csvTime'] == begin_time) , 'stage'] = '布放阶段开始'
         df.loc[(df['csvTime'] > begin_time) & (df['csvTime'] < end_time), 'stage'] = '布放阶段中'
