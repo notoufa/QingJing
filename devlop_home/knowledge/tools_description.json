@@ -28,8 +28,11 @@
     },
     {
         "function_name": "get_device_parameter_detail",
-        "input": "设备参数的中文名称。",
-        "output": "该参数的上下限范围及触发的机制（如报警值、安全保护设定值及对应措施）。"
+        "input": "设备参数的中文名称（列表）。",
+        "output": "输入中所有参数的上下限范围及触发的机制（如报警值、安全保护设定值及对应措施）。",
+        "notices": [
+            "【任务分解】如果需要查询多个参数的信息，请在一个问题中查询"
+        ]
     },
     {
         "function_name": "calculate_energy_consumption",

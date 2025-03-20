@@ -128,11 +128,11 @@ def get_filtered_data(
                 condition["operator"],
                 condition["value"],
             )
-            if cond_col =='csvTime':
+            if cond_col == "csvTime":
                 return {
-                            "error": f"过滤条件不支持'csvTime',请使用'start_time'和'end_time'",
-                            "metadata": metadata,
-                        }
+                    "error": f"过滤条件不支持'csvTime',请使用'start_time'和'end_time'",
+                    "metadata": metadata,
+                }
             condition_columns.append(cond_col)
 
             if cond_col not in filtered_data.columns:
@@ -147,7 +147,7 @@ def get_filtered_data(
             except ValueError:
                 cond_value = str(cond_value)
                 column_values = filtered_data[cond_col].astype(str)
-            
+
             if operator == "==":
                 condition_mask = column_values == cond_value
             elif operator == "!=":
@@ -224,7 +224,7 @@ def get_filtered_data(
             "metadata": metadata,
         }
     logger.special("\n", get_text_table(result))
-    
+
     return {
         "result": result,
         "length": len(filtered_data),
@@ -541,7 +541,7 @@ def get_key_actions(start_time, end_time):
     }
 
 
-def get_device_parameter_detail(parameter_name_cn):
+def get_device_parameter_detail(params: list[str]):
     """
     根据设备名，查询设备的参数值。
     :param device_name: 参数中文名
@@ -549,14 +549,43 @@ def get_device_parameter_detail(parameter_name_cn):
     """
     metadata = {
         "function_name": "get_device_parameter_detail",
-        "parameter_name_cn": parameter_name_cn,
+        "parameter_name_cn": params,
     }
+
+    details = []
+    for param in params:
+        details.append(get_single_device_parameter_detail(param))
+
+    table = Texttable()
+    table.set_deco(Texttable.HEADER)
+    table.set_cols_width([10,1000])
+    table.set_cols_align(["c","c"])
+    table.add_row(["参数名称","参数详情"])
+    for row in details:
+        table.add_row([
+            row["parameter_name_cn"],
+            row["result"]
+        ])
+    logger.debug("\n",table.draw())
+
+    return {
+        "result": details,
+        "metadata": metadata,
+    }
+
+
+def get_single_device_parameter_detail(parameter_name_cn: str):
+    """
+    根据设备名，查询设备的参数值。
+    :param device_name: 参数中文名
+    :return: 返回包含参数信息的字典
+    """
 
     df = pd.read_csv(f"{table_base_path}/设备参数详情.csv")
     if not df["Channel_Text_CN"].str.contains(parameter_name_cn).any():
         return {
             "error": f"未找到包含 '{parameter_name_cn}' 的参数中文名",
-            "metadata": metadata,
+            "parameter_name_cn": parameter_name_cn,
         }
 
     parameter_info = df[df["Channel_Text_CN"].str.contains(parameter_name_cn)].iloc[0]
@@ -596,7 +625,7 @@ def get_device_parameter_detail(parameter_name_cn):
 
     return {
         "result": parameter_dict,
-        "metadata": metadata,
+        "parameter_name_cn": parameter_name_cn,
     }
 
 
@@ -637,7 +666,7 @@ def load_and_filter_data(file_path, start_time, end_time, power_column):
     filtered_data.loc[:, "diff_seconds"] = (
         filtered_data["csvTime"].diff().dt.total_seconds().shift(-1)
     )
-    
+
     # filtered_data.loc[filtered_data.index[-1], "diff_seconds"] = (
     #     (end_time_dt - pd.to_datetime(filtered_data.iloc[-1]["csvTime"])).total_seconds()
     # )
@@ -826,15 +855,13 @@ def calculate_power_generation_or_fuel_consumption(
         total_mj_energy = 0
         for sub_device in device_config[type][device_name]:
             try:
-                sub_result = (
-                    calculate_power_generation_or_fuel_consumption(
-                        start_time,
-                        end_time,
-                        type,
-                        sub_device,
-                        diesel_density,
-                        diesel_calorific_value,
-                    )
+                sub_result = calculate_power_generation_or_fuel_consumption(
+                    start_time,
+                    end_time,
+                    type,
+                    sub_device,
+                    diesel_density,
+                    diesel_calorific_value,
                 )
                 energy = sub_result["result"]
                 # mj_energy = sub_result["mj_result"]
@@ -843,7 +870,9 @@ def calculate_power_generation_or_fuel_consumption(
                 # if mj_energy is not None:
                 #     total_mj_energy += mj_energy
             except Exception as e:
-                logger.error(f"计算设备 {sub_device} {type}时出错: {traceback.format_exc()}")
+                logger.error(
+                    f"计算设备 {sub_device} {type}时出错: {traceback.format_exc()}"
+                )
         result = total_energy
         # mj_result = total_mj_energy
     else:
@@ -867,7 +896,9 @@ def calculate_power_generation_or_fuel_consumption(
                 result = total_energy_kWh
 
         except Exception as e:
-            logger.error(f"计算设备 {device_name} {type}时出错: {traceback.format_exc()}")
+            logger.error(
+                f"计算设备 {device_name} {type}时出错: {traceback.format_exc()}"
+            )
     return {
         "result": result,
         "unit": "L" if type == "燃油消耗量" else "kWh",
@@ -1388,7 +1419,8 @@ def convert_seconds_to_time(seconds):
         "metadata": metadata,
     }
 
-def count_deapsea_operations(start_time: str,end_time: str):
+
+def count_deapsea_operations(start_time: str, end_time: str):
     """
     统计两个时间点之间的完整深海作业的次数。
     :param start_time: 开始时间
@@ -1410,12 +1442,16 @@ def count_deapsea_operations(start_time: str,end_time: str):
     if (end_time_dt - start_time_dt).total_seconds() < 60:
         end_time_dt = start_time_dt + pd.Timedelta(minutes=1)
     df = pd.read_csv(f"{table_base_path}/A架动作表.csv")
-    df['csvTime'] = pd.to_datetime(df['csvTime'])
-    df= df[(df['csvTime'] >= start_time) & (df['csvTime'] <= end_time) &(df['stage'].isin(['布放阶段结束','回收阶段开始']))]
+    df["csvTime"] = pd.to_datetime(df["csvTime"])
+    df = df[
+        (df["csvTime"] >= start_time)
+        & (df["csvTime"] <= end_time)
+        & (df["stage"].isin(["布放阶段结束", "回收阶段开始"]))
+    ]
     df = df.sort_values(by="csvTime")
     # 分离 `布放阶段结束` 和 `回收阶段开始`
-    deploy_end_times = df[df['stage'] == "布放阶段结束"]['csvTime'].tolist()
-    retrieve_start_times = df[df['stage'] == "回收阶段开始"]['csvTime'].tolist()
+    deploy_end_times = df[df["stage"] == "布放阶段结束"]["csvTime"].tolist()
+    retrieve_start_times = df[df["stage"] == "回收阶段开始"]["csvTime"].tolist()
 
     count = 0
     j = 0  # `回收阶段开始` 的索引
@@ -1424,8 +1460,11 @@ def count_deapsea_operations(start_time: str,end_time: str):
     for deploy_time in deploy_end_times:
         while j < len(retrieve_start_times) and retrieve_start_times[j] < deploy_time:
             j += 1  # 跳过早于当前 `布放阶段结束` 的 `回收阶段开始`
-        
-        if j < len(retrieve_start_times) and (retrieve_start_times[j] - deploy_time).total_seconds() <= 12 * 3600:
+
+        if (
+            j < len(retrieve_start_times)
+            and (retrieve_start_times[j] - deploy_time).total_seconds() <= 12 * 3600
+        ):
             count += 1
             j += 1  # 移动到下一个 `回收阶段开始`
 
@@ -1527,7 +1566,7 @@ function_map: dict[str, callable] = {
     "convert_seconds_to_time": convert_seconds_to_time,
     "sort_only_by_time": sort_only_by_time,
     "calculate_list_length": calculate_list_length,
-    'count_deapsea_operations': count_deapsea_operations,
+    "count_deapsea_operations": count_deapsea_operations,
     # 弃用
     "sort_by_datetime": sort_by_datetime,
     "generate_simple_python_code": generate_simple_python_code,
@@ -1535,7 +1574,7 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(count_deapsea_operations("2024-06-01 00:00:00","2024-06-30 24:00:00"))
+    print(count_deapsea_operations("2024-06-01 00:00:00", "2024-06-30 24:00:00"))
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","整个柴油发电机组")['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","一号柴油发电机")['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","二号柴油发电机")['result'])

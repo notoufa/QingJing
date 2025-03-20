@@ -210,13 +210,17 @@
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "parameter_name_cn": {
-                        "type": "string",
-                        "description": "参数中文名，用于查询设备参数信息。"
+                    "params": {
+                        "type": "array",
+                        "description": "可选的过滤条件列表，每个条件包含列名、运算符和值。",
+                        "items": {
+                            "type": "string",
+                            "description": "参数中文名，用于查询设备参数信息。"
+                        }
                     }
                 },
                 "required": [
-                    "parameter_name_cn"
+                    "params"
                 ]
             }
         }
