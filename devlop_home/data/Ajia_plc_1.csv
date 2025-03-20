@@ -485,7 +485,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 424,error,error,error,error,-1.0,-1.0,2024-05-17 08:11:50,False,未运行,False,False,False,False
 425,error,error,error,error,-1.0,-1.0,2024-05-17 08:12:50,False,未运行,False,False,False,False
 426,error,error,error,error,-1.0,-1.0,2024-05-17 08:13:50,False,未运行,False,False,False,False
-427,0,0,0,0,0.0,0.0,2024-05-17 08:14:50,False,开机运行中,False,False,False,布放阶段开始
+427,0,0,0,0,0.0,0.0,2024-05-17 08:14:50,A架开机,开机运行中,False,False,False,布放阶段开始
 428,35.4026,695.843,35.2684,696.021,0.0,0.0,2024-05-17 08:15:50,False,开机运行中,False,False,False,布放阶段中
 429,35.4026,696.261,35.2684,696.475,0.0,0.0,2024-05-17 08:16:50,False,开机运行中,False,False,False,布放阶段中
 430,35.4026,696.08,35.2684,696.205,0.0,0.0,2024-05-17 08:17:50,False,开机运行中,False,False,False,布放阶段中
@@ -604,7 +604,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 484,35.3578,696.951,35.2684,697.046,0.0,0.0,2024-05-17 10:12:50,False,开机运行中,False,False,False,布放阶段中
 485,35.3578,696.908,35.2684,696.862,0.0,0.0,2024-05-17 10:13:50,False,开机运行中,False,False,False,布放阶段中
 486,35.3578,696.914,35.2684,696.899,0.0,0.0,2024-05-17 10:14:50,False,开机运行中,False,False,False,布放阶段中
-487,error,error,error,error,-1.0,-1.0,2024-05-17 10:15:50,False,开机运行中,False,False,False,布放阶段结束
+487,error,error,error,error,-1.0,-1.0,2024-05-17 10:15:50,A架关机,开机运行中,False,False,False,布放阶段结束
 488,error,error,error,error,-1.0,-1.0,2024-05-17 10:16:50,False,未运行,False,False,False,False
 489,error,error,error,error,-1.0,-1.0,2024-05-17 10:17:50,False,未运行,False,False,False,False
 490,error,error,error,error,-1.0,-1.0,2024-05-17 10:18:50,False,未运行,False,False,False,False
@@ -1979,7 +1979,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 1505,error,error,error,error,-1.0,-1.0,2024-05-18 09:30:50,False,未运行,False,False,False,False
 1506,error,error,error,error,-1.0,-1.0,2024-05-18 09:31:50,False,未运行,False,False,False,False
 1507,error,error,error,error,-1.0,-1.0,2024-05-18 09:32:50,False,未运行,False,False,False,False
-1508,0,0,0,0,0.0,0.0,2024-05-18 09:33:50,False,开机运行中,False,False,False,回收阶段开始
+1508,0,0,0,0,0.0,0.0,2024-05-18 09:33:50,A架开机,开机运行中,False,False,False,回收阶段开始
 1509,35.2907,696.582,35.0895,696.642,0.0,0.0,2024-05-18 09:34:50,False,开机运行中,False,False,False,回收阶段中
 1510,35.2907,696.31,35.0895,695.717,0.0,56.6299,2024-05-18 09:35:50,False,开机运行中,False,False,False,回收阶段中
 1511,35.2907,696.168,35.0895,695.046,0.0,69.8351,2024-05-18 09:36:50,False,开机运行中,False,False,False,回收阶段中
@@ -2430,7 +2430,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 1779,35.2013,697.011,35.3355,696.246,0.0,58.4969,2024-05-18 17:09:50,False,开机运行中,False,False,False,回收阶段中
 1780,35.2013,697.246,35.3355,697.213,0.0,0.0,2024-05-18 17:10:50,False,开机运行中,False,False,False,回收阶段中
 1781,35.2013,697.183,35.3355,697.192,0.0,0.0,2024-05-18 17:11:50,False,开机运行中,False,False,False,回收阶段中
-1782,error,error,error,error,-1.0,-1.0,2024-05-18 17:12:50,False,开机运行中,False,False,False,回收阶段结束
+1782,error,error,error,error,-1.0,-1.0,2024-05-18 17:12:50,A架关机,开机运行中,False,False,False,回收阶段结束
 1783,error,error,error,error,-1.0,-1.0,2024-05-18 17:13:50,False,未运行,False,False,False,False
 1784,error,error,error,error,-1.0,-1.0,2024-05-18 17:14:50,False,未运行,False,False,False,False
 1785,error,error,error,error,-1.0,-1.0,2024-05-18 17:15:50,False,未运行,False,False,False,False
@@ -3274,7 +3274,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 2446,error,error,error,error,-1.0,-1.0,2024-05-19 07:27:50,False,未运行,False,False,False,False
 2447,error,error,error,error,-1.0,-1.0,2024-05-19 07:28:50,False,未运行,False,False,False,False
 2448,error,error,error,error,-1.0,-1.0,2024-05-19 07:29:50,False,未运行,False,False,False,False
-2449,35.246,694.28,35.3355,694.5,0.0,0.0,2024-05-19 07:30:50,False,开机运行中,False,False,False,布放阶段开始
+2449,35.246,694.28,35.3355,694.5,0.0,0.0,2024-05-19 07:30:50,A架开机,开机运行中,False,False,False,布放阶段开始
 2450,35.246,694.395,35.3355,694.589,0.0,0.0,2024-05-19 07:31:50,False,开机运行中,False,False,False,布放阶段中
 2451,35.246,692.513,35.3355,691.114,0.0,78.6249,2024-05-19 07:32:50,False,开机运行中,False,False,False,布放阶段中
 2452,35.246,694.124,35.3355,693.259,0.0,67.5004,2024-05-19 07:33:50,False,开机运行中,False,False,False,布放阶段中
@@ -3755,7 +3755,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 2868,35.1342,697.379,35.4026,697.24,0.0,0.0,2024-05-19 15:36:50,False,开机运行中,False,False,False,布放阶段中
 2869,35.1342,697.402,35.4026,697.137,0.0,0.0,2024-05-19 15:37:50,False,开机运行中,False,False,False,布放阶段中
 2870,35.1342,697.285,35.4026,697.252,0.0,0.0,2024-05-19 15:38:50,False,开机运行中,False,False,False,布放阶段中
-2871,error,error,error,error,-1.0,-1.0,2024-05-19 15:39:50,False,开机运行中,False,False,False,布放阶段结束
+2871,error,error,error,error,-1.0,-1.0,2024-05-19 15:39:50,A架关机,开机运行中,False,False,False,布放阶段结束
 2872,error,error,error,error,-1.0,-1.0,2024-05-19 15:40:50,False,未运行,False,False,False,False
 2873,35.1342,697.258,35.4026,697.164,0.0,0.0,2024-05-19 15:41:50,A架开机,开机运行中,False,False,False,回收阶段开始
 2874,35.1342,697.393,35.4026,697.273,0.0,0.0,2024-05-19 15:42:50,False,开机运行中,False,False,False,回收阶段中
@@ -8017,7 +8017,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 6009,error,error,error,error,-1.0,-1.0,2024-05-22 15:50:49,False,未运行,False,False,False,False
 6010,error,error,error,error,-1.0,-1.0,2024-05-22 15:51:49,False,未运行,False,False,False,False
 6011,error,error,error,error,-1.0,-1.0,2024-05-22 15:52:49,False,未运行,False,False,False,False
-6012,34.9329,695.809,34.9105,695.677,0.0,0.0,2024-05-22 15:53:49,False,开机运行中,False,False,False,回收阶段开始
+6012,34.9329,695.809,34.9105,695.677,0.0,0.0,2024-05-22 15:53:49,A架开机,开机运行中,False,False,False,回收阶段开始
 6013,34.9329,695.837,34.9105,696.031,0.0,0.0,2024-05-22 15:54:49,False,开机运行中,False,False,False,回收阶段中
 6014,34.9329,695.844,34.9105,695.921,0.0,0.0,2024-05-22 15:55:49,False,开机运行中,False,False,False,回收阶段中
 6015,34.9329,695.929,34.9105,695.992,0.0,0.0,2024-05-22 15:56:49,False,开机运行中,False,False,False,回收阶段中
@@ -8600,7 +8600,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 6238,34.8658,696.913,35.0895,696.882,0.0,0.0,2024-05-23 01:43:49,False,开机运行中,False,False,False,回收阶段中
 6239,34.8658,697.041,35.0895,696.979,0.0,0.0,2024-05-23 01:44:49,False,开机运行中,False,False,False,回收阶段中
 6240,34.8658,697.039,35.0895,696.845,0.0,0.0,2024-05-23 01:45:49,False,开机运行中,False,False,False,回收阶段中
-6241,error,error,error,error,-1.0,-1.0,2024-05-23 01:46:49,False,开机运行中,False,False,False,回收阶段结束
+6241,error,error,error,error,-1.0,-1.0,2024-05-23 01:46:49,A架关机,开机运行中,False,False,False,回收阶段结束
 6242,error,error,error,error,-1.0,-1.0,2024-05-23 01:47:49,False,未运行,False,False,False,False
 6243,error,error,error,error,-1.0,-1.0,2024-05-23 01:48:49,False,未运行,False,False,False,False
 6244,error,error,error,error,-1.0,-1.0,2024-05-23 01:49:49,False,未运行,False,False,False,False
@@ -8964,7 +8964,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 6484,error,error,error,error,-1.0,-1.0,2024-05-23 07:53:49,False,未运行,False,False,False,False
 6485,error,error,error,error,-1.0,-1.0,2024-05-23 07:54:49,False,未运行,False,False,False,False
 6486,error,error,error,error,-1.0,-1.0,2024-05-23 07:55:49,False,未运行,False,False,False,False
-6487,34.9553,694.144,35.0895,694.457,0.0,0.0,2024-05-23 07:56:49,False,开机运行中,False,False,False,布放阶段开始
+6487,34.9553,694.144,35.0895,694.457,0.0,0.0,2024-05-23 07:56:49,A架开机,开机运行中,False,False,False,布放阶段开始
 6488,34.9553,694.439,35.0895,694.555,0.0,0.0,2024-05-23 07:57:49,False,开机运行中,False,False,False,布放阶段中
 6489,34.9553,694.393,35.0895,694.613,0.0,0.0,2024-05-23 07:58:49,False,开机运行中,False,False,False,布放阶段中
 145539,34.9553,693.355,35.0895,694.48,59.9541,0.0,2024-05-23 08:00:49,False,开机运行中,False,False,False,布放阶段中
@@ -9179,7 +9179,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 6640,35.0447,696.97,35,696.889,0.0,0.0,2024-05-23 11:32:49,False,开机运行中,False,False,False,布放阶段中
 6641,35.0447,696.947,35,696.931,0.0,0.0,2024-05-23 11:33:49,False,开机运行中,False,False,False,布放阶段中
 6642,35.0447,697.056,35,696.827,0.0,0.0,2024-05-23 11:34:49,False,开机运行中,False,False,False,布放阶段中
-6643,error,error,error,error,-1.0,-1.0,2024-05-23 11:35:49,False,开机运行中,False,False,False,布放阶段结束
+6643,error,error,error,error,-1.0,-1.0,2024-05-23 11:35:49,A架关机,开机运行中,False,False,False,布放阶段结束
 6644,error,error,error,error,-1.0,-1.0,2024-05-23 11:36:49,False,未运行,False,False,False,False
 6645,error,error,error,error,-1.0,-1.0,2024-05-23 11:37:49,False,未运行,False,False,False,False
 6646,error,error,error,error,-1.0,-1.0,2024-05-23 11:38:49,False,未运行,False,False,False,False
@@ -9441,7 +9441,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 145656,error,error,error,error,-1.0,-1.0,2024-05-23 15:58:49,False,未运行,False,False,False,False
 145657,error,error,error,error,-1.0,-1.0,2024-05-23 16:00:49,False,未运行,False,False,False,False
 145658,error,error,error,error,-1.0,-1.0,2024-05-23 16:01:49,False,未运行,False,False,False,False
-145659,35.0671,695.777,35,695.882,0.0,0.0,2024-05-23 16:02:49,False,开机运行中,False,False,False,回收阶段开始
+145659,35.0671,695.777,35,695.882,0.0,0.0,2024-05-23 16:02:49,A架开机,开机运行中,False,False,False,回收阶段开始
 145660,35.0671,695.948,35,696.065,0.0,0.0,2024-05-23 16:03:49,False,开机运行中,False,False,False,回收阶段中
 145661,35.0671,696.104,35,696.191,0.0,0.0,2024-05-23 16:04:49,False,开机运行中,False,False,False,回收阶段中
 145662,35.0671,695.805,35,695.781,0.0,0.0,2024-05-23 16:05:49,False,开机运行中,False,False,False,回收阶段中
@@ -9839,7 +9839,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 7123,32.2716,695.595,32.607,695.728,0.0,0.0,2024-05-23 22:43:49,False,开机运行中,False,False,False,回收阶段中
 7124,32.2716,695.546,32.607,695.794,0.0,0.0,2024-05-23 22:44:49,False,开机运行中,False,False,False,回收阶段中
 7125,32.2716,695.663,32.607,695.767,0.0,0.0,2024-05-23 22:45:49,False,开机运行中,False,False,False,回收阶段中
-7126,error,error,error,error,-1.0,-1.0,2024-05-23 22:46:49,False,开机运行中,False,False,False,回收阶段结束
+7126,error,error,error,error,-1.0,-1.0,2024-05-23 22:46:49,A架关机,开机运行中,False,False,False,回收阶段结束
 7127,error,error,error,error,-1.0,-1.0,2024-05-23 22:47:49,False,未运行,False,False,False,False
 7128,error,error,error,error,-1.0,-1.0,2024-05-23 22:48:49,False,未运行,False,False,False,False
 7129,error,error,error,error,-1.0,-1.0,2024-05-23 22:49:49,False,未运行,False,False,False,False
@@ -9857,7 +9857,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 7141,error,error,error,error,-1.0,-1.0,2024-05-23 23:02:49,False,未运行,False,False,False,False
 7142,error,error,error,error,-1.0,-1.0,2024-05-23 23:03:49,False,未运行,False,False,False,False
 7143,error,error,error,error,-1.0,-1.0,2024-05-23 23:04:49,False,未运行,False,False,False,False
-7144,32.2716,694.949,32.607,695.306,0.0,0.0,2024-05-23 23:05:49,False,开机运行中,False,False,False,布放阶段开始
+7144,32.2716,694.949,32.607,695.306,0.0,0.0,2024-05-23 23:05:49,A架开机,开机运行中,False,False,False,布放阶段开始
 7145,32.2716,695.172,32.607,695.287,0.0,0.0,2024-05-23 23:06:49,False,开机运行中,False,False,False,布放阶段中
 7146,32.2716,695.153,32.607,695.281,0.0,0.0,2024-05-23 23:07:49,False,开机运行中,False,False,False,布放阶段中
 7147,32.2716,695.308,32.607,695.464,0.0,0.0,2024-05-23 23:08:49,False,开机运行中,False,False,False,布放阶段中
@@ -10459,7 +10459,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 145966,35,697.673,35,697.515,0.0,0.0,2024-05-24 09:14:49,False,开机运行中,False,False,False,布放阶段中
 145967,35,697.934,35,697.84,0.0,0.0,2024-05-24 09:15:49,False,开机运行中,False,False,False,布放阶段中
 145968,35,697.72,35,697.595,0.0,0.0,2024-05-24 09:16:49,False,开机运行中,False,False,False,布放阶段中
-145969,error,error,error,error,-1.0,-1.0,2024-05-24 09:17:49,False,开机运行中,False,False,False,布放阶段结束
+145969,error,error,error,error,-1.0,-1.0,2024-05-24 09:17:49,A架关机,开机运行中,False,False,False,布放阶段结束
 145970,error,error,error,error,-1.0,-1.0,2024-05-24 09:18:49,False,未运行,False,False,False,False
 145971,error,error,error,error,-1.0,-1.0,2024-05-24 09:19:49,False,未运行,False,False,False,False
 145972,error,error,error,error,-1.0,-1.0,2024-05-24 09:20:49,False,未运行,False,False,False,False
@@ -10854,7 +10854,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 146361,error,error,error,error,-1.0,-1.0,2024-05-24 15:55:49,False,未运行,False,False,False,False
 146362,error,error,error,error,-1.0,-1.0,2024-05-24 15:56:49,False,未运行,False,False,False,False
 146363,error,error,error,error,-1.0,-1.0,2024-05-24 15:57:49,False,未运行,False,False,False,False
-146364,35.0224,695.909,35.0224,696.104,0.0,0.0,2024-05-24 15:58:49,False,开机运行中,False,False,False,回收阶段开始
+146364,35.0224,695.909,35.0224,696.104,0.0,0.0,2024-05-24 15:58:49,A架开机,开机运行中,False,False,False,回收阶段开始
 7611,35.0224,696.136,35.0224,696.294,0.0,0.0,2024-05-24 16:00:49,False,开机运行中,False,False,False,回收阶段中
 7612,35.0224,696.255,35.0224,696.299,0.0,0.0,2024-05-24 16:01:49,False,开机运行中,False,False,False,回收阶段中
 7613,35.0224,696.428,35.0224,696.543,0.0,0.0,2024-05-24 16:02:49,False,开机运行中,False,False,False,回收阶段中
@@ -11300,7 +11300,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 7994,30.0576,697.333,35,697.38,0.0,0.0,2024-05-24 23:29:49,False,开机运行中,False,False,False,回收阶段中
 7995,30.0576,697.324,35,697.262,0.0,0.0,2024-05-24 23:30:49,False,开机运行中,False,False,False,回收阶段中
 7996,30.0576,697.281,35,697.338,0.0,0.0,2024-05-24 23:31:49,False,开机运行中,False,False,False,回收阶段中
-7997,error,error,error,error,-1.0,-1.0,2024-05-24 23:32:49,False,开机运行中,False,False,False,回收阶段结束
+7997,error,error,error,error,-1.0,-1.0,2024-05-24 23:32:49,A架关机,开机运行中,False,False,False,回收阶段结束
 7998,error,error,error,error,-1.0,-1.0,2024-05-24 23:33:49,False,未运行,False,False,False,False
 7999,error,error,error,error,-1.0,-1.0,2024-05-24 23:34:49,False,未运行,False,False,False,False
 8000,error,error,error,error,-1.0,-1.0,2024-05-24 23:35:49,False,未运行,False,False,False,False
@@ -13623,7 +13623,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 9845,error,error,error,error,-1.0,-1.0,2024-05-26 14:51:48,False,未运行,False,False,False,False
 9846,error,error,error,error,-1.0,-1.0,2024-05-26 14:52:48,False,未运行,False,False,False,False
 9847,error,error,error,error,-1.0,-1.0,2024-05-26 14:53:49,False,未运行,False,False,False,False
-9848,32.4058,696.367,35.1789,696.286,0.0,0.0,2024-05-26 14:54:48,False,开机运行中,False,False,False,回收阶段开始
+9848,32.4058,696.367,35.1789,696.286,0.0,0.0,2024-05-26 14:54:48,A架开机,开机运行中,False,False,False,回收阶段开始
 9849,32.4058,696.357,35.1789,696.434,0.0,0.0,2024-05-26 14:55:48,False,开机运行中,False,False,False,回收阶段中
 9850,32.4058,696.425,35.1789,696.461,0.0,0.0,2024-05-26 14:56:48,False,开机运行中,False,False,False,回收阶段中
 9851,32.4058,696.471,35.1789,696.473,0.0,0.0,2024-05-26 14:57:48,False,开机运行中,False,False,False,回收阶段中
@@ -13769,7 +13769,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 9991,32.1598,697.154,35.8722,697.181,0.0,0.0,2024-05-26 17:20:48,False,开机运行中,False,False,False,回收阶段中
 9992,32.1598,697.297,35.8722,697.229,0.0,0.0,2024-05-26 17:21:48,False,开机运行中,False,False,False,回收阶段中
 9993,32.1598,697.358,35.8722,697.332,0.0,0.0,2024-05-26 17:22:48,False,开机运行中,False,False,False,回收阶段中
-9994,error,error,error,error,-1.0,-1.0,2024-05-26 17:23:48,False,开机运行中,False,False,False,回收阶段结束
+9994,error,error,error,error,-1.0,-1.0,2024-05-26 17:23:48,A架关机,开机运行中,False,False,False,回收阶段结束
 9995,error,error,error,error,-1.0,-1.0,2024-05-26 17:24:48,False,未运行,False,False,False,False
 9996,error,error,error,error,-1.0,-1.0,2024-05-26 17:25:49,False,未运行,False,False,False,False
 9997,error,error,error,error,-1.0,-1.0,2024-05-26 17:26:49,False,未运行,False,False,False,False
@@ -15142,7 +15142,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 147001,error,error,error,error,-1.0,-1.0,2024-05-27 16:37:48,False,未运行,False,False,False,False
 147002,error,error,error,error,-1.0,-1.0,2024-05-27 16:38:48,False,未运行,False,False,False,False
 147003,error,error,error,error,-1.0,-1.0,2024-05-27 16:39:48,False,未运行,False,False,False,False
-147004,31.5336,695.887,34.1278,696.184,0.0,0.0,2024-05-27 16:40:48,False,开机运行中,False,False,False,回收阶段开始
+147004,31.5336,695.887,34.1278,696.184,0.0,0.0,2024-05-27 16:40:48,A架开机,开机运行中,False,False,False,回收阶段开始
 147008,31.5336,696.177,34.1278,696.181,0.0,0.0,2024-05-27 16:41:48,False,开机运行中,False,False,False,回收阶段中
 147009,31.5336,696.242,34.1278,696.314,0.0,0.0,2024-05-27 16:42:48,False,开机运行中,False,False,False,回收阶段中
 147010,31.5336,696.308,34.1278,696.438,0.0,0.0,2024-05-27 16:43:48,False,开机运行中,False,False,False,回收阶段中
@@ -15300,7 +15300,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 11286,29.1183,697.033,-52.5328,696.986,0.0,0.0,2024-05-27 19:18:48,False,开机运行中,无电流,False,False,回收阶段中
 11287,29.1183,697.258,-52.5328,697.011,0.0,0.0,2024-05-27 19:19:48,False,开机运行中,False,False,False,回收阶段中
 11288,29.1183,697.029,-52.5328,696.985,0.0,0.0,2024-05-27 19:20:48,False,开机运行中,False,False,False,回收阶段中
-11289,error,error,error,error,-1.0,-1.0,2024-05-27 19:21:48,False,开机运行中,False,False,False,回收阶段结束
+11289,error,error,error,error,-1.0,-1.0,2024-05-27 19:21:48,A架关机,开机运行中,False,False,False,回收阶段结束
 11290,error,error,error,error,-1.0,-1.0,2024-05-27 19:22:48,False,未运行,False,False,False,False
 11291,error,error,error,error,-1.0,-1.0,2024-05-27 19:23:48,False,未运行,False,False,False,False
 11292,error,error,error,error,-1.0,-1.0,2024-05-27 19:24:48,False,未运行,False,False,False,False
@@ -16450,7 +16450,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 12318,error,error,error,error,-1.0,-1.0,2024-05-28 14:47:48,False,未运行,False,False,False,False
 12319,error,error,error,error,-1.0,-1.0,2024-05-28 14:48:48,False,未运行,False,False,False,False
 12320,error,error,error,error,-1.0,-1.0,2024-05-28 14:49:48,False,未运行,False,False,False,False
-12321,29.4537,695.633,-52.4657,695.131,0.0,57.1458,2024-05-28 14:50:48,False,开机运行中,False,False,False,回收阶段开始
+12321,29.4537,695.633,-52.4657,695.131,0.0,57.1458,2024-05-28 14:50:48,A架开机,开机运行中,False,False,False,回收阶段开始
 12322,29.4537,696.063,-52.4657,696.148,0.0,0.0,2024-05-28 14:51:48,False,开机运行中,False,False,False,回收阶段中
 12323,29.4537,696.139,-52.4657,696.152,0.0,0.0,2024-05-28 14:52:48,False,开机运行中,False,False,False,回收阶段中
 12324,29.4537,696.122,-52.4657,696.255,0.0,0.0,2024-05-28 14:53:48,False,开机运行中,False,False,False,回收阶段中
@@ -16690,7 +16690,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 12499,29.0735,696.966,36.9009,696.935,0.0,0.0,2024-05-28 18:51:48,False,开机运行中,False,False,False,回收阶段中
 12500,29.0735,697.114,36.9009,696.938,0.0,0.0,2024-05-28 18:52:48,False,开机运行中,False,False,False,回收阶段中
 12501,29.0735,697.068,36.9009,696.915,0.0,0.0,2024-05-28 18:53:48,False,开机运行中,False,False,False,回收阶段中
-12502,error,error,error,error,-1.0,-1.0,2024-05-28 18:54:48,False,开机运行中,False,False,False,回收阶段结束
+12502,error,error,error,error,-1.0,-1.0,2024-05-28 18:54:48,A架关机,开机运行中,False,False,False,回收阶段结束
 12503,error,error,error,error,-1.0,-1.0,2024-05-28 18:55:48,False,未运行,False,False,False,False
 12504,error,error,error,error,-1.0,-1.0,2024-05-28 18:56:48,False,未运行,False,False,False,False
 12505,error,error,error,error,-1.0,-1.0,2024-05-28 18:57:48,False,未运行,False,False,False,False
@@ -17462,7 +17462,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 12917,error,error,error,error,-1.0,-1.0,2024-05-29 07:56:48,False,未运行,False,False,False,False
 12918,error,error,error,error,-1.0,-1.0,2024-05-29 07:57:48,False,未运行,False,False,False,False
 12919,error,error,error,error,-1.0,-1.0,2024-05-29 07:58:48,False,未运行,False,False,False,False
-12920,29.1183,694.207,36.9009,694.341,0.0,0.0,2024-05-29 08:00:48,False,开机运行中,False,False,False,布放阶段开始
+12920,29.1183,694.207,36.9009,694.341,0.0,0.0,2024-05-29 08:00:48,A架开机,开机运行中,False,False,False,布放阶段开始
 12921,29.1183,694.296,36.9009,694.663,0.0,0.0,2024-05-29 08:01:48,False,开机运行中,False,False,False,布放阶段中
 12922,29.1183,694.424,36.9009,694.67,0.0,0.0,2024-05-29 08:02:48,False,开机运行中,False,False,False,布放阶段中
 12923,29.1183,694.494,36.9009,694.644,0.0,0.0,2024-05-29 08:03:48,False,开机运行中,False,False,False,布放阶段中
@@ -17527,7 +17527,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 12982,29.5208,696.901,36.7668,696.964,0.0,0.0,2024-05-29 09:03:48,False,开机运行中,无电流,False,False,布放阶段中
 12983,29.5208,696.711,36.7668,696.638,0.0,0.0,2024-05-29 09:04:48,False,开机运行中,False,False,False,布放阶段中
 12984,29.5208,696.774,36.7668,696.655,0.0,0.0,2024-05-29 09:05:48,False,开机运行中,False,False,False,布放阶段中
-12985,error,error,error,error,-1.0,-1.0,2024-05-29 09:06:48,False,开机运行中,False,False,False,布放阶段结束
+12985,error,error,error,error,-1.0,-1.0,2024-05-29 09:06:48,A架关机,开机运行中,False,False,False,布放阶段结束
 12986,error,error,error,error,-1.0,-1.0,2024-05-29 09:07:48,False,未运行,False,False,False,False
 12987,error,error,error,error,-1.0,-1.0,2024-05-29 09:08:48,False,未运行,False,False,False,False
 12988,error,error,error,error,-1.0,-1.0,2024-05-29 09:09:48,False,未运行,False,False,False,False
@@ -19283,7 +19283,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 13617,error,error,error,error,-1.0,-1.0,2024-05-30 14:52:48,False,未运行,False,False,False,False
 13618,error,error,error,error,-1.0,-1.0,2024-05-30 14:53:48,False,未运行,False,False,False,False
 13619,error,error,error,error,-1.0,-1.0,2024-05-30 14:54:48,False,未运行,False,False,False,False
-13620,37.2364,695.433,0.760677,695.702,0.0,0.0,2024-05-30 14:55:48,False,开机运行中,False,True,False,回收阶段开始
+13620,37.2364,695.433,0.760677,695.702,0.0,0.0,2024-05-30 14:55:48,A架开机,开机运行中,False,True,False,回收阶段开始
 13621,37.2364,695.586,0.760677,695.69,0.0,0.0,2024-05-30 14:56:48,False,开机运行中,False,False,False,回收阶段中
 13622,37.2364,695.552,0.760677,695.775,0.0,0.0,2024-05-30 14:57:48,False,开机运行中,False,False,False,回收阶段中
 13623,37.2364,695.5,0.760677,695.739,0.0,0.0,2024-05-30 14:58:48,False,开机运行中,False,False,False,回收阶段中
@@ -19428,7 +19428,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 13762,37.2364,694.87,35.0224,695.111,91.7733,93.5678,2024-05-30 17:20:48,False,开机运行中,False,False,False,回收阶段中
 13763,37.2364,695.608,35,695.581,55.9689,56.9957,2024-05-30 17:21:48,False,开机运行中,False,False,False,回收阶段中
 13764,37.2364,696.497,35.0224,696.577,57.4203,57.9136,2024-05-30 17:22:48,False,开机运行中,False,False,False,回收阶段中
-13765,error,error,error,error,-1.0,-1.0,2024-05-30 17:23:48,False,开机运行中,无电流,False,False,回收阶段结束
+13765,error,error,error,error,-1.0,-1.0,2024-05-30 17:23:48,A架关机,开机运行中,无电流,False,False,回收阶段结束
 13766,error,error,error,error,-1.0,-1.0,2024-05-30 17:24:48,False,未运行,False,False,False,False
 13767,error,error,error,error,-1.0,-1.0,2024-05-30 17:25:48,False,未运行,False,False,False,False
 13768,error,error,error,error,-1.0,-1.0,2024-05-30 17:26:48,False,未运行,False,False,False,False
@@ -20397,7 +20397,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 149301,error,error,error,error,-1.0,-1.0,2024-05-31 09:45:48,False,未运行,False,False,False,False
 149302,error,error,error,error,-1.0,-1.0,2024-05-31 09:46:48,False,未运行,False,False,False,False
 149303,error,error,error,error,-1.0,-1.0,2024-05-31 09:47:48,False,未运行,False,False,False,False
-149304,37.2364,694.111,34.6422,694.151,0.0,0.0,2024-05-31 09:48:48,False,开机运行中,False,False,False,布放阶段开始
+149304,37.2364,694.111,34.6422,694.151,0.0,0.0,2024-05-31 09:48:48,A架开机,开机运行中,False,False,False,布放阶段开始
 149305,37.2364,694.103,34.6422,694.334,0.0,0.0,2024-05-31 09:49:48,False,开机运行中,False,False,False,布放阶段中
 149306,37.2364,694.313,34.6198,694.525,0.0,0.0,2024-05-31 09:50:48,False,开机运行中,False,False,False,布放阶段中
 149307,37.2364,694.346,34.6422,694.608,0.0,0.0,2024-05-31 09:51:48,False,开机运行中,False,False,False,布放阶段中
@@ -20481,7 +20481,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 14166,37.2364,697.185,34.6198,697.184,0.0,0.0,2024-05-31 11:11:48,False,开机运行中,False,False,False,布放阶段中
 14167,37.2364,697.073,34.6645,697.124,0.0,0.0,2024-05-31 11:12:48,False,开机运行中,False,False,False,布放阶段中
 14168,37.2364,697.121,34.6198,697.183,0.0,0.0,2024-05-31 11:13:48,False,开机运行中,False,False,False,布放阶段中
-14169,error,error,error,error,-1.0,-1.0,2024-05-31 11:14:48,False,开机运行中,False,False,False,布放阶段结束
+14169,error,error,error,error,-1.0,-1.0,2024-05-31 11:14:48,A架关机,开机运行中,False,False,False,布放阶段结束
 14170,error,error,error,error,-1.0,-1.0,2024-05-31 11:15:48,False,未运行,False,False,False,False
 14171,error,error,error,error,-1.0,-1.0,2024-05-31 11:16:48,False,未运行,False,False,False,False
 14172,error,error,error,error,-1.0,-1.0,2024-05-31 11:17:48,False,未运行,False,False,False,False
@@ -20875,7 +20875,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 14501,error,error,error,error,-1.0,-1.0,2024-05-31 17:51:48,False,未运行,False,False,False,False
 14502,error,error,error,error,-1.0,-1.0,2024-05-31 17:52:47,False,未运行,False,False,False,False
 14503,error,error,error,error,-1.0,-1.0,2024-05-31 17:53:48,False,未运行,False,False,False,False
-14504,37.2364,695.873,34.6422,695.855,0.0,0.0,2024-05-31 17:54:48,False,开机运行中,False,False,False,回收阶段开始
+14504,37.2364,695.873,34.6422,695.855,0.0,0.0,2024-05-31 17:54:48,A架开机,开机运行中,False,False,False,回收阶段开始
 14505,37.2364,695.935,34.6422,696,0.0,0.0,2024-05-31 17:55:48,False,开机运行中,False,False,False,回收阶段中
 14506,37.2364,695.99,34.6422,696.07,0.0,0.0,2024-05-31 17:56:48,False,开机运行中,False,False,False,回收阶段中
 14507,37.2364,696.075,34.6198,696.141,0.0,0.0,2024-05-31 17:57:48,False,开机运行中,False,False,False,回收阶段中
@@ -20979,7 +20979,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 14605,37.2364,696.846,34.6422,696.941,0.0,0.0,2024-05-31 19:37:48,False,开机运行中,False,False,False,回收阶段中
 14606,37.2364,696.879,34.6422,696.761,0.0,0.0,2024-05-31 19:38:47,False,开机运行中,False,False,False,回收阶段中
 14607,37.2364,691.891,34.6422,696.677,0.0,0.0,2024-05-31 19:39:47,False,开机运行中,False,False,False,回收阶段中
-14608,error,error,error,error,-1.0,-1.0,2024-05-31 19:40:47,False,开机运行中,False,False,False,回收阶段结束
+14608,error,error,error,error,-1.0,-1.0,2024-05-31 19:40:47,A架关机,开机运行中,False,False,False,回收阶段结束
 14609,error,error,error,error,-1.0,-1.0,2024-05-31 19:41:47,False,未运行,False,False,False,False
 14610,error,error,error,error,-1.0,-1.0,2024-05-31 19:42:48,False,未运行,False,False,False,False
 14611,error,error,error,error,-1.0,-1.0,2024-05-31 19:43:48,False,未运行,False,False,False,False
@@ -28801,7 +28801,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 151040,error,error,error,error,-1.0,-1.0,2024-06-06 08:14:46,False,未运行,False,False,False,False
 151041,error,error,error,error,-1.0,-1.0,2024-06-06 08:15:46,False,未运行,False,False,False,False
 151042,error,error,error,error,-1.0,-1.0,2024-06-06 08:16:47,False,未运行,False,False,False,False
-151043,0,0,0,0,0.0,0.0,2024-06-06 08:17:46,False,开机运行中,False,False,False,布放阶段开始
+151043,0,0,0,0,0.0,0.0,2024-06-06 08:17:46,A架开机,开机运行中,False,False,False,布放阶段开始
 151044,37.2364,694.262,35.1565,694.496,0.0,0.0,2024-06-06 08:18:46,False,开机运行中,False,False,False,布放阶段中
 151045,37.2364,694.494,35.1565,694.686,0.0,0.0,2024-06-06 08:19:46,False,开机运行中,False,False,False,布放阶段中
 151046,37.2364,694.411,35.1342,694.773,0.0,0.0,2024-06-06 08:20:46,False,开机运行中,False,False,False,布放阶段中
@@ -29013,7 +29013,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 20987,37.2364,695.634,35.1565,695.436,62.9309,63.9571,2024-06-06 11:49:46,False,开机运行中,False,False,False,布放阶段中
 20988,37.2364,697.188,35.1565,697.118,0.0,0.0,2024-06-06 11:50:46,False,开机运行中,无电流,False,False,布放阶段中
 20989,37.2364,697.172,35.1565,697.021,0.0,0.0,2024-06-06 11:51:46,False,开机运行中,False,False,False,布放阶段中
-20990,error,error,error,error,-1.0,-1.0,2024-06-06 11:52:46,False,开机运行中,False,False,False,布放阶段结束
+20990,error,error,error,error,-1.0,-1.0,2024-06-06 11:52:46,A架关机,开机运行中,False,False,False,布放阶段结束
 20991,error,error,error,error,-1.0,-1.0,2024-06-06 11:53:46,False,未运行,False,False,False,False
 20992,error,error,error,error,-1.0,-1.0,2024-06-06 11:54:46,False,未运行,False,False,False,False
 20993,error,error,error,error,-1.0,-1.0,2024-06-06 11:55:46,False,未运行,False,False,False,False
@@ -29169,7 +29169,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 21143,error,error,error,error,-1.0,-1.0,2024-06-06 14:28:46,False,未运行,False,False,False,False
 21144,error,error,error,error,-1.0,-1.0,2024-06-06 14:29:46,False,未运行,False,False,False,False
 21145,error,error,error,error,-1.0,-1.0,2024-06-06 14:30:46,False,未运行,False,False,False,False
-21146,0,0,0,0,0.0,0.0,2024-06-06 14:31:46,False,开机运行中,False,False,False,回收阶段开始
+21146,0,0,0,0,0.0,0.0,2024-06-06 14:31:46,A架开机,开机运行中,False,False,False,回收阶段开始
 21147,37.2364,695.853,35.1565,696.008,0.0,0.0,2024-06-06 14:32:46,False,开机运行中,False,False,False,回收阶段中
 21148,37.2364,696.212,35.1565,696.186,0.0,0.0,2024-06-06 14:33:46,False,开机运行中,False,False,False,回收阶段中
 21149,37.2364,696.367,35.1565,696.393,0.0,0.0,2024-06-06 14:34:46,False,开机运行中,False,False,False,回收阶段中
@@ -29353,7 +29353,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 21327,37.2364,697.08,35.1565,696.942,0.0,0.0,2024-06-06 17:35:46,False,开机运行中,False,False,False,回收阶段中
 21328,37.2364,697.229,35.1565,696.928,0.0,0.0,2024-06-06 17:36:46,False,开机运行中,False,False,False,回收阶段中
 21329,37.2364,697.128,35.1565,696.94,0.0,0.0,2024-06-06 17:37:46,False,开机运行中,False,False,False,回收阶段中
-21330,error,error,error,error,-1.0,-1.0,2024-06-06 17:38:46,False,开机运行中,False,False,False,回收阶段结束
+21330,error,error,error,error,-1.0,-1.0,2024-06-06 17:38:46,A架关机,开机运行中,False,False,False,回收阶段结束
 21331,error,error,error,error,-1.0,-1.0,2024-06-06 17:39:46,False,未运行,False,False,False,False
 21332,error,error,error,error,-1.0,-1.0,2024-06-06 17:40:46,False,未运行,False,False,False,False
 21333,error,error,error,error,-1.0,-1.0,2024-06-06 17:41:46,False,未运行,False,False,False,False
@@ -30712,7 +30712,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 151181,error,error,error,error,-1.0,-1.0,2024-06-07 16:37:46,False,未运行,False,False,False,False
 151182,error,error,error,error,-1.0,-1.0,2024-06-07 16:38:46,False,未运行,False,False,False,False
 151183,error,error,error,error,-1.0,-1.0,2024-06-07 16:39:46,False,未运行,False,False,False,False
-151184,37.2364,694.788,35.1789,694.626,0.0,0.0,2024-06-07 16:40:46,False,开机运行中,False,False,False,False
+151184,37.2364,694.788,35.1789,694.626,0.0,0.0,2024-06-07 16:40:46,A架开机,开机运行中,False,False,False,False
 151185,37.2364,694.924,35.1789,694.832,0.0,0.0,2024-06-07 16:41:46,False,开机运行中,False,False,False,False
 151186,37.2364,694.915,35.1789,694.696,0.0,0.0,2024-06-07 16:42:46,False,开机运行中,False,False,False,False
 151187,37.2364,695.117,35.1789,694.913,0.0,0.0,2024-06-07 16:43:46,False,开机运行中,False,False,False,False
@@ -31754,7 +31754,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 151574,37.2364,697.296,35.0224,697.004,0.0,0.0,2024-06-08 10:17:46,False,开机运行中,False,False,False,False
 151575,37.2364,697.276,35.0224,697.039,0.0,0.0,2024-06-08 10:18:46,False,开机运行中,False,False,False,False
 151576,37.2364,697.249,35.0224,697.054,0.0,0.0,2024-06-08 10:19:46,False,开机运行中,False,False,False,False
-151577,error,error,error,error,-1.0,-1.0,2024-06-08 10:20:46,False,开机运行中,False,False,False,False
+151577,error,error,error,error,-1.0,-1.0,2024-06-08 10:20:46,A架关机,开机运行中,False,False,False,False
 151578,error,error,error,error,-1.0,-1.0,2024-06-08 10:21:46,False,未运行,False,False,False,False
 151579,error,error,error,error,-1.0,-1.0,2024-06-08 10:22:46,False,未运行,False,False,False,False
 151580,error,error,error,error,-1.0,-1.0,2024-06-08 10:23:46,False,未运行,False,False,False,False
@@ -32117,7 +32117,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 23442,error,error,error,error,-1.0,-1.0,2024-06-08 16:26:46,False,未运行,False,False,False,False
 23443,error,error,error,error,-1.0,-1.0,2024-06-08 16:27:46,False,未运行,False,False,False,False
 23444,error,error,error,error,-1.0,-1.0,2024-06-08 16:28:46,False,未运行,False,False,False,False
-23445,37.2364,695.993,35.0224,696.01,0.0,0.0,2024-06-08 16:29:46,False,开机运行中,False,False,False,回收阶段开始
+23445,37.2364,695.993,35.0224,696.01,0.0,0.0,2024-06-08 16:29:46,A架开机,开机运行中,False,False,False,回收阶段开始
 23446,37.2364,695.69,35.0224,694.305,0.0,77.0542,2024-06-08 16:30:46,False,开机运行中,False,False,False,回收阶段中
 23447,37.2364,695.738,35.0224,694.701,0.0,63.0276,2024-06-08 16:31:46,False,开机运行中,False,False,False,回收阶段中
 23448,37.2364,695.666,35.0224,695.063,0.0,58.9785,2024-06-08 16:32:46,False,开机运行中,False,False,False,回收阶段中
@@ -32218,7 +32218,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 23543,37.2364,697.365,35.0224,697.228,0.0,0.0,2024-06-08 18:10:46,False,开机运行中,False,False,False,回收阶段中
 23544,37.2364,697.324,35.0224,697.197,0.0,0.0,2024-06-08 18:11:46,False,开机运行中,False,False,False,回收阶段中
 23545,37.2364,697.298,35.0224,697.212,0.0,0.0,2024-06-08 18:12:46,False,开机运行中,False,False,False,回收阶段中
-23546,error,error,error,error,-1.0,-1.0,2024-06-08 18:13:46,False,开机运行中,False,False,False,回收阶段结束
+23546,error,error,error,error,-1.0,-1.0,2024-06-08 18:13:46,A架关机,开机运行中,False,False,False,回收阶段结束
 23547,error,error,error,error,-1.0,-1.0,2024-06-08 18:14:46,False,未运行,False,False,False,False
 23548,error,error,error,error,-1.0,-1.0,2024-06-08 18:15:46,False,未运行,False,False,False,False
 23549,error,error,error,error,-1.0,-1.0,2024-06-08 18:16:46,False,未运行,False,False,False,False
@@ -45931,7 +45931,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 34188,error,error,error,error,-1.0,-1.0,2024-06-18 10:35:44,False,未运行,False,False,False,False
 34189,error,error,error,error,-1.0,-1.0,2024-06-18 10:36:44,False,未运行,False,False,False,False
 34190,error,error,error,error,-1.0,-1.0,2024-06-18 10:37:44,False,未运行,False,False,False,False
-34191,37.2364,696.109,35.6933,696.028,0.0,0.0,2024-06-18 10:38:44,False,开机运行中,False,False,False,布放阶段开始
+34191,37.2364,696.109,35.6933,696.028,0.0,0.0,2024-06-18 10:38:44,A架开机,开机运行中,False,False,False,布放阶段开始
 34192,37.2364,695.978,35.7156,696.095,0.0,0.0,2024-06-18 10:39:44,False,开机运行中,False,False,False,布放阶段中
 34193,37.2364,696.003,35.7156,695.942,0.0,0.0,2024-06-18 10:40:44,False,开机运行中,False,False,False,布放阶段中
 34194,37.2364,696.919,35.7156,696.983,0.0,0.0,2024-06-18 10:41:44,False,开机运行中,False,False,False,布放阶段中
@@ -46068,7 +46068,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 34266,37.2364,696.908,35.7156,696.668,0.0,0.0,2024-06-18 12:54:44,False,开机运行中,False,False,False,布放阶段中
 34267,37.2364,696.854,35.738,696.485,0.0,0.0,2024-06-18 12:55:44,False,开机运行中,False,False,False,布放阶段中
 34268,37.2364,696.858,35.7156,696.484,0.0,0.0,2024-06-18 12:56:44,False,开机运行中,False,False,False,布放阶段中
-34269,error,error,error,error,-1.0,-1.0,2024-06-18 12:57:44,False,开机运行中,False,False,False,布放阶段结束
+34269,error,error,error,error,-1.0,-1.0,2024-06-18 12:57:44,A架关机,开机运行中,False,False,False,布放阶段结束
 34270,error,error,error,error,-1.0,-1.0,2024-06-18 12:58:44,False,未运行,False,False,False,False
 34271,error,error,error,error,-1.0,-1.0,2024-06-18 13:00:44,False,未运行,False,False,False,False
 34272,error,error,error,error,-1.0,-1.0,2024-06-18 13:01:44,False,未运行,False,False,False,False
@@ -50121,7 +50121,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 37611,error,error,error,error,-1.0,-1.0,2024-06-21 09:36:44,False,未运行,False,False,False,False
 37612,error,error,error,error,-1.0,-1.0,2024-06-21 09:37:44,False,未运行,False,False,False,False
 37613,error,error,error,error,-1.0,-1.0,2024-06-21 09:38:44,False,未运行,False,False,False,False
-37614,0,0,0,0,0.0,0.0,2024-06-21 09:39:44,False,开机运行中,False,False,False,布放阶段开始
+37614,0,0,0,0,0.0,0.0,2024-06-21 09:39:44,A架开机,开机运行中,False,False,False,布放阶段开始
 37615,37.2364,695.784,35.5815,696.173,0.0,0.0,2024-06-21 09:40:44,False,开机运行中,False,False,False,布放阶段中
 37616,37.2364,695.94,35.5815,696.267,0.0,0.0,2024-06-21 09:41:44,False,开机运行中,False,False,False,布放阶段中
 37617,37.2364,696.088,35.5815,696.112,0.0,0.0,2024-06-21 09:42:44,False,开机运行中,False,False,False,布放阶段中
@@ -50297,7 +50297,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 37728,37.2364,697.196,35.6038,697.111,0.0,0.0,2024-06-21 12:35:44,False,开机运行中,False,False,False,布放阶段中
 37729,37.2364,697.311,35.6038,697.119,0.0,0.0,2024-06-21 12:36:44,False,开机运行中,False,False,False,布放阶段中
 37730,37.2364,697.418,35.5815,697.263,0.0,0.0,2024-06-21 12:37:44,False,开机运行中,False,False,False,布放阶段中
-37731,error,error,error,error,-1.0,-1.0,2024-06-21 12:38:44,False,开机运行中,False,False,False,布放阶段结束
+37731,error,error,error,error,-1.0,-1.0,2024-06-21 12:38:44,A架关机,开机运行中,False,False,False,布放阶段结束
 37732,error,error,error,error,-1.0,-1.0,2024-06-21 12:39:44,False,未运行,False,False,False,False
 37733,error,error,error,error,-1.0,-1.0,2024-06-21 12:40:44,False,未运行,False,False,False,False
 37734,error,error,error,error,-1.0,-1.0,2024-06-21 12:41:44,False,未运行,False,False,False,False
@@ -51056,7 +51056,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 38310,error,error,error,error,-1.0,-1.0,2024-06-22 01:27:44,False,未运行,False,False,False,False
 38311,error,error,error,error,-1.0,-1.0,2024-06-22 01:28:44,False,未运行,False,False,False,False
 38312,error,error,error,error,-1.0,-1.0,2024-06-22 01:29:44,False,未运行,False,False,False,False
-38313,0,0,0,0,0.0,0.0,2024-06-22 01:30:44,False,开机运行中,False,False,False,回收阶段开始
+38313,0,0,0,0,0.0,0.0,2024-06-22 01:30:44,A架开机,开机运行中,False,False,False,回收阶段开始
 38314,37.2364,696.019,35.6038,696.074,0.0,0.0,2024-06-22 01:31:44,False,开机运行中,False,False,False,回收阶段中
 38315,37.2364,696.175,35.6038,696.177,0.0,0.0,2024-06-22 01:32:44,False,开机运行中,False,False,False,回收阶段中
 38316,37.2364,696.104,35.6038,696.172,0.0,0.0,2024-06-22 01:33:44,False,开机运行中,False,False,False,回收阶段中
@@ -51241,7 +51241,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 155865,37.2364,696.261,35.6038,696.047,65.5312,65.673,2024-06-22 04:35:44,False,开机运行中,False,False,False,回收阶段中
 155871,37.2364,696.648,35.6038,696.494,55.5358,56.2891,2024-06-22 04:36:44,False,开机运行中,False,False,False,回收阶段中
 155872,37.2364,697.647,35.6038,697.432,0.0,0.0,2024-06-22 04:37:44,False,开机运行中,无电流,False,False,回收阶段中
-155873,error,error,error,error,-1.0,-1.0,2024-06-22 04:38:44,False,开机运行中,False,False,False,回收阶段结束
+155873,error,error,error,error,-1.0,-1.0,2024-06-22 04:38:44,A架关机,开机运行中,False,False,False,回收阶段结束
 155874,error,error,error,error,-1.0,-1.0,2024-06-22 04:39:44,False,未运行,False,False,False,False
 155875,error,error,error,error,-1.0,-1.0,2024-06-22 04:40:44,False,未运行,False,False,False,False
 155876,error,error,error,error,-1.0,-1.0,2024-06-22 04:41:44,False,未运行,False,False,False,False
@@ -58964,7 +58964,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 44507,error,error,error,error,-1.0,-1.0,2024-06-28 08:29:42,False,未运行,False,False,False,False
 44508,error,error,error,error,-1.0,-1.0,2024-06-28 08:30:43,False,未运行,False,False,False,False
 44509,error,error,error,error,-1.0,-1.0,2024-06-28 08:31:42,False,未运行,False,False,False,False
-44510,0,0,0,0,0.0,0.0,2024-06-28 08:32:42,False,开机运行中,False,False,False,布放阶段开始
+44510,0,0,0,0,0.0,0.0,2024-06-28 08:32:42,A架开机,开机运行中,False,False,False,布放阶段开始
 44511,37.2364,694.752,35.6038,694.963,0.0,0.0,2024-06-28 08:33:42,False,开机运行中,False,False,False,布放阶段中
 44512,37.2364,694.87,35.6038,695.055,0.0,0.0,2024-06-28 08:34:42,False,开机运行中,False,False,False,布放阶段中
 44513,37.2364,692.894,35.6038,692.408,34.0888,0.0,2024-06-28 08:35:42,False,开机运行中,False,False,False,布放阶段中
@@ -59057,7 +59057,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 44600,37.2364,696.327,35.6038,696.157,0.0,0.0,2024-06-28 10:04:43,False,开机运行中,False,False,False,布放阶段中
 44601,37.2364,696.288,35.6038,696.052,0.0,0.0,2024-06-28 10:05:42,False,开机运行中,False,False,False,布放阶段中
 44602,37.2364,696.378,35.6038,696.227,0.0,0.0,2024-06-28 10:06:42,False,开机运行中,False,False,False,布放阶段中
-44603,error,error,error,error,-1.0,-1.0,2024-06-28 10:07:42,False,开机运行中,False,False,False,布放阶段结束
+44603,error,error,error,error,-1.0,-1.0,2024-06-28 10:07:42,A架关机,开机运行中,False,False,False,布放阶段结束
 44604,error,error,error,error,-1.0,-1.0,2024-06-28 10:08:42,False,未运行,False,False,False,False
 44605,error,error,error,error,-1.0,-1.0,2024-06-28 10:09:42,False,未运行,False,False,False,False
 44606,error,error,error,error,-1.0,-1.0,2024-06-28 10:10:43,False,未运行,False,False,False,False
@@ -67474,7 +67474,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 52781,error,error,error,error,-1.0,-1.0,2024-07-04 08:43:41,False,未运行,False,False,False,False
 52782,error,error,error,error,-1.0,-1.0,2024-07-04 08:44:41,False,未运行,False,False,False,False
 52783,error,error,error,error,-1.0,-1.0,2024-07-04 08:45:41,False,未运行,False,False,False,False
-52784,0,0,0,0,0.0,0.0,2024-07-04 08:46:41,False,开机运行中,False,False,False,布放阶段开始
+52784,0,0,0,0,0.0,0.0,2024-07-04 08:46:41,A架开机,开机运行中,False,False,False,布放阶段开始
 52785,37.2364,695.41,35.6486,695.652,0.0,0.0,2024-07-04 08:47:41,False,开机运行中,False,False,False,布放阶段中
 52786,37.2364,695.476,35.6486,695.782,0.0,0.0,2024-07-04 08:48:41,False,开机运行中,False,False,False,布放阶段中
 52787,37.2364,695.602,35.6486,695.856,0.0,0.0,2024-07-04 08:49:41,False,开机运行中,False,False,False,布放阶段中
@@ -67537,7 +67537,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 52844,37.2364,696.424,35.6486,696.571,0.0,0.0,2024-07-04 09:47:41,False,开机运行中,False,False,False,布放阶段中
 52845,37.2364,696.435,35.6486,696.473,0.0,0.0,2024-07-04 09:48:41,False,开机运行中,False,False,False,布放阶段中
 52846,37.2364,696.445,35.6486,696.533,0.0,0.0,2024-07-04 09:49:41,False,开机运行中,False,False,False,布放阶段中
-52847,error,error,error,error,-1.0,-1.0,2024-07-04 09:50:41,False,开机运行中,False,False,False,布放阶段结束
+52847,error,error,error,error,-1.0,-1.0,2024-07-04 09:50:41,A架关机,开机运行中,False,False,False,布放阶段结束
 52848,error,error,error,error,-1.0,-1.0,2024-07-04 09:51:41,False,未运行,False,False,False,False
 52849,error,error,error,error,-1.0,-1.0,2024-07-04 09:52:41,False,未运行,False,False,False,False
 52850,error,error,error,error,-1.0,-1.0,2024-07-04 09:53:41,False,未运行,False,False,False,False
@@ -69332,7 +69332,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 54344,error,error,error,error,-1.0,-1.0,2024-07-05 17:13:41,False,未运行,False,False,False,False
 54345,error,error,error,error,-1.0,-1.0,2024-07-05 17:14:41,False,未运行,False,False,False,False
 54346,error,error,error,error,-1.0,-1.0,2024-07-05 17:15:41,False,未运行,False,False,False,False
-54347,0,0,0,0,0.0,0.0,2024-07-05 17:16:41,False,开机运行中,False,False,False,回收阶段开始
+54347,0,0,0,0,0.0,0.0,2024-07-05 17:16:41,A架开机,开机运行中,False,False,False,回收阶段开始
 54348,37.2364,696.456,35.6486,696.557,0.0,0.0,2024-07-05 17:17:41,False,开机运行中,False,False,False,回收阶段中
 54349,37.2364,696.569,35.6486,696.62,0.0,0.0,2024-07-05 17:18:41,False,开机运行中,False,False,False,回收阶段中
 54350,37.2364,696.445,35.6486,696.506,0.0,0.0,2024-07-05 17:19:41,False,开机运行中,False,False,False,回收阶段中
@@ -69387,7 +69387,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 158056,37.2364,697.693,35.6486,697.596,0.0,0.0,2024-07-05 18:09:41,False,开机运行中,False,False,False,回收阶段中
 158057,37.2364,697.752,35.6486,697.617,0.0,0.0,2024-07-05 18:10:41,False,开机运行中,False,False,False,回收阶段中
 158058,37.2364,697.722,35.6486,697.67,0.0,0.0,2024-07-05 18:11:41,False,开机运行中,False,False,False,回收阶段中
-158059,error,error,error,error,-1.0,-1.0,2024-07-05 18:12:41,False,开机运行中,False,False,False,回收阶段结束
+158059,error,error,error,error,-1.0,-1.0,2024-07-05 18:12:41,A架关机,开机运行中,False,False,False,回收阶段结束
 158060,error,error,error,error,-1.0,-1.0,2024-07-05 18:13:41,False,未运行,False,False,False,False
 158061,error,error,error,error,-1.0,-1.0,2024-07-05 18:14:41,False,未运行,False,False,False,False
 158062,error,error,error,error,-1.0,-1.0,2024-07-05 18:15:41,False,未运行,False,False,False,False
@@ -87152,7 +87152,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 70276,error,error,error,error,-1.0,-1.0,2024-07-18 07:15:39,False,未运行,False,False,False,False
 70277,error,error,error,error,-1.0,-1.0,2024-07-18 07:16:39,False,未运行,False,False,False,False
 70278,error,error,error,error,-1.0,-1.0,2024-07-18 07:17:39,False,未运行,False,False,False,False
-70279,0,0,0,0,0.0,0.0,2024-07-18 07:18:39,False,开机运行中,False,False,False,布放阶段开始
+70279,0,0,0,0,0.0,0.0,2024-07-18 07:18:39,A架开机,开机运行中,False,False,False,布放阶段开始
 70280,37.2364,693.82,35.1342,694.113,0.0,0.0,2024-07-18 07:19:39,False,开机运行中,False,False,False,布放阶段中
 70281,37.2364,692.64,35.1342,692.825,55.8982,56.547,2024-07-18 07:20:39,False,开机运行中,有电流,False,False,布放阶段中
 70282,37.2364,690.498,35.1342,690.475,128.65,134.566,2024-07-18 07:21:39,False,开机运行中,False,False,False,布放阶段中
@@ -87231,7 +87231,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 70355,37.2364,696.504,35.1342,696.465,0.0,0.0,2024-07-18 08:35:39,False,开机运行中,False,False,False,布放阶段中
 70356,37.2364,696.473,35.1342,696.545,0.0,0.0,2024-07-18 08:36:39,False,开机运行中,False,False,False,布放阶段中
 70357,37.2364,696.486,35.1342,696.46,0.0,0.0,2024-07-18 08:37:39,False,开机运行中,False,False,False,布放阶段中
-70358,error,error,error,error,-1.0,-1.0,2024-07-18 08:38:39,False,开机运行中,False,False,False,布放阶段结束
+70358,error,error,error,error,-1.0,-1.0,2024-07-18 08:38:39,A架关机,开机运行中,False,False,False,布放阶段结束
 70359,error,error,error,error,-1.0,-1.0,2024-07-18 08:39:39,False,未运行,False,False,False,False
 70360,error,error,error,error,-1.0,-1.0,2024-07-18 08:40:39,False,未运行,False,False,False,False
 70361,error,error,error,error,-1.0,-1.0,2024-07-18 08:41:39,False,未运行,False,False,False,False
@@ -87614,7 +87614,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 70738,error,error,error,error,-1.0,-1.0,2024-07-18 15:05:39,False,未运行,False,False,False,False
 70739,error,error,error,error,-1.0,-1.0,2024-07-18 15:06:39,False,未运行,False,False,False,False
 70740,error,error,error,error,-1.0,-1.0,2024-07-18 15:07:39,False,未运行,False,False,False,False
-70741,37.2364,695.414,35.1342,695.755,0.0,0.0,2024-07-18 15:08:39,False,开机运行中,False,False,False,回收阶段开始
+70741,37.2364,695.414,35.1342,695.755,0.0,0.0,2024-07-18 15:08:39,A架开机,开机运行中,False,False,False,回收阶段开始
 70742,37.2364,695.634,35.1342,695.809,0.0,0.0,2024-07-18 15:09:39,False,开机运行中,False,False,False,回收阶段中
 70743,37.2364,695.817,35.1342,695.881,0.0,0.0,2024-07-18 15:10:39,False,开机运行中,False,False,False,回收阶段中
 70744,37.2364,695.927,35.1342,696.014,0.0,0.0,2024-07-18 15:11:39,False,开机运行中,False,False,False,回收阶段中
@@ -88106,7 +88106,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 71171,37.2364,696.667,35.1342,695.953,0.0,59.6861,2024-07-18 23:25:38,False,开机运行中,False,False,False,回收阶段中
 71172,37.2364,696.974,35.1342,696.857,0.0,0.0,2024-07-18 23:26:39,False,开机运行中,False,False,False,回收阶段中
 71173,37.2364,697.008,35.1342,696.907,0.0,0.0,2024-07-18 23:27:39,False,开机运行中,False,False,False,回收阶段中
-71174,error,error,error,error,-1.0,-1.0,2024-07-18 23:28:39,False,开机运行中,False,False,False,回收阶段结束
+71174,error,error,error,error,-1.0,-1.0,2024-07-18 23:28:39,A架关机,开机运行中,False,False,False,回收阶段结束
 71175,error,error,error,error,-1.0,-1.0,2024-07-18 23:29:39,False,未运行,False,False,False,False
 71176,error,error,error,error,-1.0,-1.0,2024-07-18 23:30:39,False,未运行,False,False,False,False
 71177,error,error,error,error,-1.0,-1.0,2024-07-18 23:31:38,False,未运行,False,False,False,False
@@ -88506,7 +88506,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 71512,error,error,error,error,-1.0,-1.0,2024-07-19 06:12:38,False,未运行,False,False,False,False
 71513,error,error,error,error,-1.0,-1.0,2024-07-19 06:13:38,False,未运行,False,False,False,False
 71514,error,error,error,error,-1.0,-1.0,2024-07-19 06:14:39,False,未运行,False,False,False,False
-71515,0,0,0,0,0.0,0.0,2024-07-19 06:15:38,False,开机运行中,False,False,False,布放阶段开始
+71515,0,0,0,0,0.0,0.0,2024-07-19 06:15:38,A架开机,开机运行中,False,False,False,布放阶段开始
 71516,37.2364,695.839,35.1342,695.855,0.0,0.0,2024-07-19 06:16:38,False,开机运行中,False,False,False,布放阶段中
 71517,37.2364,695.63,35.1342,695.82,0.0,0.0,2024-07-19 06:17:38,False,开机运行中,False,False,False,布放阶段中
 71518,37.2364,695.861,35.1342,695.882,0.0,0.0,2024-07-19 06:18:38,False,开机运行中,False,False,False,布放阶段中
@@ -88961,7 +88961,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 71967,37.2364,697.162,35.1342,697.156,0.0,0.0,2024-07-19 13:54:38,False,开机运行中,False,False,False,布放阶段中
 71968,37.2364,697.089,35.1342,696.992,0.0,0.0,2024-07-19 13:55:38,False,开机运行中,False,False,False,布放阶段中
 71969,37.2364,697.176,35.1342,697.107,0.0,0.0,2024-07-19 13:56:38,False,开机运行中,False,False,False,布放阶段中
-71970,error,error,error,error,-1.0,-1.0,2024-07-19 13:57:38,False,开机运行中,False,False,False,布放阶段结束
+71970,error,error,error,error,-1.0,-1.0,2024-07-19 13:57:38,A架关机,开机运行中,False,False,False,布放阶段结束
 71971,error,error,error,error,-1.0,-1.0,2024-07-19 13:58:38,False,未运行,False,False,False,False
 71972,error,error,error,error,-1.0,-1.0,2024-07-19 14:00:38,False,未运行,False,False,False,False
 71973,error,error,error,error,-1.0,-1.0,2024-07-19 14:01:39,False,未运行,False,False,False,False
@@ -89387,7 +89387,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 72393,error,error,error,error,-1.0,-1.0,2024-07-19 21:08:38,False,未运行,False,False,False,False
 72394,error,error,error,error,-1.0,-1.0,2024-07-19 21:09:38,False,未运行,False,False,False,False
 72395,error,error,error,error,-1.0,-1.0,2024-07-19 21:10:38,False,未运行,False,False,False,False
-72396,0,0,0,0,0.0,0.0,2024-07-19 21:11:38,False,开机运行中,False,False,False,回收阶段开始
+72396,0,0,0,0,0.0,0.0,2024-07-19 21:11:38,A架开机,开机运行中,False,False,False,回收阶段开始
 72397,37.2364,696.231,35.1342,696.203,0.0,0.0,2024-07-19 21:12:38,False,开机运行中,False,False,False,回收阶段中
 72398,37.2364,695.978,35.1342,695.966,0.0,0.0,2024-07-19 21:13:38,False,开机运行中,False,False,False,回收阶段中
 72399,37.2364,696.028,35.1342,696.017,0.0,0.0,2024-07-19 21:14:38,False,开机运行中,False,False,False,回收阶段中
@@ -89488,7 +89488,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 72494,37.2364,697.119,35.1342,697.178,0.0,0.0,2024-07-19 22:50:38,False,开机运行中,False,False,False,回收阶段中
 72495,37.2364,697.239,35.1342,697.28,0.0,0.0,2024-07-19 22:51:38,False,开机运行中,False,False,False,回收阶段中
 72496,37.2364,697.251,35.1342,697.251,0.0,0.0,2024-07-19 22:52:38,False,开机运行中,False,False,False,回收阶段中
-72497,error,error,error,error,-1.0,-1.0,2024-07-19 22:53:38,False,开机运行中,False,False,False,回收阶段结束
+72497,error,error,error,error,-1.0,-1.0,2024-07-19 22:53:38,A架关机,开机运行中,False,False,False,回收阶段结束
 72498,error,error,error,error,-1.0,-1.0,2024-07-19 22:54:38,False,未运行,False,False,False,False
 72499,error,error,error,error,-1.0,-1.0,2024-07-19 22:55:38,False,未运行,False,False,False,False
 72500,error,error,error,error,-1.0,-1.0,2024-07-19 22:56:38,False,未运行,False,False,False,False
@@ -92015,7 +92015,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 160624,error,error,error,error,-1.0,-1.0,2024-07-21 17:40:38,False,未运行,False,False,False,False
 160625,error,error,error,error,-1.0,-1.0,2024-07-21 17:41:38,False,未运行,False,False,False,False
 160626,error,error,error,error,-1.0,-1.0,2024-07-21 17:42:38,False,未运行,False,False,False,False
-160627,37.2364,696.11,35.0895,696.229,0.0,0.0,2024-07-21 17:43:38,False,开机运行中,False,False,False,回收阶段开始
+160627,37.2364,696.11,35.0895,696.229,0.0,0.0,2024-07-21 17:43:38,A架开机,开机运行中,False,False,False,回收阶段开始
 160628,37.2364,696.022,35.0895,696.266,0.0,0.0,2024-07-21 17:44:38,False,开机运行中,False,False,False,回收阶段中
 160629,37.2364,695.841,35.0895,696.09,0.0,0.0,2024-07-21 17:45:38,False,开机运行中,False,False,False,回收阶段中
 160630,37.2364,695.966,35.0671,696.111,0.0,0.0,2024-07-21 17:46:38,False,开机运行中,False,False,False,回收阶段中
@@ -92091,7 +92091,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 160700,37.2364,693.882,35.0895,693.799,57.6515,57.8946,2024-07-21 18:57:38,False,开机运行中,False,False,False,回收阶段中
 160701,37.2364,695.37,35.0895,695.321,0.0,0.0,2024-07-21 18:58:38,False,开机运行中,无电流,False,False,回收阶段中
 74450,37.2364,695.429,35.0895,695.235,0.0,0.0,2024-07-21 19:00:38,False,开机运行中,False,False,False,回收阶段中
-74451,error,error,error,error,-1.0,-1.0,2024-07-21 19:01:38,False,开机运行中,False,False,False,回收阶段结束
+74451,error,error,error,error,-1.0,-1.0,2024-07-21 19:01:38,A架关机,开机运行中,False,False,False,回收阶段结束
 74452,error,error,error,error,-1.0,-1.0,2024-07-21 19:02:38,False,未运行,False,False,False,False
 74453,error,error,error,error,-1.0,-1.0,2024-07-21 19:03:38,False,未运行,False,False,False,False
 74454,error,error,error,error,-1.0,-1.0,2024-07-21 19:04:38,False,未运行,False,False,False,False
@@ -94689,7 +94689,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 76397,error,error,error,error,-1.0,-1.0,2024-07-23 16:00:38,False,未运行,False,False,False,False
 76398,error,error,error,error,-1.0,-1.0,2024-07-23 16:01:38,False,未运行,False,False,False,False
 76399,error,error,error,error,-1.0,-1.0,2024-07-23 16:02:38,False,未运行,False,False,False,False
-76400,0,0,0,0,0.0,0.0,2024-07-23 16:03:38,False,开机运行中,False,False,False,回收阶段开始
+76400,0,0,0,0,0.0,0.0,2024-07-23 16:03:38,A架开机,开机运行中,False,False,False,回收阶段开始
 76401,37.2364,695.868,35.1118,696.14,0.0,0.0,2024-07-23 16:04:38,False,开机运行中,False,False,False,回收阶段中
 76402,37.2364,695.95,35.1118,696.094,0.0,0.0,2024-07-23 16:05:38,False,开机运行中,False,False,False,回收阶段中
 76403,37.2364,695.166,35.0895,695.214,0.0,0.0,2024-07-23 16:06:38,False,开机运行中,False,False,False,回收阶段中
@@ -94769,7 +94769,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 161372,37.2364,696.802,35.1118,696.902,0.0,0.0,2024-07-23 17:21:38,False,开机运行中,False,False,False,回收阶段中
 161373,37.2364,696.833,35.1118,696.875,0.0,0.0,2024-07-23 17:22:38,False,开机运行中,False,False,False,回收阶段中
 161374,37.2364,696.857,35.1118,696.926,0.0,0.0,2024-07-23 17:23:38,False,开机运行中,False,False,False,回收阶段中
-161375,error,error,error,error,-1.0,-1.0,2024-07-23 17:24:38,False,开机运行中,False,False,False,回收阶段结束
+161375,error,error,error,error,-1.0,-1.0,2024-07-23 17:24:38,A架关机,开机运行中,False,False,False,回收阶段结束
 161376,error,error,error,error,-1.0,-1.0,2024-07-23 17:25:38,False,未运行,False,False,False,False
 161377,error,error,error,error,-1.0,-1.0,2024-07-23 17:26:38,False,未运行,False,False,False,False
 161378,error,error,error,error,-1.0,-1.0,2024-07-23 17:27:38,False,未运行,False,False,False,False
@@ -99412,7 +99412,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 81061,error,error,error,error,-1.0,-1.0,2024-07-27 14:03:37,False,未运行,False,False,False,False
 81062,error,error,error,error,-1.0,-1.0,2024-07-27 14:04:37,False,未运行,False,False,False,False
 81063,error,error,error,error,-1.0,-1.0,2024-07-27 14:05:37,False,未运行,False,False,False,False
-81064,0,0,0,0,0.0,0.0,2024-07-27 14:06:37,False,开机运行中,False,False,False,回收阶段开始
+81064,0,0,0,0,0.0,0.0,2024-07-27 14:06:37,A架开机,开机运行中,False,False,False,回收阶段开始
 81065,37.2364,694.139,35.0895,694.396,0.0,0.0,2024-07-27 14:07:37,False,开机运行中,False,False,False,回收阶段中
 81066,37.2364,694.117,35.0895,694.33,0.0,0.0,2024-07-27 14:08:37,False,开机运行中,False,False,False,回收阶段中
 81067,37.2364,694.315,35.0895,694.434,0.0,0.0,2024-07-27 14:09:37,False,开机运行中,False,False,False,回收阶段中
@@ -99911,7 +99911,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 81560,37.2364,697.425,35.0895,697.293,0.0,0.0,2024-07-27 22:30:37,False,开机运行中,False,False,False,回收阶段中
 81561,37.2364,697.365,35.0895,697.363,0.0,0.0,2024-07-27 22:31:37,False,开机运行中,False,False,False,回收阶段中
 81562,37.2364,697.32,35.0671,697.38,0.0,0.0,2024-07-27 22:32:37,False,开机运行中,False,False,False,回收阶段中
-81563,error,error,error,error,-1.0,-1.0,2024-07-27 22:33:37,False,开机运行中,False,False,False,回收阶段结束
+81563,error,error,error,error,-1.0,-1.0,2024-07-27 22:33:37,A架关机,开机运行中,False,False,False,回收阶段结束
 81564,error,error,error,error,-1.0,-1.0,2024-07-27 22:34:37,False,未运行,False,False,False,False
 81565,error,error,error,error,-1.0,-1.0,2024-07-27 22:35:37,False,未运行,False,False,False,False
 81566,error,error,error,error,-1.0,-1.0,2024-07-27 22:36:37,False,未运行,False,False,False,False
@@ -109140,7 +109140,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 161585,error,error,error,error,-1.0,-1.0,2024-08-03 18:57:30,False,未运行,False,False,False,False
 161586,error,error,error,error,-1.0,-1.0,2024-08-03 18:58:30,False,未运行,False,False,False,False
 90614,error,error,error,error,-1.0,-1.0,2024-08-03 19:00:30,False,未运行,False,False,False,False
-90615,0,0,0,0,0.0,0.0,2024-08-03 19:01:29,False,开机运行中,False,False,False,回收阶段开始
+90615,0,0,0,0,0.0,0.0,2024-08-03 19:01:29,A架开机,开机运行中,False,False,False,回收阶段开始
 90616,37.2364,695.297,35.0895,695.55,0.0,0.0,2024-08-03 19:02:30,False,开机运行中,False,False,False,回收阶段中
 90617,37.2364,695.477,35.0895,695.664,0.0,0.0,2024-08-03 19:03:30,False,开机运行中,False,False,False,回收阶段中
 90618,37.2364,695.609,35.0895,695.841,0.0,0.0,2024-08-03 19:04:30,False,开机运行中,False,False,False,回收阶段中
@@ -109559,7 +109559,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 161886,37.2364,697.318,35.0671,697.246,0.0,0.0,2024-08-04 02:04:29,False,开机运行中,False,False,False,回收阶段中
 161887,37.2364,697.3,35.0671,697.241,0.0,0.0,2024-08-04 02:05:29,False,开机运行中,False,False,False,回收阶段中
 161888,37.2364,697.293,35.0671,697.162,0.0,0.0,2024-08-04 02:06:29,False,开机运行中,False,False,False,回收阶段中
-161889,error,error,error,error,-1.0,-1.0,2024-08-04 02:07:29,False,开机运行中,False,False,False,回收阶段结束
+161889,error,error,error,error,-1.0,-1.0,2024-08-04 02:07:29,A架关机,开机运行中,False,False,False,回收阶段结束
 161890,error,error,error,error,-1.0,-1.0,2024-08-04 02:08:29,False,未运行,False,False,False,False
 161891,error,error,error,error,-1.0,-1.0,2024-08-04 02:09:29,False,未运行,False,False,False,False
 161892,error,error,error,error,-1.0,-1.0,2024-08-04 02:10:30,False,未运行,False,False,False,False
@@ -111769,7 +111769,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 92828,error,error,error,error,-1.0,-1.0,2024-08-05 15:31:29,False,未运行,False,False,False,False
 92829,error,error,error,error,-1.0,-1.0,2024-08-05 15:32:29,False,未运行,False,False,False,False
 92830,error,error,error,error,-1.0,-1.0,2024-08-05 15:33:29,False,未运行,False,False,False,False
-92831,37.2364,694.252,35.0671,694.642,0.0,0.0,2024-08-05 15:34:29,False,开机运行中,False,False,False,回收阶段开始
+92831,37.2364,694.252,35.0671,694.642,0.0,0.0,2024-08-05 15:34:29,A架开机,开机运行中,False,False,False,回收阶段开始
 92832,37.2364,694.459,35.0671,694.785,0.0,0.0,2024-08-05 15:35:29,False,开机运行中,False,False,False,回收阶段中
 92833,37.2364,694.552,35.0671,694.794,0.0,0.0,2024-08-05 15:36:29,False,开机运行中,False,False,False,回收阶段中
 92834,37.2364,694.657,35.0671,694.804,0.0,0.0,2024-08-05 15:37:29,False,开机运行中,False,False,False,回收阶段中
@@ -112057,7 +112057,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 93116,37.2364,697.712,35.0671,697.282,8.49226,38.5107,2024-08-05 20:24:29,False,开机运行中,False,False,False,回收阶段中
 93117,37.2364,697.411,35.0671,697.265,0.0,0.0,2024-08-05 20:25:29,False,开机运行中,无电流,False,False,回收阶段中
 93118,37.2364,697.359,35.0671,697.217,0.0,0.0,2024-08-05 20:26:29,False,开机运行中,False,False,False,回收阶段中
-93119,error,error,error,error,-1.0,-1.0,2024-08-05 20:27:29,False,开机运行中,False,False,False,回收阶段结束
+93119,error,error,error,error,-1.0,-1.0,2024-08-05 20:27:29,A架关机,开机运行中,False,False,False,回收阶段结束
 93120,error,error,error,error,-1.0,-1.0,2024-08-05 20:28:29,False,未运行,False,False,False,False
 93121,error,error,error,error,-1.0,-1.0,2024-08-05 20:29:29,False,未运行,False,False,False,False
 93122,error,error,error,error,-1.0,-1.0,2024-08-05 20:30:29,False,未运行,False,False,False,False
@@ -112733,7 +112733,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 93792,error,error,error,error,-1.0,-1.0,2024-08-06 07:51:29,False,未运行,False,False,False,False
 93793,error,error,error,error,-1.0,-1.0,2024-08-06 07:52:29,False,未运行,False,False,False,False
 93794,error,error,error,error,-1.0,-1.0,2024-08-06 07:53:29,False,未运行,False,False,False,False
-93795,0,0,0,0,0.0,0.0,2024-08-06 07:54:29,False,开机运行中,False,False,False,布放阶段开始
+93795,0,0,0,0,0.0,0.0,2024-08-06 07:54:29,A架开机,开机运行中,False,False,False,布放阶段开始
 93796,37.2364,694.582,35.0671,694.688,0.0,0.0,2024-08-06 07:55:29,False,开机运行中,False,False,False,布放阶段中
 93797,37.2364,694.595,35.0671,694.834,0.0,0.0,2024-08-06 07:56:29,False,开机运行中,False,False,False,布放阶段中
 93798,37.2364,694.692,35.0671,694.933,0.0,0.0,2024-08-06 07:57:29,False,开机运行中,False,False,False,布放阶段中
@@ -113070,7 +113070,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 94129,37.2364,696.189,35.1565,696.117,55.1349,56.109,2024-08-06 13:34:29,False,开机运行中,False,False,False,布放阶段中
 94130,37.2364,696.231,35.1565,695.627,55.1333,62.7529,2024-08-06 13:35:29,False,开机运行中,False,False,False,布放阶段中
 94131,37.2364,697.413,35.1565,697.183,0.0,0.0,2024-08-06 13:36:29,False,开机运行中,无电流,False,False,布放阶段中
-94132,error,error,error,error,-1.0,-1.0,2024-08-06 13:37:29,False,开机运行中,False,False,False,布放阶段结束
+94132,error,error,error,error,-1.0,-1.0,2024-08-06 13:37:29,A架关机,开机运行中,False,False,False,布放阶段结束
 94133,error,error,error,error,-1.0,-1.0,2024-08-06 13:38:29,False,未运行,False,False,False,False
 94134,error,error,error,error,-1.0,-1.0,2024-08-06 13:39:29,False,未运行,False,False,False,False
 94135,error,error,error,error,-1.0,-1.0,2024-08-06 13:40:29,False,未运行,False,False,False,False
@@ -113613,7 +113613,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 94672,error,error,error,error,-1.0,-1.0,2024-08-06 22:46:29,False,未运行,False,False,False,False
 94673,error,error,error,error,-1.0,-1.0,2024-08-06 22:47:29,False,未运行,False,False,False,False
 94674,error,error,error,error,-1.0,-1.0,2024-08-06 22:48:29,False,未运行,False,False,False,False
-94675,0,0,0,0,0.0,0.0,2024-08-06 22:49:29,False,开机运行中,False,False,False,回收阶段开始
+94675,0,0,0,0,0.0,0.0,2024-08-06 22:49:29,A架开机,开机运行中,False,False,False,回收阶段开始
 94676,37.2364,696.385,35.1565,696.242,0.0,0.0,2024-08-06 22:50:29,False,开机运行中,False,False,False,回收阶段中
 94677,37.2364,696.234,35.1565,696.195,0.0,0.0,2024-08-06 22:51:29,False,开机运行中,False,False,False,回收阶段中
 94678,37.2364,696.396,35.1565,696.423,0.0,0.0,2024-08-06 22:52:29,False,开机运行中,False,False,False,回收阶段中
@@ -113681,7 +113681,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 94740,37.2364,696.976,35.1565,696.988,0.0,0.0,2024-08-06 23:55:29,False,开机运行中,无电流,False,False,回收阶段中
 94741,37.2364,696.823,35.1565,696.834,0.0,0.0,2024-08-06 23:56:29,False,开机运行中,False,False,False,回收阶段中
 94742,37.2364,697.143,35.1565,697.05,0.0,0.0,2024-08-06 23:57:29,False,开机运行中,False,False,False,回收阶段中
-94743,error,error,error,error,-1.0,-1.0,2024-08-06 23:58:29,False,开机运行中,False,False,False,回收阶段结束
+94743,error,error,error,error,-1.0,-1.0,2024-08-06 23:58:29,A架关机,开机运行中,False,False,False,回收阶段结束
 94744,error,error,error,error,-1.0,-1.0,2024-08-07 00:00:29,False,未运行,False,False,False,False
 94745,error,error,error,error,-1.0,-1.0,2024-08-07 00:01:29,False,未运行,False,False,False,False
 94746,error,error,error,error,-1.0,-1.0,2024-08-07 00:02:29,False,未运行,False,False,False,False
@@ -116161,7 +116161,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 97161,error,error,error,error,-1.0,-1.0,2024-08-08 17:58:29,False,未运行,False,False,False,False
 97162,error,error,error,error,-1.0,-1.0,2024-08-08 18:00:29,False,未运行,False,False,False,False
 97163,error,error,error,error,-1.0,-1.0,2024-08-08 18:01:29,False,未运行,False,False,False,False
-97164,0,0,0,0,0.0,0.0,2024-08-08 18:02:29,False,开机运行中,False,False,False,回收阶段开始
+97164,0,0,0,0,0.0,0.0,2024-08-08 18:02:29,A架开机,开机运行中,False,False,False,回收阶段开始
 97165,37.2364,696.026,35.2236,696.064,0.0,0.0,2024-08-08 18:03:29,False,开机运行中,False,False,False,回收阶段中
 97166,37.2364,696.006,35.2236,695.906,0.0,0.0,2024-08-08 18:04:29,False,开机运行中,False,False,False,回收阶段中
 97167,37.2364,696.022,35.2236,695.814,0.0,0.0,2024-08-08 18:05:29,False,开机运行中,False,False,False,回收阶段中
@@ -116246,7 +116246,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 162084,37.2364,696.943,35.2013,696.742,0.0,0.0,2024-08-08 19:25:29,False,开机运行中,False,False,False,回收阶段中
 162085,37.2364,696.922,35.2013,696.776,0.0,0.0,2024-08-08 19:26:29,False,开机运行中,False,False,False,回收阶段中
 162086,37.2364,697.02,35.2013,696.867,0.0,0.0,2024-08-08 19:27:29,False,开机运行中,False,False,False,回收阶段中
-162087,error,error,error,error,-1.0,-1.0,2024-08-08 19:28:29,False,开机运行中,False,False,False,回收阶段结束
+162087,error,error,error,error,-1.0,-1.0,2024-08-08 19:28:29,A架关机,开机运行中,False,False,False,回收阶段结束
 162088,error,error,error,error,-1.0,-1.0,2024-08-08 19:29:29,False,未运行,False,False,False,False
 162089,error,error,error,error,-1.0,-1.0,2024-08-08 19:30:29,False,未运行,False,False,False,False
 162090,error,error,error,error,-1.0,-1.0,2024-08-08 19:31:29,False,未运行,False,False,False,False
@@ -118754,7 +118754,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 98810,error,error,error,error,-1.0,-1.0,2024-08-10 13:55:28,False,未运行,False,False,False,False
 98811,error,error,error,error,-1.0,-1.0,2024-08-10 13:56:28,False,未运行,False,False,False,False
 98812,error,error,error,error,-1.0,-1.0,2024-08-10 13:57:28,False,未运行,False,False,False,False
-98813,0,0,0,0,0.0,0.0,2024-08-10 13:58:28,False,开机运行中,False,False,False,回收阶段开始
+98813,0,0,0,0,0.0,0.0,2024-08-10 13:58:28,A架开机,开机运行中,False,False,False,回收阶段开始
 98814,37.2364,695.766,35.246,695.802,0.0,0.0,2024-08-10 14:00:28,False,开机运行中,False,False,False,回收阶段中
 98815,37.2364,695.943,35.246,696.138,0.0,0.0,2024-08-10 14:01:28,False,开机运行中,False,False,False,回收阶段中
 98816,37.2364,694.903,35.2684,694.955,56.6706,57.4576,2024-08-10 14:02:28,False,开机运行中,有电流,False,False,回收阶段中
@@ -119130,7 +119130,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 99186,37.2364,696.908,35.4249,696.707,0.0,0.0,2024-08-10 20:18:28,False,开机运行中,False,False,False,回收阶段中
 99187,37.2364,697.015,35.4249,696.855,0.0,0.0,2024-08-10 20:19:28,False,开机运行中,False,False,False,回收阶段中
 99188,37.2364,696.766,35.4249,696.638,0.0,0.0,2024-08-10 20:20:28,False,开机运行中,False,False,False,回收阶段中
-99189,error,error,error,error,-1.0,-1.0,2024-08-10 20:21:28,False,开机运行中,False,False,False,回收阶段结束
+99189,error,error,error,error,-1.0,-1.0,2024-08-10 20:21:28,A架关机,开机运行中,False,False,False,回收阶段结束
 99190,error,error,error,error,-1.0,-1.0,2024-08-10 20:22:28,False,未运行,False,False,False,False
 99191,error,error,error,error,-1.0,-1.0,2024-08-10 20:23:28,False,未运行,False,False,False,False
 99192,error,error,error,error,-1.0,-1.0,2024-08-10 20:24:28,False,未运行,False,False,False,False
@@ -121342,7 +121342,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 101280,error,error,error,error,-1.0,-1.0,2024-08-12 09:47:28,False,未运行,False,False,False,False
 101281,error,error,error,error,-1.0,-1.0,2024-08-12 09:48:28,False,未运行,False,False,False,False
 101282,error,error,error,error,-1.0,-1.0,2024-08-12 09:49:28,False,未运行,False,False,False,False
-101283,0,0,0,0,0.0,0.0,2024-08-12 09:50:28,False,开机运行中,False,False,False,False
+101283,0,0,0,0,0.0,0.0,2024-08-12 09:50:28,A架开机,开机运行中,False,False,False,False
 101284,37.2364,695.458,29.1854,695.649,0.0,0.0,2024-08-12 09:51:28,False,开机运行中,False,False,False,False
 101285,37.2364,695.498,29.1854,695.72,0.0,0.0,2024-08-12 09:52:28,False,开机运行中,False,False,False,False
 101286,37.2364,695.516,29.1854,695.714,0.0,0.0,2024-08-12 09:53:28,False,开机运行中,False,False,False,False
@@ -121454,7 +121454,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 101392,37.2364,692.03,29.1854,692.173,97.277,95.0827,2024-08-12 11:41:28,False,开机运行中,False,False,False,False
 101393,37.2364,695.55,29.1854,695.592,0.0,0.0,2024-08-12 11:42:28,False,开机运行中,无电流,False,False,False
 101394,37.2364,695.645,29.1854,695.642,0.0,0.0,2024-08-12 11:43:28,False,开机运行中,False,False,False,False
-101395,error,error,error,error,-1.0,-1.0,2024-08-12 11:44:28,False,开机运行中,False,False,False,False
+101395,error,error,error,error,-1.0,-1.0,2024-08-12 11:44:28,A架关机,开机运行中,False,False,False,False
 101396,error,error,error,error,-1.0,-1.0,2024-08-12 11:45:28,False,未运行,False,False,False,False
 101397,error,error,error,error,-1.0,-1.0,2024-08-12 11:46:28,False,未运行,False,False,False,False
 101398,error,error,error,error,-1.0,-1.0,2024-08-12 11:47:28,False,未运行,False,False,False,False
@@ -131474,7 +131474,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 111176,error,error,error,error,-1.0,-1.0,2024-08-19 13:31:27,False,未运行,False,False,False,False
 111177,error,error,error,error,-1.0,-1.0,2024-08-19 13:32:27,False,未运行,False,False,False,False
 111178,error,error,error,error,-1.0,-1.0,2024-08-19 13:33:27,False,未运行,False,False,False,False
-111179,37.2364,695.986,30.3259,695.792,0.0,0.0,2024-08-19 13:34:27,False,开机运行中,False,False,False,布放阶段开始
+111179,37.2364,695.986,30.3259,695.792,0.0,0.0,2024-08-19 13:34:27,A架开机,开机运行中,False,False,False,布放阶段开始
 111180,37.2364,696.019,30.3259,695.808,0.0,0.0,2024-08-19 13:35:27,False,开机运行中,False,False,False,布放阶段中
 111181,37.2364,696.07,30.3259,695.971,0.0,0.0,2024-08-19 13:36:27,False,开机运行中,False,False,False,布放阶段中
 111182,37.2364,696.935,30.3259,696.913,0.0,0.0,2024-08-19 13:37:27,False,开机运行中,False,False,False,布放阶段中
@@ -131541,7 +131541,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 111243,37.2364,697.449,30.3483,697.384,0.0,0.0,2024-08-19 14:39:27,False,开机运行中,False,False,False,布放阶段中
 111244,37.2364,697.441,30.3483,697.281,0.0,0.0,2024-08-19 14:40:27,False,开机运行中,False,False,False,布放阶段中
 111245,37.2364,697.431,30.3483,697.323,0.0,0.0,2024-08-19 14:41:27,False,开机运行中,False,False,False,布放阶段中
-111246,error,error,error,error,-1.0,-1.0,2024-08-19 14:42:27,False,开机运行中,False,False,False,布放阶段结束
+111246,error,error,error,error,-1.0,-1.0,2024-08-19 14:42:27,A架关机,开机运行中,False,False,False,布放阶段结束
 111247,error,error,error,error,-1.0,-1.0,2024-08-19 14:43:27,False,未运行,False,False,False,False
 111248,error,error,error,error,-1.0,-1.0,2024-08-19 14:44:27,False,未运行,False,False,False,False
 111249,error,error,error,error,-1.0,-1.0,2024-08-19 14:45:27,False,未运行,False,False,False,False
@@ -131953,7 +131953,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 111655,error,error,error,error,-1.0,-1.0,2024-08-19 21:38:27,False,未运行,False,False,False,False
 111656,error,error,error,error,-1.0,-1.0,2024-08-19 21:39:27,False,未运行,False,False,False,False
 111657,error,error,error,error,-1.0,-1.0,2024-08-19 21:40:27,False,未运行,False,False,False,False
-111658,37.2364,696.267,30.2812,696.38,0.0,0.0,2024-08-19 21:41:26,False,开机运行中,False,False,False,回收阶段开始
+111658,37.2364,696.267,30.2812,696.38,0.0,0.0,2024-08-19 21:41:26,A架开机,开机运行中,False,False,False,回收阶段开始
 111659,37.2364,696.352,30.3036,696.523,0.0,0.0,2024-08-19 21:42:27,False,开机运行中,False,False,False,回收阶段中
 111660,37.2364,696.454,30.3036,696.436,0.0,0.0,2024-08-19 21:43:27,False,开机运行中,False,False,False,回收阶段中
 111661,37.2364,696.578,30.3036,696.51,0.0,0.0,2024-08-19 21:44:27,False,开机运行中,False,False,False,回收阶段中
@@ -132043,7 +132043,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 111745,37.2364,696.421,30.3036,696.312,55.8429,56.9544,2024-08-19 23:10:27,False,开机运行中,False,False,False,回收阶段中
 111746,37.2364,696.246,30.3036,696.253,61.4286,60.9146,2024-08-19 23:11:27,False,开机运行中,False,False,False,回收阶段中
 111747,37.2364,697.501,30.3036,697.431,0.0,0.0,2024-08-19 23:12:27,False,开机运行中,无电流,False,False,回收阶段中
-111748,error,error,error,error,-1.0,-1.0,2024-08-19 23:13:27,False,开机运行中,False,False,False,回收阶段结束
+111748,error,error,error,error,-1.0,-1.0,2024-08-19 23:13:27,A架关机,开机运行中,False,False,False,回收阶段结束
 111749,error,error,error,error,-1.0,-1.0,2024-08-19 23:14:27,False,未运行,False,False,False,False
 111750,error,error,error,error,-1.0,-1.0,2024-08-19 23:15:27,False,未运行,False,False,False,False
 111751,error,error,error,error,-1.0,-1.0,2024-08-19 23:16:27,False,未运行,False,False,False,False
@@ -133110,7 +133110,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 112753,error,error,error,error,-1.0,-1.0,2024-08-20 17:16:09,False,未运行,False,False,False,False
 112754,error,error,error,error,-1.0,-1.0,2024-08-20 17:17:09,False,未运行,False,False,False,False
 112755,error,error,error,error,-1.0,-1.0,2024-08-20 17:18:09,False,未运行,False,False,False,False
-112756,0,0,0,0,0.0,0.0,2024-08-20 17:19:09,False,开机运行中,False,False,False,回收阶段开始
+112756,0,0,0,0,0.0,0.0,2024-08-20 17:19:09,A架开机,开机运行中,False,False,False,回收阶段开始
 112757,37.2364,696.315,30.2812,696.352,0.0,0.0,2024-08-20 17:20:09,False,开机运行中,False,False,False,回收阶段中
 112758,37.2364,696.069,30.3036,696.138,0.0,0.0,2024-08-20 17:21:09,False,开机运行中,False,False,False,回收阶段中
 112759,37.2364,696.139,30.3036,696.045,0.0,0.0,2024-08-20 17:22:09,False,开机运行中,False,False,False,回收阶段中
@@ -133186,7 +133186,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 112829,37.2364,696.073,30.3036,695.926,61.5143,61.2336,2024-08-20 18:33:09,False,开机运行中,False,False,False,回收阶段中
 112830,37.2364,696.193,30.2812,695.65,55.7253,64.3609,2024-08-20 18:34:09,False,开机运行中,False,False,False,回收阶段中
 112831,37.2364,697.473,30.2812,697.263,0.0,0.0,2024-08-20 18:35:09,False,开机运行中,无电流,False,False,回收阶段中
-112832,error,error,error,error,-1.0,-1.0,2024-08-20 18:36:09,False,开机运行中,False,False,False,回收阶段结束
+112832,error,error,error,error,-1.0,-1.0,2024-08-20 18:36:09,A架关机,开机运行中,False,False,False,回收阶段结束
 112833,error,error,error,error,-1.0,-1.0,2024-08-20 18:37:09,False,未运行,False,False,False,False
 112834,error,error,error,error,-1.0,-1.0,2024-08-20 18:38:09,False,未运行,False,False,False,False
 112835,error,error,error,error,-1.0,-1.0,2024-08-20 18:39:09,False,未运行,False,False,False,False
@@ -139634,7 +139634,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 118687,error,error,error,error,-1.0,-1.0,2024-08-25 07:50:08,False,未运行,False,False,False,False
 118688,error,error,error,error,-1.0,-1.0,2024-08-25 07:51:08,False,未运行,False,False,False,False
 118689,error,error,error,error,-1.0,-1.0,2024-08-25 07:52:08,False,未运行,False,False,False,False
-118690,37.2364,694.266,30.2141,694.428,0.0,0.0,2024-08-25 07:53:08,False,开机运行中,False,False,False,布放阶段开始
+118690,37.2364,694.266,30.2141,694.428,0.0,0.0,2024-08-25 07:53:08,A架开机,开机运行中,False,False,False,布放阶段开始
 118691,37.2364,694.391,30.2365,694.658,0.0,0.0,2024-08-25 07:54:08,False,开机运行中,False,False,False,布放阶段中
 118692,37.2364,694.375,30.2365,694.461,0.0,0.0,2024-08-25 07:55:08,False,开机运行中,False,False,False,布放阶段中
 118693,37.2364,694.272,30.2365,694.366,0.0,0.0,2024-08-25 07:56:08,False,开机运行中,False,False,False,布放阶段中
@@ -139695,7 +139695,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 118748,37.2364,697.031,18.5401,697.011,0.0,0.0,2024-08-25 08:52:08,False,开机运行中,False,False,False,布放阶段中
 118749,37.2364,697.01,18.5401,696.88,0.0,0.0,2024-08-25 08:53:08,False,开机运行中,False,False,False,布放阶段中
 118750,37.2364,697.119,18.5401,696.923,0.0,0.0,2024-08-25 08:54:08,False,开机运行中,False,False,False,布放阶段中
-118751,error,error,error,error,-1.0,-1.0,2024-08-25 08:55:08,False,开机运行中,False,False,False,布放阶段结束
+118751,error,error,error,error,-1.0,-1.0,2024-08-25 08:55:08,A架关机,开机运行中,False,False,False,布放阶段结束
 118752,error,error,error,error,-1.0,-1.0,2024-08-25 08:56:08,False,未运行,False,False,False,False
 118753,error,error,error,error,-1.0,-1.0,2024-08-25 08:57:08,False,未运行,False,False,False,False
 118754,error,error,error,error,-1.0,-1.0,2024-08-25 08:58:08,False,未运行,False,False,False,False
@@ -144362,7 +144362,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 164890,error,error,error,error,-1.0,-1.0,2024-08-28 15:58:08,False,未运行,False,False,False,False
 164891,error,error,error,error,-1.0,-1.0,2024-08-28 16:00:07,False,未运行,False,False,False,False
 164892,error,error,error,error,-1.0,-1.0,2024-08-28 16:01:07,False,未运行,False,False,False,False
-164893,37.2364,696.082,18.5177,695.952,0.0,0.0,2024-08-28 16:02:07,False,开机运行中,False,False,False,回收阶段开始
+164893,37.2364,696.082,18.5177,695.952,0.0,0.0,2024-08-28 16:02:07,A架开机,开机运行中,False,False,False,回收阶段开始
 164894,37.2364,696.079,18.5177,695.973,0.0,0.0,2024-08-28 16:03:07,False,开机运行中,False,False,False,回收阶段中
 164895,37.2364,696.034,18.5177,695.999,0.0,0.0,2024-08-28 16:04:07,False,开机运行中,False,False,False,回收阶段中
 164896,37.2364,696.126,18.5177,696.045,0.0,0.0,2024-08-28 16:05:07,False,开机运行中,False,False,False,回收阶段中
@@ -144452,7 +144452,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 164980,37.2364,697.431,18.5177,697.363,0.0,0.0,2024-08-28 17:30:07,False,开机运行中,False,False,False,回收阶段中
 164981,37.2364,697.552,18.5177,697.408,0.0,0.0,2024-08-28 17:31:07,False,开机运行中,False,False,False,回收阶段中
 164982,37.2364,585.851,18.5177,697.445,0.0,0.0,2024-08-28 17:32:07,False,开机运行中,False,False,False,回收阶段中
-164983,error,error,error,error,-1.0,-1.0,2024-08-28 17:33:07,False,开机运行中,False,False,False,回收阶段结束
+164983,error,error,error,error,-1.0,-1.0,2024-08-28 17:33:07,A架关机,开机运行中,False,False,False,回收阶段结束
 164984,error,error,error,error,-1.0,-1.0,2024-08-28 17:34:07,False,未运行,False,False,False,False
 164985,error,error,error,error,-1.0,-1.0,2024-08-28 17:35:07,False,未运行,False,False,False,False
 164986,error,error,error,error,-1.0,-1.0,2024-08-28 17:36:07,False,未运行,False,False,False,False
@@ -145777,7 +145777,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 166482,error,error,error,error,-1.0,-1.0,2024-08-29 15:57:07,False,未运行,False,False,False,False
 166483,error,error,error,error,-1.0,-1.0,2024-08-29 15:58:07,False,未运行,False,False,False,False
 166248,error,error,error,error,-1.0,-1.0,2024-08-29 16:00:07,False,未运行,False,False,False,False
-166249,37.2364,696.238,18.5177,696.313,0.0,0.0,2024-08-29 16:01:07,False,开机运行中,False,False,False,回收阶段开始
+166249,37.2364,696.238,18.5177,696.313,0.0,0.0,2024-08-29 16:01:07,A架开机,开机运行中,False,False,False,回收阶段开始
 166250,37.2364,696.377,18.5177,696.54,0.0,0.0,2024-08-29 16:02:07,False,开机运行中,False,False,False,回收阶段中
 166251,37.2364,696.45,18.5177,696.56,0.0,0.0,2024-08-29 16:03:07,False,开机运行中,False,False,False,回收阶段中
 166252,37.2364,695.545,18.5177,695.569,0.0,0.0,2024-08-29 16:04:07,False,开机运行中,False,False,False,回收阶段中
@@ -145870,7 +145870,7 @@ index,Ajia-0_v,Ajia-2_v,Ajia-1_v,Ajia-4_v,Ajia-3_v,Ajia-5_v,csvTime,key_action,r
 166339,37.2364,696.945,18.5177,696.984,0.0,0.0,2024-08-29 17:32:07,False,开机运行中,False,False,False,回收阶段中
 166340,37.2364,696.777,18.5177,696.58,0.0,0.0,2024-08-29 17:33:07,False,开机运行中,False,False,False,回收阶段中
 166341,37.2364,696.615,37.2364,696.608,0.0,0.0,2024-08-29 17:34:07,False,开机运行中,False,False,False,回收阶段中
-166342,error,error,error,error,-1.0,-1.0,2024-08-29 17:35:07,False,开机运行中,False,False,False,回收阶段结束
+166342,error,error,error,error,-1.0,-1.0,2024-08-29 17:35:07,A架关机,开机运行中,False,False,False,回收阶段结束
 166343,error,error,error,error,-1.0,-1.0,2024-08-29 17:36:07,False,未运行,False,False,False,False
 166344,error,error,error,error,-1.0,-1.0,2024-08-29 17:37:07,False,未运行,False,False,False,False
 166345,error,error,error,error,-1.0,-1.0,2024-08-29 17:38:07,False,未运行,False,False,False,False
