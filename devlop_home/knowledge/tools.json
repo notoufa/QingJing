@@ -463,6 +463,30 @@
     {
         "type": "function",
         "function": {
+            "name": "count_deapsea_operations",
+            "description": "统计深海作业的次数。输入：起始时间、结束时间。输出：在指定时间范围内进行的深海作业的次数。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "description": "起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "description": "结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                    }
+                },
+                "required": [
+                    "start_time",
+                    "end_time"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "convert_seconds_to_time",
             "description": "将秒转换为分钟、小时。输入：时间间隔（秒）。输出：分钟数、小时数",
             "parameters": {

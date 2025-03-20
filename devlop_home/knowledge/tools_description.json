@@ -77,6 +77,11 @@
         ]
     },
     {
+        "function_name": "count_deapsea_operations",
+        "input": "起始时间、结束时间。",
+        "output": "在指定时间范围内进行的深海作业的次数。"
+    },
+    {
         "function_name": "calculate_list_length",
         "input": "需要统计长度的列表（数字、字符串、日期等）。",
         "output": "列表长度。",

@@ -1384,6 +1384,53 @@ def convert_seconds_to_time(seconds):
         "metadata": metadata,
     }
 
+def count_deapsea_operations(start_time: str,end_time: str):
+    """
+    统计两个时间点之间的完整深海作业的次数。
+    :param start_time: 开始时间
+    :param end_time: 结束时间
+    :return: 作业次数
+    """
+    metadata = {
+        "function_name": "count_deapsea_operations",
+        "start_time": start_time,
+        "end_time": end_time,
+    }
+
+    # 确保两个时间的差值至少是一分钟，如果小于一分钟，则end_time为start_time后一分钟
+    start_time = start_time.replace("24:00:00", "23:59:59")
+    end_time = end_time.replace("24:00:00", "23:59:59")
+
+    start_time_dt = pd.to_datetime(start_time)
+    end_time_dt = pd.to_datetime(end_time)
+    if (end_time_dt - start_time_dt).total_seconds() < 60:
+        end_time_dt = start_time_dt + pd.Timedelta(minutes=1)
+    df = pd.read_csv(f"{table_base_path}/A架动作表.csv")
+    df['csvTime'] = pd.to_datetime(df['csvTime'])
+    df= df[(df['csvTime'] >= start_time) & (df['csvTime'] <= end_time) &(df['stage'].isin(['布放阶段结束','回收阶段开始']))]
+    df = df.sort_values(by="csvTime")
+    print(df)
+    # 分离 `布放阶段结束` 和 `回收阶段开始`
+    deploy_end_times = df[df['stage'] == "布放阶段结束"]['csvTime'].tolist()
+    retrieve_start_times = df[df['stage'] == "回收阶段开始"]['csvTime'].tolist()
+
+    count = 0
+    j = 0  # `回收阶段开始` 的索引
+
+    # 遍历 `布放阶段结束` 的时间点，匹配最近的 `回收阶段开始`
+    for deploy_time in deploy_end_times:
+        while j < len(retrieve_start_times) and retrieve_start_times[j] < deploy_time:
+            j += 1  # 跳过早于当前 `布放阶段结束` 的 `回收阶段开始`
+        
+        if j < len(retrieve_start_times) and (retrieve_start_times[j] - deploy_time).total_seconds() <= 12 * 3600:
+            count += 1
+            j += 1  # 移动到下一个 `回收阶段开始`
+
+    return {
+        "result": count,
+        "metadata": metadata,
+    }
+
 
 def generate_simple_python_code(task_description: str):
     """
@@ -1477,6 +1524,7 @@ function_map: dict[str, callable] = {
     "convert_seconds_to_time": convert_seconds_to_time,
     "sort_only_by_time": sort_only_by_time,
     "calculate_list_length": calculate_list_length,
+    'count_deapsea_operations': count_deapsea_operations,
     # 弃用
     "sort_by_datetime": sort_by_datetime,
     "generate_simple_python_code": generate_simple_python_code,
@@ -1484,17 +1532,10 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    # print(get_filtered_data(
-    #         "Port3_ksbg_10",
-    #         "2024-08-24 09:00:17",
-    #         "2024-08-24 09:00:17",
-    #         ["csvTime",'P3_22'],
-    #         'AND',
-    #         conditions= [{'column': 'csvTime', 'operator': '==', 'value': '2024-08-24 09:00:17'}],
-    #     ))
-    print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","整个柴油发电机组")['result'])
+    print(count_deapsea_operations("2024-06-01 00:00:00","2024-06-30 24:00:00"))
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","整个柴油发电机组")['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","一号柴油发电机")['result'])
-    print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","二号柴油发电机")['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","二号柴油发电机")['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","三号柴油发电机")['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","四号柴油发电机")['result'])
     # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
