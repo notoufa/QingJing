@@ -218,9 +218,13 @@ def get_filtered_data(
             )
         else:
             result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
-
+    if len(filtered_data) > 30:
+        return {
+            "error": f"查询数据过多，请更改参数后重新调用函数",
+            "metadata": metadata,
+        }
     logger.special("\n", get_text_table(result))
-
+    
     return {
         "result": result,
         "length": len(filtered_data),
@@ -1409,7 +1413,6 @@ def count_deapsea_operations(start_time: str,end_time: str):
     df['csvTime'] = pd.to_datetime(df['csvTime'])
     df= df[(df['csvTime'] >= start_time) & (df['csvTime'] <= end_time) &(df['stage'].isin(['布放阶段结束','回收阶段开始']))]
     df = df.sort_values(by="csvTime")
-    print(df)
     # 分离 `布放阶段结束` 和 `回收阶段开始`
     deploy_end_times = df[df['stage'] == "布放阶段结束"]['csvTime'].tolist()
     retrieve_start_times = df[df['stage'] == "回收阶段开始"]['csvTime'].tolist()
