@@ -743,7 +743,6 @@ def calculate_energy_consumption(start_time, end_time, device_name):
             filtered_data = load_and_filter_data(
                 file_path, start_time, end_time, power_column
             )
-            logger.trace(filtered_data)
             if filtered_data is None:
                 result = None
             else:
@@ -1003,7 +1002,7 @@ def perform_math_operations(operation, operands):
     进行数学运算，包括加法、减法、乘法、除法、求和、求绝对值和求平均值。
 
     参数:
-        operation (str): 运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'、'求绝对值'、'求最大值'、'求最小值'。
+        operation (str): 运算类型，支持 '加法'、'减法'、'乘法'、'除法'、'求和'、'求平均值'、'求绝对值'、'求最大值'、'求最小值'、'求列表长度'。
         operands (list): 数值列表，所有元素必须为数字。
 
     返回:
@@ -1062,6 +1061,8 @@ def perform_math_operations(operation, operands):
             result = max(operands)
         elif operation == "求最小值":
             result = min(operands)
+        elif operation == "求列表长度":
+            result = len(operands)
         elif operation == "求绝对值":
             result = [abs(num) for num in operands]
         else:

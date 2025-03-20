@@ -54,8 +54,11 @@
     },
     {
         "function_name": "perform_math_operations",
-        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值）、操作数列表。",
-        "output": "运算结果"
+        "input": "运算类型（加法、减法、乘法、除法、求和、求平均值、求最大值、求最小值、求绝对值、求列表长度）、操作数列表。求列表长度时，操作数列表支持数字、字符串、日期等",
+        "output": "运算结果",
+        "notices": [
+            "统计天数时必须调用perform_math_operations函数,不得手动计数"
+        ]
     },
     {
         "function_name": "convert_seconds_to_time",
@@ -83,13 +86,5 @@
         "function_name": "count_deapsea_operations",
         "input": "起始时间、结束时间。",
         "output": "在指定时间范围内进行的深海作业的次数。"
-    },
-    {
-        "function_name": "calculate_list_length",
-        "input": "需要统计长度的列表（数字、字符串、日期等）。",
-        "output": "列表长度。",
-        "notices": [
-            "统计天数时必须调用calculate_list_length函数,不得手动计数"
-        ]
     }
 ]
