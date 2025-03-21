@@ -133,6 +133,7 @@
                     "conditions": {
                         "type": "array",
                         "description": "可选的过滤条件列表，每个条件包含列名、运算符和值。",
+                        "default":[],
                         "items": {
                             "type": "object",
                             "properties": {
