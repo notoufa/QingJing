@@ -32,16 +32,16 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
 
     for i in range(vote_times):
         try:
-            logger.info(f"【开始第{i+1}次获取问题答案】")
+            logger.info(f"【开始第{i+1}次获取问题{id}答案】")
             solution = get_answer(id, question)
             vote_res.solutions.append(solution)
             logger.success(
-                f"【第{i+1}次得到的最终答案】",
+                f"【第{i+1}次得到的{id}最终答案】",
                 str(solution.reasoning_answer),
             )
         except Exception:
             logger.error(
-                f"【第{i+1}次获取问题的答案出错】错误堆栈：\n{traceback.format_exc()}"
+                f"【第{i+1}次获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}"
             )
 
     if len(vote_res.solutions) == 1:
@@ -194,7 +194,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题总结出错】错误堆栈：\n{traceback.format_exc()}")
+        logger.error(f"【问题{solution.id}总结出错】错误堆栈：\n{traceback.format_exc()}")
         return None, None
 
 
@@ -228,7 +228,7 @@ def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题纠错出错】错误堆栈：\n{traceback.format_exc()}")
+        logger.error(f"【问题{solution.id}纠错出错】错误堆栈：\n{traceback.format_exc()}")
 
 
 def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
