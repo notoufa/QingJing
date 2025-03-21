@@ -201,7 +201,7 @@ def get_summary(
             "content": str(solution.to_summary_json()),
         },
     ]
-    response = get_completion(messages)
+    response = get_completion(messages,tools=tools.get_calculate_tools())
     try:
         res = json.loads(parse_res(response))
         res_answer = ReasoningAnswer.from_dict(res)

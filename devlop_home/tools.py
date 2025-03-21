@@ -9,9 +9,7 @@ tools_description_file = "devlop_home/knowledge/tools_description.json"
 calculate_tools_name = [
     "perform_math_operations",
     "convert_seconds_to_time",
-    "calculate_duration",
-    "sort_only_by_time",
-    "calculate_list_length",
+    "calculate_duration"
 ]
 
 
