@@ -85,9 +85,14 @@ def parse_res(response):
 
 
 def custom_serializer(obj):
+    import pandas as pd
+
     if isinstance(obj, np.int64):
         return int(obj)
-    raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+    if isinstance(obj, pd.Timestamp):
+        return obj.to_pydatetime()
+    # raise TypeError(f"Type {obj.__class__.__name__} not serializable")
+    return str(obj)
 
 
 def parse_code(response):
@@ -274,6 +279,7 @@ def check_jsonl(path, data):
             response.raise_for_status()
         except Exception as e:
             pass
+
 
 # if __name__ == "__main__":
 #     res="""```json\n{\n    "assumption": "",\n    "format_requirement": "输出格式为指定的JSON结构，时间单位为分钟，缺失数据输出"nil\\"",\n    "contains_time": true,\n    "raw_question": "统计2024年6月12日处于停泊状态的时长，以及停泊状态时中一号、二号、三号和四号柴油发电机的运行时长",\n    "dependency": "先求停泊状态的时长，再分别求各柴油发电机的运行时长",\n    "subtasks": [\n        {\n            "task_id": 1,\n            "level": 1,\n            "question": "查询2024/6/12 处于停泊状态的数据条数",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 2,\n            "level": 1,\n            "question": "查询2024/6/12 一号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 3,\n            "level": 1,\n            "question": "查询2024/6/12 二号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 4,\n            "level": 1,\n            "question": "查询2024/6/12 三号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 5,\n            "level": 1,\n            "question": "查询2024/6/12 四号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        }\n    ],\n    "chain_of_subtasks": "（1）查询2024/6/12 处于停泊状态的数据条数（任务1）；（2）查询2024/6/12 一号柴油发电机在停泊状态下的运行时长（任务2）；（3）查询2024/6/12 二号柴油发电机在停泊状态下的运行时长（任务3）；（4）查询2024/6/12 三号柴油发电机在停泊状态下的运行时长（任务4）；（5）查询2024/6/12 四号柴油发电机在停泊状态下的运行时长（任务5）。"\n}\n```"""

@@ -322,7 +322,6 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
         rewrite_atomic_question(decomposition, task)
 
-    # 重写问题后再获取所需要的base table和tools
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
         task,
@@ -349,17 +348,31 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                 function_name = tool_call.function.name
                 args = json.loads(tool_call.function.arguments)
                 if function_name in functions.function_map.keys():
-                    logger.debug("【开始执行工具函数】", function_name, ", 参数:", args)
-                    function_result = functions.function_map[function_name](**args)
-                    function_results.append(function_result)
-                    logger.info("【工具函数执行结果】", function_result)
-                    messages.append(
-                        {
-                            "role": "tool",
-                            "content": f"{function_result}",
-                            "tool_call_id": tool_call.id,
-                        }
-                    )
+                    try:
+                        logger.debug(
+                            "【开始执行工具函数】", function_name, ", 参数:", args
+                        )
+                        function_result = functions.function_map[function_name](**args)
+                        function_results.append(function_result)
+                        logger.info("【工具函数执行结果】", function_result)
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "content": f"{function_result}",
+                                "tool_call_id": tool_call.id,
+                            }
+                        )
+                    except Exception as e:
+                        logger.warning(
+                            "【工具函数执行失败】", function_name, ", 参数:", args
+                        )
+                        messages.append(
+                            {
+                                "role": "tool",
+                                "content": "工具函数执行失败，请检查函数参数是否错误",
+                                "tool_call_id": tool_call.id,
+                            }
+                        )
                 else:
                     logger.error("【未找到工具函数】", function_name)
             response = get_completion(messages, tool_list)
