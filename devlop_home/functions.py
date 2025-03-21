@@ -527,9 +527,9 @@ def get_key_actions(start_time, end_time):
             "正在进行的关键动作": status_changes.to_dict(orient="records"),
         }
 
-    result1 = get_status_changes("Ajia_plc_1", "A架")
-    result2 = get_status_changes("device_13_11_meter_1311", "折臂吊车")
-    result3 = get_status_changes("Port3_ksbg_9", "定位系统")
+    result1 = get_status_changes("A架动作表", "A架")
+    result2 = get_status_changes("折臂吊车与小艇动作表", "折臂吊车")
+    result3 = get_status_changes("艏侧推系统DP动作表", "定位系统")
 
     results = [
         result for result in [result1, result2, result3] if "error" not in result
@@ -700,7 +700,7 @@ def calculate_energy_consumption(start_time, end_time, device_name):
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
         "甲板机械设备": ["折臂吊车", "A架", "绞车变频器"],
         "A架": ["一号门架", "二号门架"],
-        "折臂吊车": ("device_13_11_meter_1311", "13-11-6_v"),
+        "折臂吊车": ("折臂吊车与小艇动作表", "13-11-6_v"),
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
         "绞车变频器": ("device_1_15_meter_115", "1-15-6_v"),
@@ -709,7 +709,7 @@ def calculate_energy_consumption(start_time, end_time, device_name):
         "一号推进变频器": ("Port3_ksbg_8", "P3_15"),
         "二号推进变频器": ("Port4_ksbg_7", "P4_16"),
         "可伸缩推": ("Port4_ksbg_8", "P4_21"),
-        "侧推": ("Port3_ksbg_9", "P3_18"),
+        "侧推": ("艏侧推系统DP动作表", "P3_18"),
         "舵桨": ["一号舵桨转舵A", "一号舵桨转舵B", "二号舵桨转舵A", "二号舵桨转舵B"],
         "一号舵桨转舵A": ("device_1_2_meter_102", "1-2-6_v"),
         "一号舵桨转舵B": ("device_1_3_meter_103", "1-3-6_v"),
