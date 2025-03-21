@@ -181,9 +181,9 @@ def detect_swings(df):
     index=0
     for i in range(0, df.shape[0]):
         value = df.loc[i, "Ajia-0_v"]
-        if value == "error":
+        if value == "error" or float(value) == 0:
             continue
-        prev_value = float(df.loc[i, "Ajia-0_v"])
+        prev_value = float(value)
         index = i
         break
     
