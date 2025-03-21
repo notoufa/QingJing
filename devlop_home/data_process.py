@@ -17,7 +17,7 @@ from itertools import dropwhile
 table_name_map = {
     "Ajia_plc_1.csv": "A架动作表.csv",
     "device_13_11_meter_1311.csv": "折臂吊车与小艇动作表.csv",
-    "Port3_ksbg_9.csv": "艏推系统DP动作表.csv",
+    "Port3_ksbg_9.csv": "艏侧推系统DP动作表.csv",
 }
 
 data_path = "devlop_home/复赛数据/"
@@ -1180,7 +1180,7 @@ logger.special("开始标注航行状态")
 output_filename = "航行状态表.csv"
 
 file1 = "A架动作表.csv"
-file2 = "艏推系统DP动作表.csv"
+file2 = "艏侧推系统DP动作表.csv"
 file3 = "Port3_ksbg_8.csv"
 file4 = "Port4_ksbg_7.csv"
 df_Ajia = pd.read_csv(os.path.join(output_path, file1), usecols=["csvTime", "stage"])
