@@ -85,6 +85,6 @@
     {
         "function_name": "count_deapsea_operations",
         "input": "起始时间、结束时间。",
-        "output": "在指定时间范围内进行的深海作业的次数。"
+        "output": "在指定时间范围内进行的完整的深海作业次数。"
     }
 ]
