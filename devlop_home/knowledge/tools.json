@@ -471,7 +471,7 @@
         "type": "function",
         "function": {
             "name": "count_deapsea_operations",
-            "description": "统计深海作业的次数。输入：起始时间、结束时间。输出：在指定时间范围内进行的深海作业的次数。",
+            "description": "统计一段时间内完整深海作业的次数。输入：起始时间、结束时间。输出：在指定时间范围内进行的深海作业的次数。",
             "parameters": {
                 "type": "object",
                 "properties": {
