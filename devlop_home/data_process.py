@@ -1276,6 +1276,34 @@ logger.special("航行状态标注完毕")
 # In[ ]:
 
 
+logger.special("开始标注放缆收缆")
+df=pd.read_csv(os.path.join(output_path, 'Jiaoche_plc_1.csv'))
+df["deploy_retrieve_status"] = 'false'
+index=0
+for i in range(1, df.shape[0]):
+    prev_value = df.loc[i-1, "PLC_point0_value"]
+    curr_value = df.loc[i, "PLC_point0_value"]
+    if prev_value == "error" or curr_value == "error":
+        continue
+    prev_value = float(prev_value)
+    curr_value = float(curr_value)
+    if (curr_value-prev_value) > 5:
+        df.loc[i, "deploy_retrieve_status"] = '放缆'
+        logger.debug("放缆一次：",df.loc[i, "csvTime"],"原长度:", prev_value, "当前长度:", curr_value)
+        continue
+    elif (prev_value-curr_value) > 5:
+        df.loc[i, "deploy_retrieve_status"] = '收缆'
+        logger.debug("收缆一次：",df.loc[i, "csvTime"],"原长度:", prev_value, "当前长度:", curr_value)
+        continue
+df.to_csv(os.path.join(output_path, 'Jiaoche_plc_1.csv'), index=False)
+logger.special("放缆收缆标注完毕")
+    
+        
+
+
+# In[ ]:
+
+
 import time
 program_end_time = time.time()
 elapsed_time_minutes = (program_end_time - program_start_time) / 60

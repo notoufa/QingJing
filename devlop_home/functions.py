@@ -220,7 +220,7 @@ def get_filtered_data(
             result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
     if len(filtered_data) > 30:
         return {
-            "error": f"查询数据过多，请更改参数后重新调用函数",
+            "error": f"查询数据过多或传参错误，请更改参数后重新调用函数",
             "metadata": metadata,
         }
     logger.special("\n", get_text_table(result))
