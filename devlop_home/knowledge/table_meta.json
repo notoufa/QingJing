@@ -867,7 +867,7 @@
     },
     {
         "table_name": "艏侧推系统DP动作表",
-        "table_desc": "记录艏推系统关键参数，包括螺距命令/反馈、功率反馈/允许；标注了一系列DP动作，包括OFF DP、ON DP",
+        "table_desc": "记录艏推（艏侧推、艏推、侧推）系统关键参数，包括螺距命令/反馈、功率反馈/允许；标注了一系列DP动作，包括OFF DP、ON DP",
         "columns": [
             {
                 "name": "csvTime",
