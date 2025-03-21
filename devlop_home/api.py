@@ -31,18 +31,9 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     vote_res = VoteResult(id, question, vote_times)
 
     for i in range(vote_times):
-        try:
-            logger.info(f"【开始第{i+1}次获取问题{id}答案】")
-            solution = get_answer(id, question)
+        solution = utils.try_run(get_solution, i + 1, id, question)
+        if solution:
             vote_res.solutions.append(solution)
-            logger.success(
-                f"【第{i+1}次得到的{id}最终答案】",
-                str(solution.reasoning_answer),
-            )
-        except Exception:
-            logger.error(
-                f"【第{i+1}次获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}"
-            )
 
     if len(vote_res.solutions) == 1:
         vote_res.final_reasoning_answer = vote_res.solutions[0].reasoning_answer
@@ -69,6 +60,28 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     return vote_res
 
 
+def get_solution(index: int, id: str, question: str) -> ProblemSolution:
+    """
+    获得问题的答案，返回最终答案
+
+    :param id: 问题 ID
+    :param question: 问题
+    :return: 问题解答
+    """
+    try:
+        logger.info(f"【开始第{index}次获取问题{id}答案】")
+        solution = get_answer(id, question)
+        logger.success(
+            f"【第{index}次得到的{id}最终答案】",
+            str(solution.reasoning_answer),
+        )
+        return solution
+    except Exception:
+        logger.error(
+            f"【第{index}次获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}"
+        )
+
+
 def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     """
     获得复杂问题的答案，返回最终答案
@@ -79,12 +92,13 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
     :return: 问题解答
     """
     solution = ProblemSolution(id, question)
-    decomposition, api_response = get_task_decomposition(solution.question)
-    solution.init_decomposition = decomposition.clone()
+
+    decomposition, api_response = get_task_decomposition(id, question)
     if not decomposition.raw_question:
         decomposition.raw_question = solution.question
     solution.decomposition = decomposition
     solution.decomposition_api_response = api_response
+    solution.init_decomposition = decomposition.clone()
 
     tasks_by_level, sorted_levels = group_tasks_by_level(decomposition.subtasks)
     current_index = 0
@@ -127,8 +141,9 @@ def get_answer(id: str, question: str, max_workers=1) -> ProblemSolution:
             solution.summary_api_response = api_response
     if utils.module_config.enable_correct:
         reasoning_answer, api_response = get_correct(solution)
-        solution.reasoning_answer = reasoning_answer
-        solution.correct_api_response = api_response
+        if reasoning_answer:
+            solution.reasoning_answer = reasoning_answer
+            solution.correct_api_response = api_response
     return solution
 
 
@@ -173,7 +188,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     :param solution: 问题解答
     :return: 问题总结的答案
     """
-    logger.info("【问题总结】", solution.to_summary_json())
+    logger.info(f"【开始总结问题{solution.id}的答案】", solution.to_summary_json())
     messages = [
         {
             "role": "system",
@@ -188,13 +203,15 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     try:
         res = json.loads(parse_res(response))
         res_answer = ReasoningAnswer.from_dict(res)
-        logger.special(f"【问题总结结果】: \n{res_answer}")
+        logger.special(f"【问题{solution.id}的总结结果】: \n{res_answer}")
         return (
             res_answer,
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题{solution.id}总结出错】错误堆栈：\n{traceback.format_exc()}")
+        logger.error(
+            f"【问题{solution.id}总结出错】错误堆栈：\n{traceback.format_exc()}"
+        )
         return None, None
 
 
@@ -205,7 +222,7 @@ def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
     :param solution: 问题解答
     :return: 问题纠错的答案
     """
-    logger.info("【问题纠错】", solution.to_correct_json())
+    logger.info(f"【开始纠错问题{solution.id}的答案】", solution.to_correct_json())
     messages = [
         {
             "role": "system",
@@ -216,9 +233,9 @@ def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             "content": str(solution.to_correct_json()),
         },
     ]
-    res_answer = solution.reasoning_answer.clone()
     response = get_completion(messages)
     try:
+        res_answer = solution.reasoning_answer.clone()
         res = json.loads(parse_res(response))
         res_answer.corrected_reasoning = res["corrected_reasoning"]
         res_answer.corrected_answer = res["corrected_answer"]
@@ -228,18 +245,22 @@ def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             ApiResponse(messages, response),
         )
     except Exception as e:
-        logger.error(f"【问题{solution.id}纠错出错】错误堆栈：\n{traceback.format_exc()}")
+        logger.error(
+            f"【问题{solution.id}纠错出错】错误堆栈：\n{traceback.format_exc()}"
+        )
+        return None, None
 
 
-def get_task_decomposition(question: str) -> tuple[Decomposition, ApiResponse]:
+def get_task_decomposition(id: str, question: str) -> tuple[Decomposition, ApiResponse]:
     """
     获得问题的分解结果
 
+    :param id: 问题ID
     :param question: 问题
     :return: 问题的分解结果
     """
-    logger.info("【开始获取问题分解结果】", question)
-    tool_names = get_tool(question)
+    logger.info(f"【开始获取问题{id}的分解结果】", question)
+    tool_names = get_tool(id, question)
     messages = [
         {
             "role": "system",
@@ -319,10 +340,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     :param parent_tasks: 父任务
     """
     logger.info("【开始获取原子问题答案】", task.question)
+
     if utils.module_config.enable_rewrite_atomic_question and task.has_parent_task():
         rewrite_atomic_question(decomposition, task)
 
     table_meta_list, tool_list = get_table_meta_and_tool(decomposition, task)
+
     system_prompt, user_prompt = prompts.get_prompt_atomic_question(
         task,
         decomposition.assumption,
@@ -341,6 +364,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
     ]
     response = get_completion(messages, tool_list)
     messages.append(response.choices[0].message.model_dump())
+
     function_results = []
     for _ in range(utils.module_config.max_function_calling_iterations):
         if response.choices[0].message.tool_calls:
@@ -349,12 +373,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                 args = json.loads(tool_call.function.arguments)
                 if function_name in functions.function_map.keys():
                     try:
-                        logger.debug(
-                            "【开始执行工具函数】", function_name, ", 参数:", args
-                        )
+                        logger.debug(f"【开始执行工具函数{function_name}】", args)
                         function_result = functions.function_map[function_name](**args)
                         function_results.append(function_result)
-                        logger.info("【工具函数执行结果】", function_result)
+                        logger.info(
+                            f"【工具函数{function_name}执行结果】", function_result
+                        )
                         messages.append(
                             {
                                 "role": "tool",
@@ -369,22 +393,23 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                         messages.append(
                             {
                                 "role": "tool",
-                                "content": "工具函数执行失败，请检查函数参数是否错误",
+                                "content": f"工具函数执行失败，请检查函数参数是否错误：{args}",
                                 "tool_call_id": tool_call.id,
                             }
                         )
                 else:
-                    logger.error("【未找到工具函数】", function_name)
+                    logger.warning("【未找到工具函数】", function_name)
+
             response = get_completion(messages, tool_list)
             messages.append(response.choices[0].message.model_dump())
         else:
             break
-    api_response = ApiResponse(messages, response)
+
     answer = parse_res(response)
     logger.success("【原子问题答案】", answer)
     task.answer = answer
     task.function_results = function_results
-    task.api_response = api_response
+    task.api_response = ApiResponse(messages, response)
     task.need_tools = [item["function"]["name"] for item in tool_list]
     task.need_tables = [table["table_name"] for table in table_meta_list]
 
@@ -415,24 +440,25 @@ def rewrite_atomic_question(decomposition: Decomposition, task: Subtask):
     ]
     response = get_completion(messages)
     try:
-        rewrite_task = str(parse_res(response))
+        rewritten_question = str(parse_res(response))
         logger.special(
             "【重写原子问题】",
-            f"原问题：{task.question}----->重写后的问题：{rewrite_task}",
+            f"原问题：{task.question}----->重写后的问题：{rewritten_question}",
         )
-        task.question = rewrite_task
+        task.question = rewritten_question
     except Exception as e:
         logger.error(f"【原子问题预处理出错】错误堆栈：\n{traceback.format_exc()}")
 
 
-def get_tool(question: str) -> list:
+def get_tool(id: str, question: str) -> list:
     """
     获得问题所需的工具
 
+    :param id: 问题ID
     :param question: 问题
     :return: 所需工具的名称列表
     """
-    logger.debug("【开始获取初始问题所需工具】", question)
+    logger.debug(f"【开始获取初始问题{id}所需工具】", question)
     messages = [
         {
             "role": "user",
@@ -470,6 +496,7 @@ def get_table_meta_and_tool(
     res = json.loads(parse_res(response))
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
+
     if not decomposition.contains_time and "设备参数详情" not in tables:
         tables.append("设备参数详情")
     if len(need_tools) == 1 and need_tools[0] in [
@@ -479,6 +506,7 @@ def get_table_meta_and_tool(
         tables = []
     if "perform_math_operations" not in need_tools:
         need_tools.append("perform_math_operations")
+
     table_meta_list = prompts.get_table_meta_by_table_names(tables)
     tool_list = []
     for tool in tools.tools:

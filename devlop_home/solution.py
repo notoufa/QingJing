@@ -253,12 +253,12 @@ class Subtask:
         res = {
             "task_id": self.task_id,
             "level": self.level,
-            "question": self.question,
             "parent_ids": self.parent_ids,
+            "question": self.question,
             "answer": self.answer,
-            "function_results": self.function_results,
             "need_tables": self.need_tables,
             "need_tools": self.need_tools,
+            "function_results": self.function_results,
         }
         if export_api_response:
             res["api_response"] = (
@@ -271,8 +271,8 @@ class Subtask:
         return {
             "task_id": self.task_id,
             "level": self.level,
-            "question": self.question,
             "parent_ids": self.parent_ids,
+            "question": self.question,
             "answer": self.answer,
         }
 
@@ -281,8 +281,8 @@ class Subtask:
         return {
             "task_id": self.task_id,
             "level": self.level,
-            "question": self.question,
             "parent_ids": self.parent_ids,
+            "question": self.question,
             "answer": self.answer,
         }
 
@@ -355,11 +355,11 @@ class Decomposition:
             "assumption": self.assumption,
             "raw_question": self.raw_question,
             "dependency": self.dependency,
+            "chain_of_subtasks": self.chain_of_subtasks,
+            "need_tools": self.need_tools,
             "subtasks": [
                 subtask.to_dict(export_api_response) for subtask in self.subtasks
             ],
-            "chain_of_subtasks": self.chain_of_subtasks,
-            "need_tools": self.need_tools,
         }
 
     def to_update_dict(self):
@@ -370,8 +370,8 @@ class Decomposition:
             "assumption": self.assumption,
             "raw_question": self.raw_question,
             "dependency": self.dependency,
-            "subtasks": [subtask.to_update_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
+            "subtasks": [subtask.to_update_dict() for subtask in self.subtasks],
         }
 
     def to_simple_dict(self):
@@ -382,8 +382,8 @@ class Decomposition:
             "assumption": self.assumption,
             "raw_question": self.raw_question,
             "dependency": self.dependency,
-            "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
             "chain_of_subtasks": self.chain_of_subtasks,
+            "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
         }
 
     def clone(self):
@@ -450,7 +450,7 @@ class ProblemSolution:
         res = {
             "id": self.id,
             "question": self.question,
-            "init_decomposition": self.init_decomposition.to_dict(),
+            # "init_decomposition": self.init_decomposition.to_dict(),
             "decomposition": self.decomposition.to_dict(export_api_response),
             "reasoning_answer": self.reasoning_answer.to_dict(),
         }
