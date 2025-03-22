@@ -403,7 +403,7 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                             ", 参数:",
                             args,
                             ", 错误堆栈:\n",
-                            traceback.format_exec(),
+                            traceback.format_exc(),
                         )
                         messages.append(
                             {
