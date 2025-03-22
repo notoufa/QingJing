@@ -42,7 +42,7 @@ def process_one(line: dict) -> VoteResult | dict:
         if item["id"] == id:
             answer = item["answer"]
             return {"id": id, "question": question, "answer": answer}
-    
+
     # if int_id not in range(51, 76):
     #     return {"id": id, "question": question, "answer": ""}
 
@@ -92,6 +92,7 @@ def main():
 
     with open(question_filepath, "r", encoding="utf-8") as f:
         question_list = [json.loads(line.strip()) for line in f]
+    utils.check_knowledge(question_filepath)
 
     logger.debug(
         f"【API 配置】: {utils.api_config.config_name},",
@@ -116,6 +117,9 @@ def main():
             else:
                 submit_result_list.append(vote_res)
                 utils.save_submit_result(submit_result_list, out_path)
+
+    utils.check_knowledge(out_path)
+    utils.check_knowledge(solution_path)
 
 
 if __name__ == "__main__":
