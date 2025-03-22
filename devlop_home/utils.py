@@ -98,11 +98,12 @@ def custom_serializer(obj):
 def try_run(func, *args, max_retries=3, **kwargs):
     attempts = 0
     while attempts < max_retries:
-        try:
-            return func(*args, **kwargs)
-        except Exception:
+        res = func(*args, **kwargs)
+        if not res:
             attempts += 1
             logger.error(f"第 {attempts} 次执行 {func.__name__} 出错，错误堆栈：\n{traceback.format_exc()}")
+        else:
+            return res
     logger.error(f"执行 {func.__name__} 失败，已达到最大重试次数 {max_retries} 次。")
 
 def parse_code(response):
