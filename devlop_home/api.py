@@ -181,7 +181,9 @@ def handle_task(task: Subtask, decomposition: Decomposition):
     get_atomic_answer(decomposition, task)
 
 
-def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
+def get_summary(
+    solution: ProblemSolution, times: int = 3
+) -> tuple[ReasoningAnswer, ApiResponse]:
     """
     获得问题总结的答案
 
@@ -199,7 +201,7 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
             "content": str(solution.to_summary_json()),
         },
     ]
-    response = get_completion(messages)
+    response = get_completion(messages,tools=tools.get_calculate_tools())
     try:
         res = json.loads(parse_res(response))
         res_answer = ReasoningAnswer.from_dict(res)
@@ -212,10 +214,15 @@ def get_summary(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
         logger.error(
             f"【问题{solution.id}总结出错】错误堆栈：\n{traceback.format_exc()}"
         )
-        return None, None
+        if times > 0:
+            return get_summary(solution, times - 1)
+        else:
+            return None, None
 
 
-def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse]:
+def get_correct(
+    solution: ProblemSolution, times: int = 3
+) -> tuple[ReasoningAnswer, ApiResponse]:
     """
     获得问题纠错的答案
 
@@ -248,7 +255,10 @@ def get_correct(solution: ProblemSolution) -> tuple[ReasoningAnswer, ApiResponse
         logger.error(
             f"【问题{solution.id}纠错出错】错误堆栈：\n{traceback.format_exc()}"
         )
-        return None, None
+        if times > 0:
+            return get_correct(solution, times - 1)
+        else:
+            return None, None
 
 
 def get_task_decomposition(id: str, question: str) -> tuple[Decomposition, ApiResponse]:
@@ -388,7 +398,12 @@ def get_atomic_answer(decomposition: Decomposition, task: Subtask):
                         )
                     except Exception as e:
                         logger.warning(
-                            "【工具函数执行失败】", function_name, ", 参数:", args
+                            "【工具函数执行失败】",
+                            function_name,
+                            ", 参数:",
+                            args,
+                            ", 错误堆栈:\n",
+                            traceback.format_exec(),
                         )
                         messages.append(
                             {
