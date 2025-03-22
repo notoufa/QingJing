@@ -23,6 +23,7 @@ class ModuleConfig:
         max_function_calling_iterations=6,
         enable_export_api_response=False,
         api_base_url=None,
+        knowledge_id=None,
     ):
         self.enable_update_decomposition = enable_update_decomposition
         self.enable_summary = enable_summary
@@ -34,6 +35,7 @@ class ModuleConfig:
         self.enable_export_api_response = enable_export_api_response
         self.max_function_calling_iterations = max_function_calling_iterations
         self.api_base_url = api_base_url
+        self.knowledge_id = knowledge_id
 
     def to_dict(self):
         """将配置转换为字典"""
@@ -48,6 +50,7 @@ class ModuleConfig:
             "enable_export_api_response": self.enable_export_api_response,
             "max_function_calling_iterations": self.max_function_calling_iterations,
             "api_base_url": self.api_base_url,
+            "knowledge_id": self.knowledge_id,
         }
 
     @classmethod

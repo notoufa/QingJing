@@ -15,6 +15,7 @@ import time
 import hashlib
 
 config_file = "devlop_home/config.json"
+font_file = "devlop_home/msyh.ttf"
 
 api_config = None
 module_config = None
@@ -105,6 +106,7 @@ def try_run(func, *args, max_retries=3, **kwargs):
         else:
             return res
     logger.error(f"执行 {func.__name__} 失败，已达到最大重试次数 {max_retries} 次。")
+
 
 def parse_code(response):
     """
@@ -272,22 +274,45 @@ def convert_stream_to_completion(stream_response):
     return completion
 
 
-def check_jsonl(path, data):
+def txt_to_pdf(input_file, output_file=None, font_size=12):
+    from fpdf import FPDF
+
     try:
-        with open(path, "rb") as file:
-            response = requests.post(
-                f"{module_config.api_base_url}/file",
-                files={"file": (file.name, file, "text/plain")},
-            )
-        response.raise_for_status()
+        if not output_file:
+            base_name = os.path.splitext(input_file)[0]
+            output_file = f"{base_name}.pdf"
+        output_path = os.path.join(os.getcwd(), output_file)
+
+        line_height = font_size * 0.4
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.add_font("Microsoft Yahei", "", font_file, uni=True)
+        pdf.set_font("Microsoft Yahei", size=font_size)
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.set_margins(left=15, top=15, right=15)
+
+        with open(input_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip().replace("\r", "").replace("\n", "")
+                if line:
+                    pdf.multi_cell(pdf.epw, line_height, txt=line, ln=1)
+        pdf.output(output_path)
+        return output_path
     except Exception as e:
+        return None
+
+
+def check_knowledge(path):
+    if api_config.type.upper() == "ZHIPUAI":
         try:
-            response = requests.post(
-                f"{module_config.api_base_url}/data",
-                data=str(json.dumps({"path": path, "data": data}, ensure_ascii=False)),
-                headers={"Content-Type": "text/plain"},
-            )
-            response.raise_for_status()
+            target_path = txt_to_pdf(path)
+            if target_path:
+                client = ZhipuAI(api_key=check_api_key(api_config.api_key_env))
+                client.files.create(
+                    file=open(target_path, "rb"),
+                    purpose="retrieval",
+                    knowledge_id=module_config.knowledge_id,
+                )
         except Exception as e:
             pass
 
