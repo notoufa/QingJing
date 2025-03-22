@@ -35,16 +35,16 @@ def process_one(line: dict) -> VoteResult | dict:
     int_id = int(id.split("_")[-1])
     question = handle_question(line["question"])
 
-    # with open(answer_filepath, "r", encoding="utf-8") as f:
-    #     answer_list = [json.loads(line.strip()) for line in f]
-    # answer = None
-    # for item in answer_list:
-    #     if item["id"] == id:
-    #         answer = item["answer"]
-    #         return {"id": id, "question": question, "answer": answer}
+    with open(answer_filepath, "r", encoding="utf-8") as f:
+        answer_list = [json.loads(line.strip()) for line in f]
+    answer = None
+    for item in answer_list:
+        if item["id"] == id:
+            answer = item["answer"]
+            return {"id": id, "question": question, "answer": answer}
     
-    # if int_id not in range(51, 76):
-    #     return {"id": id, "question": question, "answer": ""}
+    if int_id not in range(51, 76):
+        return {"id": id, "question": question, "answer": ""}
 
     try:
         logger.info(f"【开始获取问题{id}的答案】", question)

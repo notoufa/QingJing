@@ -5,9 +5,8 @@ from pathlib import Path
 
 input_files = [
     # "submits/复赛A榜成绩/result_2025-03-19-第二次-52.4.jsonl",
-    "submits/复赛A榜成绩/result_2025-03-20-第3次-55.27.jsonl",
-    "submits/复赛A榜成绩/confidence.jsonl",
-    "submits/复赛A榜成绩/result_2025-03-21-第3次.jsonl"
+    "submits/复赛A榜成绩/result_2025-03-21-55.9.jsonl",
+    "devlop_output/results/result_2025-03-22-第一次.jsonl"
 ]
 output_file = "devlop_output/compare.csv"
 
