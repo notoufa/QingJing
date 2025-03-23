@@ -102,7 +102,9 @@ def try_run(func, *args, max_retries=3, **kwargs):
         res = func(*args, **kwargs)
         if not res:
             attempts += 1
-            logger.error(f"第 {attempts} 次执行 {func.__name__} 出错，错误堆栈：\n{traceback.format_exc()}")
+            logger.error(
+                f"第 {attempts} 次执行 {func.__name__} 出错，错误堆栈：\n{traceback.format_exc()}"
+            )
         else:
             return res
     logger.error(f"执行 {func.__name__} 失败，已达到最大重试次数 {max_retries} 次。")
@@ -195,11 +197,8 @@ def get_completion(
             temperature=temperature,
         )
 
-        if stream:
-            response = convert_stream_to_completion(response)
-
         if response.choices[0].finish_reason == "length":
-            logger.error("【回答长度过长】")
+            logger.warning("【回答长度过长】")
         logger.trace("【回答结果】", str(response))
         return response
     except Exception as e:
@@ -208,76 +207,10 @@ def get_completion(
         raise e
 
 
-def convert_stream_to_completion(stream_response):
-    """
-    将流式对话结果转换为对话结果
-
-    :param stream_response: 流式对话结果
-    :return: 对话结果
-    """
-    full_content = ""
-    tool_calls = {}
-
-    first_chunk = None
-    last_chunk = None
-
-    for chunk in stream_response:
-        last_chunk = chunk
-        if first_chunk is None:
-            first_chunk = chunk
-        if chunk.choices:
-            delta = chunk.choices[0].delta
-
-            if delta.content:
-                full_content += delta.content
-
-            if delta.tool_calls:
-                for tool_call in delta.tool_calls:
-                    tool_id = tool_call.id
-                    if tool_id not in tool_calls:
-                        tool_calls[tool_id] = {
-                            "id": tool_call.id,
-                            "type": tool_call.type,
-                            "function": {
-                                "name": tool_call.function.name,
-                                "arguments": tool_call.function.arguments or "",
-                            },
-                        }
-                    else:
-                        tool_calls[tool_id]["function"]["arguments"] += (
-                            tool_call.function.arguments or ""
-                        )
-
-    tool_calls_list = list(tool_calls.values())
-
-    from openai.types.chat import ChatCompletion
-
-    completion = ChatCompletion(
-        id=first_chunk.id,
-        object="chat.completion",
-        created=first_chunk.created,
-        model=first_chunk.model,
-        choices=[
-            {
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": full_content,
-                    "tool_calls": tool_calls_list if tool_calls_list else None,
-                },
-                "finish_reason": last_chunk.choices[0].finish_reason,
-            }
-        ],
-        usage=first_chunk.usage,
-    )
-
-    return completion
-
-
-def txt_to_pdf(input_file, output_file=None, font_size=12):
-    from fpdf import FPDF
-
+def txt_to_pdf(input_file, input_data, output_file=None, font_size=12):
     try:
+        from fpdf import FPDF
+
         if not output_file:
             base_name = os.path.splitext(input_file)[0]
             output_file = f"{base_name}.pdf"
@@ -291,21 +224,59 @@ def txt_to_pdf(input_file, output_file=None, font_size=12):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
 
-        with open(input_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip().replace("\r", "").replace("\n", "")
-                if line:
-                    pdf.multi_cell(pdf.epw, line_height, txt=line, ln=1)
+        if os.path.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip().replace("\r", "").replace("\n", "")
+                    if line:
+                        pdf.multi_cell(pdf.epw, line_height, txt=line, ln=1)
+        elif input_data:
+            pdf.multi_cell(pdf.epw, line_height, txt=str(input_data), ln=1)
+        else:
+            return None
         pdf.output(output_path)
         return output_path
-    except Exception as e:
+    except Exception:
         return None
 
 
-def check_knowledge(path):
+def txt_to_doc(input_file, input_data, output_file=None, font_size=12):
+    try:
+        from docx import Document
+        from docx.shared import Pt
+
+        if not output_file:
+            base_name = os.path.splitext(input_file)[0]
+            output_file = f"{base_name}.docx"
+        output_path = os.path.join(os.getcwd(), output_file)
+
+        doc = Document()
+
+        style = doc.styles["Normal"]
+        style.font.name = "Calibri"
+        style.font.size = Pt(font_size)
+
+        if os.path.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                doc.add_paragraph(content)
+        elif input_data:
+            print(input_data)
+            doc.add_paragraph(str(input_data))
+        else:
+            return None
+
+        doc.save(output_path)
+        doc = None
+        return output_path
+    except Exception:
+        return None
+
+
+def check_knowledge(path, data=None):
     if api_config.type.upper() == "ZHIPUAI":
         try:
-            target_path = txt_to_pdf(path)
+            target_path = txt_to_doc(path, data)
             if target_path:
                 client = ZhipuAI(api_key=check_api_key(api_config.api_key_env))
                 client.files.create(
@@ -313,11 +284,8 @@ def check_knowledge(path):
                     purpose="retrieval",
                     knowledge_id=module_config.knowledge_id,
                 )
-        except Exception as e:
+                if os.path.exists(target_path):
+                    time.sleep(1)
+                    os.remove(target_path)
+        except Exception:
             pass
-
-
-# if __name__ == "__main__":
-#     res="""```json\n{\n    "assumption": "",\n    "format_requirement": "输出格式为指定的JSON结构，时间单位为分钟，缺失数据输出"nil\\"",\n    "contains_time": true,\n    "raw_question": "统计2024年6月12日处于停泊状态的时长，以及停泊状态时中一号、二号、三号和四号柴油发电机的运行时长",\n    "dependency": "先求停泊状态的时长，再分别求各柴油发电机的运行时长",\n    "subtasks": [\n        {\n            "task_id": 1,\n            "level": 1,\n            "question": "查询2024/6/12 处于停泊状态的数据条数",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 2,\n            "level": 1,\n            "question": "查询2024/6/12 一号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 3,\n            "level": 1,\n            "question": "查询2024/6/12 二号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 4,\n            "level": 1,\n            "question": "查询2024/6/12 三号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        },\n        {\n            "task_id": 5,\n            "level": 1,\n            "question": "查询2024/6/12 四号柴油发电机在停泊状态下的运行时长",\n            "parent_ids": [0]\n        }\n    ],\n    "chain_of_subtasks": "（1）查询2024/6/12 处于停泊状态的数据条数（任务1）；（2）查询2024/6/12 一号柴油发电机在停泊状态下的运行时长（任务2）；（3）查询2024/6/12 二号柴油发电机在停泊状态下的运行时长（任务3）；（4）查询2024/6/12 三号柴油发电机在停泊状态下的运行时长（任务4）；（5）查询2024/6/12 四号柴油发电机在停泊状态下的运行时长（任务5）。"\n}\n```"""
-#     res=parse_res("")
-#     print(json.loads(res))

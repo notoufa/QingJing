@@ -14,18 +14,9 @@
             "api_key_env": "DEEPSEEK_API_KEY",
             "model": "deepseek/deepseek-v3",
             "temperature": 0
-        },
-        {
-            "config_name": "HUST",
-            "type": "OPENAI",
-            "base_url": "http://demo.masterpool.cn:29005/api/v1",
-            "model": "default",
-            "temperature": 0,
-            "stream": true
         }
     ],
     "module_config": {
-        "api_base_url": "https://glm.cloudchewie.com",
         "knowledge_id": "1903277863680020480",
         "enable_update_decomposition": false,
         "enable_summary": true,
