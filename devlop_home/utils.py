@@ -10,9 +10,7 @@ from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 import traceback
 import os
 from solution import ApiConfig, ModuleConfig
-import requests
 import time
-import hashlib
 
 config_file = "devlop_home/config.json"
 font_file = "devlop_home/msyh.ttf"
@@ -78,7 +76,6 @@ def parse_res(response):
             res = res.split("```json", 1)[1]
             res = res.split("```", 1)[0]
         res = res.strip().replace("\n", "")
-        # print(res)
         return res
     except Exception as e:
         logger.trace(f"【解析结果出错】: {e}", traceback.format_exc())
