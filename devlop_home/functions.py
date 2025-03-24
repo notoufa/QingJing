@@ -1575,12 +1575,12 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","一号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
-    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","二号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
-    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","三号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
-    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","四号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
-    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","整个柴油发电机组",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
-    # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
+    # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","一号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","二号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","三号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","四号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 09:09:08","2024-08-24 16:03:08","实际发电量","整个柴油发电机组")['result'])
+    print(calculate_energy_consumption('2024-08-23 10:30:08', '2024-08-23 17:57:08', '推进系统'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(
