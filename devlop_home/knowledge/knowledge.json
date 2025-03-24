@@ -114,7 +114,7 @@
     ]
   },
   {
-    "knowledge": "DP过程指从ON DP到OFF DP的过程；一天内可能存在多次ON DP和OFF DP，每次ON DP到OFF DP均为一个DP过程，每个DP过程均需要参与计算",
+    "knowledge": "DP过程指从ON DP到OFF DP的过程，每天可能存在多次DP过程，只考虑每天第一次ON DP与OFF DP才称为DP过程",
     "keys": [
       "DP过程",
       "ON DP",
