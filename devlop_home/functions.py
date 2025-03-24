@@ -699,8 +699,8 @@ def calculate_energy_consumption(start_time, end_time, device_name):
     device_config = {
         "全船": ["甲板机械设备", "推进系统", "舵桨"],
         "甲板机械设备": ["折臂吊车", "A架", "绞车变频器"],
-        "A架": ["一号门架", "二号门架"],
         "折臂吊车": ("折臂吊车与小艇动作表", "13-11-6_v"),
+        "A架": ["一号门架", "二号门架"],
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
         "绞车变频器": ("device_1_15_meter_115", "1-15-6_v"),
@@ -729,7 +729,7 @@ def calculate_energy_consumption(start_time, end_time, device_name):
                 energy = calculate_energy_consumption(
                     start_time, end_time, device_name=sub_device
                 )["result"]
-                if energy is not None:
+                if energy:
                     total_energy += energy
             except Exception as e:
                 logger.error(

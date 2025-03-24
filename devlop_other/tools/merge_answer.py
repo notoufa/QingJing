@@ -7,7 +7,11 @@ input_files = [
     # "submits/复赛A榜成绩/result_2025-03-19-第二次-52.4.jsonl",
     # "submits/复赛A榜成绩/result_2025-03-21-55.9.jsonl",
     "submits/复赛A榜成绩/result_2025-03-22-62.38.jsonl",
+<<<<<<< HEAD
     "submits/复赛A榜成绩/result_2025-03-24.jsonl"
+=======
+    "submits/复赛A榜成绩/能耗题.jsonl"
+>>>>>>> a42a85451166a53dc3a57975ccbea469b800e495
 ]
 output_file = "devlop_output/compare.csv"
 
