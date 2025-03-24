@@ -960,8 +960,8 @@ def sliding_window_5(arr):
             window[1] < 10
             and window[2] < 10
             and window[3] < 10
-            and window[0] > 10
-            and window[4] > 10
+            and window[0] >= 10
+            and window[4] >= 10
         ):
             # 将 window[0] 包装成列表进行赋值
             modified_arr[i + 1 : i + 4] = [window[0]] * 3
@@ -974,7 +974,7 @@ def sliding_window_4(arr):
     modified_arr = arr.copy()
     for i in range(len(arr) - window_size + 1):
         window = arr[i : i + window_size]
-        if window[1] < 10 and window[2] < 10 and window[0] > 10 and window[3] > 10:
+        if window[1] < 10 and window[2] < 10 and window[0] >= 10 and window[3] >= 10:
             # 将 window[0] 包装成列表进行赋值
             modified_arr[i + 1 : i + 3] = [window[0]] * 2
     return modified_arr
@@ -986,7 +986,7 @@ def sliding_window_3(arr):
     modified_arr = arr.copy()
     for i in range(len(arr) - window_size + 1):
         window = arr[i : i + window_size]
-        if window[1] < 10 and window[0] > 10 and window[2] > 10:
+        if window[1] < 10 and window[0] >= 10 and window[2] >= 10:
             # 直接赋值，因为只修改一个值
             modified_arr[i + 1] = window[0]
     return modified_arr
@@ -1017,9 +1017,9 @@ for i in range(1, df.shape[0]):
         have_boot = -1
         not_have_boot = -1
     # 检测由待机进入工作和由工作进入待机的事件
-    if df.iloc[i - 1]["13-11-6_v_new"] <= 10 and df.iloc[i]["13-11-6_v_new"] > 10:
+    if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] >= 10:
         df.at[df.index[i], stage_field] = "由待机进入工作"
-    if df.iloc[i - 1]["13-11-6_v_new"] > 10 and df.iloc[i]["13-11-6_v_new"] <= 10:
+    if df.iloc[i - 1]["13-11-6_v_new"] >= 10 and df.iloc[i]["13-11-6_v_new"] < 10:
         df.at[df.index[i], stage_field] = "由工作进入待机"
 logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
 
