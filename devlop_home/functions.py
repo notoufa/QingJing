@@ -703,7 +703,7 @@ def calculate_energy_consumption(start_time, end_time, device_name):
         "A架": ["一号门架", "二号门架"],
         "一号门架": ("device_1_5_meter_105", "1-5-6_v"),
         "二号门架": ("device_13_14_meter_1314", "13-14-6_v"),
-        "绞车变频器": ("device_1_15_meter_115", "1-15-6_v"),
+        "绞车变频器": ("device_1_15_meter_115", "1-15-8_v"),
         "推进系统": ["主推", "可伸缩推", "侧推"],
         "主推": ["一号推进变频器", "二号推进变频器"],
         "一号推进变频器": ("Port3_ksbg_8", "P3_15"),
@@ -1575,12 +1575,11 @@ function_map: dict[str, callable] = {
 }
 
 if __name__ == "__main__":
-    print(count_deapsea_operations("2024-06-01 00:00:00", "2024-06-30 24:00:00"))
-    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","整个柴油发电机组")['result'])
-    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","一号柴油发电机")['result'])
-    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","二号柴油发电机")['result'])
-    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","三号柴油发电机")['result'])
-    # print(calculate_power_generation_or_fuel_consumption("2024-08-24 16:00:00","2024-08-24 16:30:00","燃油消耗量","四号柴油发电机")['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","一号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","二号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","三号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","四号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
+    print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","整个柴油发电机组",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_energy_consumption('2024-06-10 00:00:00', '2024-06-15 00:00:00', '舵桨'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
