@@ -20,7 +20,7 @@ table_name_map = {
     "Port3_ksbg_9.csv": "艏侧推系统DP动作表.csv",
 }
 
-data_path = "devlop_home/复赛数据/"
+data_path = "devlop_home/复赛b榜数据/"
 output_path = "devlop_home/data"
 
 os.makedirs(output_path, exist_ok=True)
@@ -629,12 +629,28 @@ def is_deployment_complete_today(endtime: pd.Timestamp, pd_df: pd.DataFrame) -> 
     # 判断 'stage' 列是否存在 '布放阶段结束'
     return '布放阶段结束' in filtered_df[stage_field].values
 
+class Ajia_Result:
+    def __init__(self, start_time, end_time):
+        """
+        预测结果类
+        :param start_time: 起始时间
+        :param end_time: 结束时间
+        """
+        self.start_time = start_time
+        self.end_time = end_time
+        self.event_pattern: list[int] = []
+ 
+    def __str__(self):
+        return f"时间段: {self.start_time} - {self.end_time}, 峰值模式: {self.event_pattern}"
+
 LLM_predict_count = 0
 LLM_predict_results: dict[int, tuple] = {}
 df[stage_field]=no_stage_flag
 peak_patterns =set()
+Ajia_results = []
 for segment in segments:
     start, end = segment
+    ajia_result=Ajia_Result(start,end)
     logger.success(f"【开始处理时间段】开机时间: {start}, 关机时间: {end}")
     segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
     logger.info(f"【处理时间段】区间数据：{list(segment_data['Ajia-5_v'])}")
@@ -648,6 +664,8 @@ for segment in segments:
     current_presence_data=current_presence_data.iloc[2*(len(ori_peak_pattern)-len(peak_pattern)):]
     peak_patterns.add(tuple(peak_pattern))
     logger.info(f"【处理时间段】区间类型：{peak_pattern}")
+    ajia_result.event_pattern=peak_pattern
+    Ajia_results.append(ajia_result)
     deployment_complete_today = is_deployment_complete_today(start, df.copy())
 
     if (
@@ -870,6 +888,9 @@ for item in manual_keyaction_data:
     column=item['values'][0]['name']
     value=item['values'][0]['value']
     df.loc[df['csvTime'] == time, column] = value
+with open(f"{output_path}/ajia_event.txt", "w", encoding="utf-8") as f:
+    for ajia_result in Ajia_results:
+        f.write(f"{ajia_result}\n")
 df.to_csv(os.path.join(output_path, table_key), index=False)
 df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
 logger.success("A架数据保存成功")
