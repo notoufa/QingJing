@@ -491,6 +491,13 @@ def find_first_increasing_value(data):
             return value
     return 50
 
+def find_qidiao_value(data): 
+    tmp = data.copy()
+    tmp = tmp.iloc[::-1].reset_index(drop=True)
+    for i in range(len(tmp)):
+        if tmp.iloc[i] < 75:
+            return tmp[i]
+
 
 def find_stable_value(data1, data2, peak1, peak2):
     """
@@ -687,12 +694,7 @@ for segment in segments:
         ajia_5_data = list(between_data["Ajia-5_v"])
         ajia_3_data = list(between_data["Ajia-3_v"])
         len_peaks, peak_L = find_peaks(ajia_5_data)
-        # 征服者起吊：电流从稳定值（50多），取高于50的点
-        first_increasing_value = find_first_increasing_value(ajia_5_data)
-        indices = between_data.index[
-            between_data["Ajia-5_v"] == first_increasing_value
-        ].tolist()
-        df.loc[indices, key_action_field] = "征服者起吊"
+        
         # 缆绳解除：电流从高值回落至稳定值（50多），取50
         stable_value = find_stable_value(
             ajia_5_data, ajia_3_data, peak_L[len_peaks - 2], peak_L[len_peaks - 1]
@@ -702,6 +704,11 @@ for segment in segments:
         # 征服者入水：缆绳解除的时间点往前推一分钟
         previous_indices = [idx - 1 for idx in indices if idx > 0]
         df.loc[previous_indices, key_action_field] = "征服者入水"
+        # 征服者起吊：电流从稳定值（50多），取高于50的点
+        first_peak_index = between_data.index[between_data["Ajia-5_v"] == peak_L[len_peaks - 2]].tolist()[0]
+        first_increasing_value = find_qidiao_value(df.loc[(df["csvTime"] >= event_start_time) & (df.index <= first_peak_index), "Ajia-5_v"])
+        indices = between_data.index[between_data["Ajia-5_v"] == first_increasing_value].tolist()[0]
+        df.loc[indices+1, key_action_field] = "征服者起吊"
         # A架摆回：征服者入水后，电流重新增加到峰值（最大值点）
         indices = between_data.index[
             between_data["Ajia-5_v"] == peak_L[len_peaks - 1]
@@ -723,7 +730,6 @@ for segment in segments:
 
         len_peaks, peak_L = find_peaks(ajia_5_data)
         # A架摆出：征服者起吊前，电流到达峰值（取峰值）
-        first_increasing_value = find_first_increasing_value(ajia_5_data)
         indices = between_data.index[between_data["Ajia-5_v"] == peak_L[0]].tolist()
         df.loc[indices, key_action_field] = "A架摆出"
         # 第二个事件对
