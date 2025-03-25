@@ -17,7 +17,6 @@
         }
     ],
     "module_config": {
-        "knowledge_id": "1903277863680020480",
         "enable_update_decomposition": false,
         "enable_summary": true,
         "enable_correct": false,
