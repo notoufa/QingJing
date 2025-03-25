@@ -52,7 +52,7 @@ def process_one(line: dict) -> VoteResult | dict:
         vote_res.init_question = line["question"]
         logger.special(
             f"【{id}的最终答案】:\n",
-            vote_res.final_reasoning_answer.get_correct_answer(),
+            vote_res.final_answer.get_correct_answer(),
         )
         return vote_res
     except Exception as e:

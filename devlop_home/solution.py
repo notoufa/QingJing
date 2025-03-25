@@ -512,10 +512,11 @@ class VoteResult:
         self.init_question: str = question
         self.vote_times: int = vote_times
         self.solutions: list[ProblemSolution] = []
-        self.final_reasoning_answer: ReasoningAnswer = None
+        self.final_answer: ReasoningAnswer = None
+        self.reason: str = None
 
     def __repr__(self):
-        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_reasoning_answer.get_correct_answer()})"
+        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_answer.get_correct_answer()})"
 
     def to_dict(self, export_api_response: bool = True):
         """
@@ -531,12 +532,13 @@ class VoteResult:
             "solutions": [
                 solution.to_dict(export_api_response) for solution in self.solutions
             ],
-            "final_reasoning_answer": self.final_reasoning_answer.to_dict(),
+            "reason": self.reason,
+            "final_reasoning_answer": self.final_answer.to_dict(),
         }
 
     def get_answers(self) -> list[str]:
         return [
-            solution.final_reasoning_answer.get_correct_answer()
+            solution.reasoning_answer.get_correct_answer()
             for solution in self.solutions
         ]
 
@@ -550,5 +552,5 @@ class VoteResult:
         return {
             "id": self.id,
             "question": self.init_question,
-            "answer": strtify(self.final_reasoning_answer.get_correct_answer()),
+            "answer": strtify(self.final_answer.get_correct_answer()),
         }

@@ -36,26 +36,25 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
             vote_res.solutions.append(solution)
 
     if len(vote_res.solutions) == 1:
-        vote_res.final_reasoning_answer = vote_res.solutions[0].reasoning_answer
+        vote_res.final_answer = vote_res.solutions[0].reasoning_answer
         return vote_res
     elif len(vote_res.solutions) == 0:
-        vote_res.final_reasoning_answer = ReasoningAnswer(answer="")
+        vote_res.final_answer = ReasoningAnswer(answer="")
         return vote_res
-
-    logger.info(f"【开始投票】")
 
     answer_content = "\n".join(
         [f"答案 {i+1}: {result}" for i, result in enumerate(vote_res.get_answers())]
     )
-
     messages = [
         {"role": "system", "content": prompts.get_prompt_vote()},
         {"role": "user", "content": f"问题：{question}\n{answer_content}"},
     ]
+    logger.info(f"【开始投票】问题：{question}\n{answer_content}")
 
     response = get_completion(messages)
     best_answer = json.loads(parse_res(response))
-    vote_res.final_reasoning_answer = ReasoningAnswer.from_dict(best_answer)
+    vote_res.final_answer = ReasoningAnswer(best_answer.get("final_answer",""))
+    vote_res.reason = best_answer.get("reason", "")
 
     return vote_res
 
@@ -201,7 +200,7 @@ def get_summary(
             "content": str(solution.to_summary_json()),
         },
     ]
-    response = get_completion(messages,tools=tools.get_calculate_tools())
+    response = get_completion(messages, tools=tools.get_calculate_tools())
     try:
         res = json.loads(parse_res(response))
         res_answer = ReasoningAnswer.from_dict(res)

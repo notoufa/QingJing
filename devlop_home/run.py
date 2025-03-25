@@ -70,7 +70,7 @@ def process_one(line: dict) -> VoteResult | dict:
         vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
         logger.special(
             f"【{id}的最终答案】:\n",
-            vote_res.final_reasoning_answer.get_correct_answer(),
+            vote_res.final_answer.get_correct_answer(),
             sep="",
         )
         return vote_res
