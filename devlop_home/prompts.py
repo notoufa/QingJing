@@ -4,6 +4,7 @@ import json
 from solution import Subtask
 import tools
 import logger
+import utils
 
 table_meta_file = "devlop_home/knowledge/table_meta.json"
 knowledge_file = "devlop_home/knowledge/knowledge.json"
@@ -16,6 +17,7 @@ prompt_rewrite_atomic_question_file = "devlop_home/prompts/rewrite_atomic_questi
 prompt_get_table_meta_and_tool_file = "devlop_home/prompts/get_table_meta_and_tool.md"
 prompt_atomic_question_file = "devlop_home/prompts/atomic_question.md"
 prompt_summary_file = "devlop_home/prompts/summary.md"
+prompt_summary_only_answer_file = "devlop_home/prompts/summary_only_answer.md"
 prompt_correct_file = "devlop_home/prompts/correct.md"
 prompt_get_tool_file = "devlop_home/prompts/get_tool.md"
 
@@ -192,7 +194,10 @@ def get_prompt_summary(question:str) -> str:
     :param question: 问题
     :return: 问题总结模板
     """
-    with open(prompt_summary_file, "r", encoding="utf-8") as file:
+    file_path=prompt_summary_file
+    if utils.module_config.summary_only_answer:
+        file_path=prompt_summary_only_answer_file
+    with open(file_path, "r", encoding="utf-8") as file:
         res = file.read()
     return res
 

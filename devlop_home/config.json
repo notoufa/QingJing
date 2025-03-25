@@ -21,6 +21,7 @@
         "enable_summary": true,
         "enable_correct": false,
         "enable_export_api_response": false,
+        "summary_only_answer": false,
         "vote_times": 1,
         "max_workers_main": 20,
         "max_workers_subtask": 5,
