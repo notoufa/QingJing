@@ -59,9 +59,9 @@ def check_base_url(base_url_env: str = "BASE_HOST") -> str:
         logger.warning(
             f"{base_url_env} is not set. Please set the environment variable."
         )
+        return None
     else:
-        logger.trace(f"【使用环境变量】{base_url_env} = {base_url}")
-    return base_url
+        return f"{base_url}/api/paas/v4/"
 
 
 def strtify(obj):
