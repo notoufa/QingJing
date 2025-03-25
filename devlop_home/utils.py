@@ -3,14 +3,9 @@
 import json
 import numpy as np
 import logger
-from zhipuai import ZhipuAI
-from zhipuai.core import StreamResponse
-from zhipuai.types.chat.chat_completion import Completion
-from zhipuai.types.chat.chat_completion_chunk import ChatCompletionChunk
 import traceback
 import os
 from solution import ApiConfig, ModuleConfig
-import time
 
 config_file = "devlop_home/config.json"
 font_file = "devlop_home/msyh.ttf"
@@ -53,6 +48,18 @@ def check_api_key(api_key_env: str) -> str:
             f"{api_key_env} is not set. Please set the environment variable."
         )
     return api_key
+
+
+def check_base_url(base_url_env: str = "BASE_HOST") -> str:
+    """
+    检查BASE_HOST是否设定
+    """
+    base_url = os.getenv(base_url_env)
+    if not base_url:
+        logger.warning(
+            f"{base_url_env} is not set. Please set the environment variable."
+        )
+    return base_url
 
 
 def strtify(obj):
@@ -157,10 +164,7 @@ def save_solutions(vote_results, result_path: str):
         )
 
 
-def get_completion(
-    messages: list[dict],
-    tools: list[dict] = [],
-) -> Completion | StreamResponse[ChatCompletionChunk]:
+def get_completion(messages: list[dict], tools: list[dict] = []):
     """
     获得对话结果
 
@@ -183,7 +187,13 @@ def get_completion(
                 api_key=check_api_key(api_config.api_key_env),
             )
         elif api_config.type.upper() == "ZHIPUAI":
-            client = ZhipuAI(api_key=check_api_key(api_config.api_key_env))
+            from zhipuai import ZhipuAI
+
+            client = ZhipuAI(
+                base_url=check_base_url(),
+                api_key=check_api_key(api_config.api_key_env),
+            )
+
         logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
 
         response = client.chat.completions.create(
@@ -194,11 +204,12 @@ def get_completion(
             temperature=temperature,
         )
 
+        logger.trace("【回答结果】", str(response))
+
         if response.choices[0].finish_reason == "length":
             logger.warning("【回答长度过长】")
-        logger.trace("【回答结果】", str(response))
+
         return response
     except Exception as e:
-        logger.error(f"【请求回答出错】: {e}")
-        logger.error(traceback.format_exc())
+        logger.error(f"【请求回答出错】: {e}\n{traceback.format_exc()}")
         raise e
