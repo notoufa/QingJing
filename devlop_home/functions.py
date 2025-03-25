@@ -883,16 +883,17 @@ def calculate_power_generation_or_fuel_consumption(
             )
             if filtered_data is None:
                 result = None
-            total_energy_kWh = filtered_data["energy_kWh"].sum()
-            if type == "理论发电量":
-                result = (
-                    total_energy_kWh * diesel_density * diesel_calorific_value / 3.6
-                )
-
-                # mj_result = total_energy_kWh * diesel_density * diesel_calorific_value
-
             else:
-                result = total_energy_kWh
+                total_energy_kWh = filtered_data["energy_kWh"].sum()
+                if type == "理论发电量":
+                    result = (
+                        total_energy_kWh * diesel_density * diesel_calorific_value / 3.6
+                    )
+
+                    # mj_result = total_energy_kWh * diesel_density * diesel_calorific_value
+
+                else:
+                    result = total_energy_kWh
 
         except Exception as e:
             logger.error(
