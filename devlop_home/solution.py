@@ -22,6 +22,7 @@ class ModuleConfig:
         max_workers_subtask=5,
         max_function_calling_iterations=6,
         enable_export_api_response=False,
+        summary_only_answer=True,
     ):
         self.enable_update_decomposition = enable_update_decomposition
         self.enable_summary = enable_summary
@@ -32,6 +33,7 @@ class ModuleConfig:
         self.max_workers_subtask = max_workers_subtask
         self.enable_export_api_response = enable_export_api_response
         self.max_function_calling_iterations = max_function_calling_iterations
+        self.summary_only_answer = summary_only_answer
 
     def to_dict(self):
         """将配置转换为字典"""
@@ -45,6 +47,7 @@ class ModuleConfig:
             "max_workers_subtask": self.max_workers_subtask,
             "enable_export_api_response": self.enable_export_api_response,
             "max_function_calling_iterations": self.max_function_calling_iterations,
+            "summary_only_answer": self.summary_only_answer,
         }
 
     @classmethod
@@ -509,10 +512,11 @@ class VoteResult:
         self.init_question: str = question
         self.vote_times: int = vote_times
         self.solutions: list[ProblemSolution] = []
-        self.final_reasoning_answer: ReasoningAnswer = None
+        self.final_answer: ReasoningAnswer = None
+        self.reason: str = None
 
     def __repr__(self):
-        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_reasoning_answer.get_correct_answer()})"
+        return f"VoteResult(Solutions={self.solutions}, FinalAnswer={self.final_answer.get_correct_answer()})"
 
     def to_dict(self, export_api_response: bool = True):
         """
@@ -528,12 +532,13 @@ class VoteResult:
             "solutions": [
                 solution.to_dict(export_api_response) for solution in self.solutions
             ],
-            "final_reasoning_answer": self.final_reasoning_answer.to_dict(),
+            "reason": self.reason,
+            "final_reasoning_answer": self.final_answer.to_dict(),
         }
 
     def get_answers(self) -> list[str]:
         return [
-            solution.final_reasoning_answer.get_correct_answer()
+            solution.reasoning_answer.get_correct_answer()
             for solution in self.solutions
         ]
 
@@ -547,5 +552,5 @@ class VoteResult:
         return {
             "id": self.id,
             "question": self.init_question,
-            "answer": strtify(self.final_reasoning_answer.get_correct_answer()),
+            "answer": strtify(self.final_answer.get_correct_answer()),
         }
