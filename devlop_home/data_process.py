@@ -1304,10 +1304,13 @@ while i < len(stop_indexs) - 1:
 def label_sailing_begin_end(df):
     sailing_begin_index = -1
     sailing_end_index = 0
+    flag = False
     for i in range(1, df.shape[0]):
-        if df.loc[i, "key_action"] == "OFF DP" and df.loc[i, "docking_status"]=="False" and "布放阶段中" in df.loc[max(0, i-60):min(df.shape[0]-1,i+60), "stage"].tolist():
+        if df.loc[i, "stage"] == "布放阶段中" and df.loc[i, "key_action"] == "OFF DP" and df.loc[i, "docking_status"]=="False":
             df.loc[i, "escort_status"] = "伴航状态开始"
-        if df.loc[i, "key_action"] == "ON DP" and df.loc[i, "docking_status"]=="False" and "回收阶段中" in df.loc[max(0, i-60):min(df.shape[0]-1,i+60), "stage"].tolist():
+            flag = True
+        if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP" and df.loc[i, "docking_status"]=="False" and flag:
+            flag = False
             df.loc[i - 1, "escort_status"] = "伴航状态结束"
         if df.loc[i, "docking_status"]!="False" and sailing_begin_index > sailing_end_index:
             logger.info(f"航渡状态开始失效")
@@ -1338,8 +1341,10 @@ def label_sailing_begin_end(df):
     for i in range(0,len(hangdu_indexs)-1,2):
         flag=True
         if (
-            not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all() or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "stage"].isin(["回收阶段中", "布放阶段中"]).any())
+            not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all() 
+            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "stage"].isin(["回收阶段中", "布放阶段中"]).any())
             or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "escort_status"].isin(["伴航状态中"]).any())
+            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "P3_15"] > 1000).sum() < 10  # 计算区间内大于 1000 的数据量
         ):
             df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
             flag=False
