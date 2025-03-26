@@ -190,7 +190,7 @@ def get_completion(messages: list[dict], tools: list[dict] = []):
             )
         elif api_config.type.upper() == "ZHIPUAI":
             from zhipuai import ZhipuAI
-
+            
             client = ZhipuAI(
                 base_url=check_base_url(),
                 api_key=check_api_key(api_config.api_key_env),
