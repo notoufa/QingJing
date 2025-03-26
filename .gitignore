@@ -3,5 +3,6 @@ devlop_result/**
 devlop_data/questions/test.jsonl
 devlop_data/tmp/**
 devlop_home/tests/**
+devlop_home/data1/**
 devlop_home/复赛数据/**
 .history/**

@@ -20,7 +20,7 @@ table_name_map = {
     "Port3_ksbg_9.csv": "艏侧推系统DP动作表.csv",
 }
 
-data_path = "devlop_home/复赛b榜数据/"
+data_path = "devlop_home/复赛数据/"
 output_path = "devlop_home/data"
 
 os.makedirs(output_path, exist_ok=True)
@@ -497,6 +497,7 @@ def find_qidiao_value(data):
     for i in range(len(tmp)):
         if tmp.iloc[i] < 75:
             return tmp[i]
+    return tmp.iloc[-1]
 
 
 def find_stable_value(data1, data2, peak1, peak2):
@@ -938,262 +939,262 @@ logger.success("ON DP和OFF DP数据保存成功")
 # In[ ]:
 
 
-# 处理发电机运行时长
-logger.special("开始处理发电机运行时长")
-dynamo_run_map = {
-    f"No_1_{running_status_field}": ("Port1_ksbg_3.csv", "P1_88.14"),
-    f"No_2_{running_status_field}": ("Port1_ksbg_4.csv", "P1_90.5"),
-    f"No_3_{running_status_field}": ("Port2_ksbg_3.csv", "P2_73.8"),
-    f"No_4_{running_status_field}": ("Port2_ksbg_3.csv", "P2_74.15"),
-}
+# # 处理发电机运行时长
+# logger.special("开始处理发电机运行时长")
+# dynamo_run_map = {
+#     f"No_1_{running_status_field}": ("Port1_ksbg_3.csv", "P1_88.14"),
+#     f"No_2_{running_status_field}": ("Port1_ksbg_4.csv", "P1_90.5"),
+#     f"No_3_{running_status_field}": ("Port2_ksbg_3.csv", "P2_73.8"),
+#     f"No_4_{running_status_field}": ("Port2_ksbg_3.csv", "P2_74.15"),
+# }
 
 
-def mark_dynamo_run_status(data, field, run_status):
-    data[run_status] = not_running_flag
-    for i in range(0, data.shape[0]):
-        if data.loc[i, field] == 1:
-            data.loc[i, run_status] = running_flag
-    return data
+# def mark_dynamo_run_status(data, field, run_status):
+#     data[run_status] = not_running_flag
+#     for i in range(0, data.shape[0]):
+#         if data.loc[i, field] == 1:
+#             data.loc[i, run_status] = running_flag
+#     return data
 
 
-for run_status, (table_name, field) in dynamo_run_map.items():
-    df = pd.read_csv(os.path.join(output_path, table_name))
-    if field in df.columns:
-        df = mark_dynamo_run_status(df, field, run_status)
-        df.to_csv(os.path.join(output_path, table_name), index=False)
-        logger.special(f"已处理 {table_name} 的 {field} 字段，标注 {run_status} 状态")
+# for run_status, (table_name, field) in dynamo_run_map.items():
+#     df = pd.read_csv(os.path.join(output_path, table_name))
+#     if field in df.columns:
+#         df = mark_dynamo_run_status(df, field, run_status)
+#         df.to_csv(os.path.join(output_path, table_name), index=False)
+#         logger.special(f"已处理 {table_name} 的 {field} 字段，标注 {run_status} 状态")
 
 
 # In[ ]:
 
 
-# 处理折臂吊车
-from collections import Counter
-table_key = "device_13_11_meter_1311.csv"
+# # 处理折臂吊车
+# from collections import Counter
+# table_key = "device_13_11_meter_1311.csv"
 
-logger.special("开始判定折臂吊车关键动作")
-df = pd.read_csv(os.path.join(output_path, table_key))
-df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
-df[key_action_field] = no_key_action_flag
-df[stage_field] = no_stage_flag
+# logger.special("开始判定折臂吊车关键动作")
+# df = pd.read_csv(os.path.join(output_path, table_key))
+# df["13-11-6_v"] = pd.to_numeric(df["13-11-6_v"], errors="coerce")
+# df[key_action_field] = no_key_action_flag
+# df[stage_field] = no_stage_flag
 
-def sliding_window_5(arr):
-    """滑动窗口大小为5的逻辑"""
-    window_size = 5
-    modified_arr = arr.copy()
-    for i in range(len(arr) - window_size + 1):
-        window = arr[i : i + window_size]
-        if (
-            window[1] < 10
-            and window[2] < 10
-            and window[3] < 10
-            and window[0] >= 10
-            and window[4] >= 10
-        ):
-            # 将 window[0] 包装成列表进行赋值
-            modified_arr[i + 1 : i + 4] = [window[0]] * 3
-    return modified_arr
-
-
-def sliding_window_4(arr):
-    """滑动窗口大小为4的逻辑"""
-    window_size = 4
-    modified_arr = arr.copy()
-    for i in range(len(arr) - window_size + 1):
-        window = arr[i : i + window_size]
-        if window[1] < 10 and window[2] < 10 and window[0] >= 10 and window[3] >= 10:
-            # 将 window[0] 包装成列表进行赋值
-            modified_arr[i + 1 : i + 3] = [window[0]] * 2
-    return modified_arr
+# def sliding_window_5(arr):
+#     """滑动窗口大小为5的逻辑"""
+#     window_size = 5
+#     modified_arr = arr.copy()
+#     for i in range(len(arr) - window_size + 1):
+#         window = arr[i : i + window_size]
+#         if (
+#             window[1] < 10
+#             and window[2] < 10
+#             and window[3] < 10
+#             and window[0] >= 10
+#             and window[4] >= 10
+#         ):
+#             # 将 window[0] 包装成列表进行赋值
+#             modified_arr[i + 1 : i + 4] = [window[0]] * 3
+#     return modified_arr
 
 
-def sliding_window_3(arr):
-    """滑动窗口大小为3的逻辑"""
-    window_size = 3
-    modified_arr = arr.copy()
-    for i in range(len(arr) - window_size + 1):
-        window = arr[i : i + window_size]
-        if window[1] < 10 and window[0] >= 10 and window[2] >= 10:
-            # 直接赋值，因为只修改一个值
-            modified_arr[i + 1] = window[0]
-    return modified_arr
+# def sliding_window_4(arr):
+#     """滑动窗口大小为4的逻辑"""
+#     window_size = 4
+#     modified_arr = arr.copy()
+#     for i in range(len(arr) - window_size + 1):
+#         window = arr[i : i + window_size]
+#         if window[1] < 10 and window[2] < 10 and window[0] >= 10 and window[3] >= 10:
+#             # 将 window[0] 包装成列表进行赋值
+#             modified_arr[i + 1 : i + 3] = [window[0]] * 2
+#     return modified_arr
 
 
-logger.info("【处理折臂吊车】开始应用滑动窗口逻辑")
-df["13-11-6_v_new"] = sliding_window_5(df["13-11-6_v"].tolist())
-df["13-11-6_v_new"] = sliding_window_4(df["13-11-6_v_new"].tolist())
-df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
-logger.success("【处理折臂吊车】滑动窗口逻辑应用完成")
+# def sliding_window_3(arr):
+#     """滑动窗口大小为3的逻辑"""
+#     window_size = 3
+#     modified_arr = arr.copy()
+#     for i in range(len(arr) - window_size + 1):
+#         window = arr[i : i + window_size]
+#         if window[1] < 10 and window[0] >= 10 and window[2] >= 10:
+#             # 直接赋值，因为只修改一个值
+#             modified_arr[i + 1] = window[0]
+#     return modified_arr
 
-logger.info("【处理折臂吊车】开始判定折臂吊车的开机和关机事件")
-df[running_status_field]= "未运行"
-have_boot = -1
-not_have_boot = -1
-for i in range(1, df.shape[0]):
-    # 开机
-    if df.iloc[i - 1]["13-11-6_v"] == 0 and df.iloc[i]["13-11-6_v"] > 0:
-        df.at[df.index[i], key_action_field] = "折臂吊车开机"
-        have_boot = i
-    # 关机
-    if df.iloc[i - 1]["13-11-6_v"] > 0 and df.iloc[i]["13-11-6_v"] == 0:
-        df.at[df.index[i], key_action_field] = "折臂吊车关机"
-        not_have_boot = i
-    if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
-        for j in range(have_boot, not_have_boot+1):
-            df.loc[j, running_status_field] = running_flag
-        have_boot = -1
-        not_have_boot = -1
-    # 检测由待机进入工作和由工作进入待机的事件
-    if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] >= 10:
-        df.at[df.index[i], stage_field] = "由待机进入工作"
-    if df.iloc[i - 1]["13-11-6_v_new"] >= 10 and df.iloc[i]["13-11-6_v_new"] < 10:
-        df.at[df.index[i], stage_field] = "由工作进入待机"
-logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
 
-logger.info("【处理折臂吊车】根据折臂吊车的开机和关机事件划分时间段")
-segments = []
-start_time = None
-for index, row in df.iterrows():
-    if row[key_action_field] == "折臂吊车开机":
-        start_time = row["csvTime"]
-    elif row[key_action_field] == "折臂吊车关机" and start_time is not None:
-        end_time = row["csvTime"]
-        segments.append((start_time, end_time))
-        start_time = None
-logger.success("【处理折臂吊车】时间段划分完成")
+# logger.info("【处理折臂吊车】开始应用滑动窗口逻辑")
+# df["13-11-6_v_new"] = sliding_window_5(df["13-11-6_v"].tolist())
+# df["13-11-6_v_new"] = sliding_window_4(df["13-11-6_v_new"].tolist())
+# df["13-11-6_v_new"] = sliding_window_3(df["13-11-6_v_new"].tolist())
+# logger.success("【处理折臂吊车】滑动窗口逻辑应用完成")
 
-def find_most_frequent_number(lst):
-    """
-    使用 Counter 统计每个数的出现次数\n
-    找到出现次数最多的数（如果有多个，只返回第一个）
-    """
-    counter = Counter(lst)
-    most_common_number = counter.most_common(1)[0][0]
-    return most_common_number
-class Diaoche_Result:
-    def __init__(self, start_time, end_time):
-        """
-        预测结果类
-        :param start_time: 起始时间
-        :param end_time: 结束时间
-        """
-        self.start_time = start_time
-        self.end_time = end_time
-        self.event_pattern: list[int] = []
+# logger.info("【处理折臂吊车】开始判定折臂吊车的开机和关机事件")
+# df[running_status_field]= "未运行"
+# have_boot = -1
+# not_have_boot = -1
+# for i in range(1, df.shape[0]):
+#     # 开机
+#     if df.iloc[i - 1]["13-11-6_v"] == 0 and df.iloc[i]["13-11-6_v"] > 0:
+#         df.at[df.index[i], key_action_field] = "折臂吊车开机"
+#         have_boot = i
+#     # 关机
+#     if df.iloc[i - 1]["13-11-6_v"] > 0 and df.iloc[i]["13-11-6_v"] == 0:
+#         df.at[df.index[i], key_action_field] = "折臂吊车关机"
+#         not_have_boot = i
+#     if have_boot != -1 and not_have_boot != -1 and have_boot < not_have_boot:
+#         for j in range(have_boot, not_have_boot+1):
+#             df.loc[j, running_status_field] = running_flag
+#         have_boot = -1
+#         not_have_boot = -1
+#     # 检测由待机进入工作和由工作进入待机的事件
+#     if df.iloc[i - 1]["13-11-6_v_new"] < 10 and df.iloc[i]["13-11-6_v_new"] >= 10:
+#         df.at[df.index[i], stage_field] = "由待机进入工作"
+#     if df.iloc[i - 1]["13-11-6_v_new"] >= 10 and df.iloc[i]["13-11-6_v_new"] < 10:
+#         df.at[df.index[i], stage_field] = "由工作进入待机"
+# logger.success("【处理折臂吊车】折臂吊车的开机和关机事件判定完成")
+
+# logger.info("【处理折臂吊车】根据折臂吊车的开机和关机事件划分时间段")
+# segments = []
+# start_time = None
+# for index, row in df.iterrows():
+#     if row[key_action_field] == "折臂吊车开机":
+#         start_time = row["csvTime"]
+#     elif row[key_action_field] == "折臂吊车关机" and start_time is not None:
+#         end_time = row["csvTime"]
+#         segments.append((start_time, end_time))
+#         start_time = None
+# logger.success("【处理折臂吊车】时间段划分完成")
+
+# def find_most_frequent_number(lst):
+#     """
+#     使用 Counter 统计每个数的出现次数\n
+#     找到出现次数最多的数（如果有多个，只返回第一个）
+#     """
+#     counter = Counter(lst)
+#     most_common_number = counter.most_common(1)[0][0]
+#     return most_common_number
+# class Diaoche_Result:
+#     def __init__(self, start_time, end_time):
+#         """
+#         预测结果类
+#         :param start_time: 起始时间
+#         :param end_time: 结束时间
+#         """
+#         self.start_time = start_time
+#         self.end_time = end_time
+#         self.event_pattern: list[int] = []
  
-    def __str__(self):
-        return f"时间段: {self.start_time} - {self.end_time}, 事件模式: {self.event_pattern}"
+#     def __str__(self):
+#         return f"时间段: {self.start_time} - {self.end_time}, 事件模式: {self.event_pattern}"
 
-diaoche_results = []
-for segment in segments:
-    start, end = segment
-    logger.info(f"【开始处理时间段】开始时间：{start}，结束时间：{end}")
-    diaoche_result=Diaoche_Result(start,end)
-    actions_data = df[
-        (df["csvTime"] >= start)
-        & (df["csvTime"] <= end)
-        & (df[stage_field].isin(["由待机进入工作", "由工作进入待机"]))
-    ]
-    segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
-    # 检查事件数量是否为偶数且等于6
-    if actions_data.shape[0] > 0 and actions_data.iloc[0]["csvTime"] == start:
-        actions_data = actions_data[2:]
-        segment_data = segment_data[2:]
-    if actions_data.shape[0] == 8:
-        csv_time_as_datetime = pd.to_datetime(actions_data["csvTime"], errors="coerce")
-        # 计算时间差
-        time_diffs = (csv_time_as_datetime.iloc[1::2].values - csv_time_as_datetime.iloc[::2].values).astype("timedelta64[s]").astype(int)
-        # 找到最小时间差的位置
-        min_idx = time_diffs.argmin() * 2
-        # 直接 drop 对应索引
-        actions_data = actions_data.drop(actions_data.index[[min_idx, min_idx + 1]])
+# diaoche_results = []
+# for segment in segments:
+#     start, end = segment
+#     logger.info(f"【开始处理时间段】开始时间：{start}，结束时间：{end}")
+#     diaoche_result=Diaoche_Result(start,end)
+#     actions_data = df[
+#         (df["csvTime"] >= start)
+#         & (df["csvTime"] <= end)
+#         & (df[stage_field].isin(["由待机进入工作", "由工作进入待机"]))
+#     ]
+#     segment_data = df[(df["csvTime"] >= start) & (df["csvTime"] <= end)]
+#     # 检查事件数量是否为偶数且等于6
+#     if actions_data.shape[0] > 0 and actions_data.iloc[0]["csvTime"] == start:
+#         actions_data = actions_data[2:]
+#         segment_data = segment_data[2:]
+#     if actions_data.shape[0] == 8:
+#         csv_time_as_datetime = pd.to_datetime(actions_data["csvTime"], errors="coerce")
+#         # 计算时间差
+#         time_diffs = (csv_time_as_datetime.iloc[1::2].values - csv_time_as_datetime.iloc[::2].values).astype("timedelta64[s]").astype(int)
+#         # 找到最小时间差的位置
+#         min_idx = time_diffs.argmin() * 2
+#         # 直接 drop 对应索引
+#         actions_data = actions_data.drop(actions_data.index[[min_idx, min_idx + 1]])
         
-    logger.info(f"【处理时间段】事件数量: {actions_data.shape[0]}")
-    diaoche_result.event_pattern = actions_data.shape[0]
-    diaoche_results.append(diaoche_result)
-    if actions_data.shape[0] == 6:
-        # 处理每一对事件
-        for i in range(0, 6, 2):
-            event_start = actions_data.iloc[i]
-            event_end = actions_data.iloc[i + 1]
+#     logger.info(f"【处理时间段】事件数量: {actions_data.shape[0]}")
+#     diaoche_result.event_pattern = actions_data.shape[0]
+#     diaoche_results.append(diaoche_result)
+#     if actions_data.shape[0] == 6:
+#         # 处理每一对事件
+#         for i in range(0, 6, 2):
+#             event_start = actions_data.iloc[i]
+#             event_end = actions_data.iloc[i + 1]
 
-            if (
-                event_start[stage_field] == "由待机进入工作"
-                and event_end[stage_field] == "由工作进入待机"
-            ):
-                event_start_time = event_start["csvTime"]
-                event_end_time = event_end["csvTime"]
-                between_data = df[
-                    (df["csvTime"] >= event_start_time)
-                    & (df["csvTime"] <= event_end_time)
-                ]
-                ajia_5_data = list(between_data["13-11-6_v"])
+#             if (
+#                 event_start[stage_field] == "由待机进入工作"
+#                 and event_end[stage_field] == "由工作进入待机"
+#             ):
+#                 event_start_time = event_start["csvTime"]
+#                 event_end_time = event_end["csvTime"]
+#                 between_data = df[
+#                     (df["csvTime"] >= event_start_time)
+#                     & (df["csvTime"] <= event_end_time)
+#                 ]
+#                 ajia_5_data = list(between_data["13-11-6_v"])
 
-                # 找到最后一个大于9的值
-                last_value_above_9 = next((x for x in reversed(ajia_5_data) if x > 9), None)
+#                 # 找到最后一个大于9的值
+#                 last_value_above_9 = next((x for x in reversed(ajia_5_data) if x > 9), None)
 
-                if last_value_above_9 is not None:
-                    all_indices = between_data.index[
-                        between_data["13-11-6_v_new"] == last_value_above_9
-                    ].tolist()
-                    last_index = all_indices[-1] if all_indices else None
+#                 if last_value_above_9 is not None:
+#                     all_indices = between_data.index[
+#                         between_data["13-11-6_v_new"] == last_value_above_9
+#                     ].tolist()
+#                     last_index = all_indices[-1] if all_indices else None
 
-                    # 根据事件对的顺序更新status
-                    if last_index is not None:
-                        if i == 0:
-                            df.loc[last_index, key_action_field] = "小艇检查完毕"
-                        elif i == 2:
-                            df.loc[last_index, key_action_field] = "小艇入水"
-                        elif i == 4:
-                            df.loc[last_index, key_action_field] = "小艇落座"
-                else:
-                    logger.info("列表中没有大于 9 的值")
-    if actions_data.shape[0] == 4:
-        # 处理每一对事件
-        for i in range(0, 4, 2):
-            event_start = actions_data.iloc[i]
-            event_end = actions_data.iloc[i + 1]
-            if (
-                event_start[stage_field] == "由待机进入工作"
-                and event_end[stage_field] == "由工作进入待机"
-            ):
-                event_start_time = event_start["csvTime"]
-                event_end_time = event_end["csvTime"]
-                between_data = df[
-                    (df["csvTime"] >= event_start_time)
-                    & (df["csvTime"] <= event_end_time)
-                ]
-                ajia_5_data = list(between_data["13-11-6_v"])
+#                     # 根据事件对的顺序更新status
+#                     if last_index is not None:
+#                         if i == 0:
+#                             df.loc[last_index, key_action_field] = "小艇检查完毕"
+#                         elif i == 2:
+#                             df.loc[last_index, key_action_field] = "小艇入水"
+#                         elif i == 4:
+#                             df.loc[last_index, key_action_field] = "小艇落座"
+#                 else:
+#                     logger.info("列表中没有大于 9 的值")
+#     if actions_data.shape[0] == 4:
+#         # 处理每一对事件
+#         for i in range(0, 4, 2):
+#             event_start = actions_data.iloc[i]
+#             event_end = actions_data.iloc[i + 1]
+#             if (
+#                 event_start[stage_field] == "由待机进入工作"
+#                 and event_end[stage_field] == "由工作进入待机"
+#             ):
+#                 event_start_time = event_start["csvTime"]
+#                 event_end_time = event_end["csvTime"]
+#                 between_data = df[
+#                     (df["csvTime"] >= event_start_time)
+#                     & (df["csvTime"] <= event_end_time)
+#                 ]
+#                 ajia_5_data = list(between_data["13-11-6_v"])
 
-                # 找到最后一个大于9的值
-                last_value_above_9 = next((x for x in reversed(ajia_5_data) if x > 9), None)
+#                 # 找到最后一个大于9的值
+#                 last_value_above_9 = next((x for x in reversed(ajia_5_data) if x > 9), None)
 
-                if last_value_above_9 is not None:
-                    all_indices = between_data.index[
-                        between_data["13-11-6_v_new"] == last_value_above_9
-                    ].tolist()
-                    last_index = all_indices[-1] if all_indices else None
+#                 if last_value_above_9 is not None:
+#                     all_indices = between_data.index[
+#                         between_data["13-11-6_v_new"] == last_value_above_9
+#                     ].tolist()
+#                     last_index = all_indices[-1] if all_indices else None
 
-                    # 根据事件对的顺序更新status
-                    if (
-                        last_index is not None
-                        and df.loc[last_index, key_action_field] == "False"
-                    ):
-                        if i == 0:
-                            df.loc[last_index, key_action_field] = "小艇入水"
-                        elif i == 2:
-                            df.loc[last_index, key_action_field] = "小艇落座"
-                else:
-                    logger.warning("列表中没有大于 9 的值")
-                # 保存结果
-# df = df.drop(columns=[stage_field])
-# df = df.drop(columns=['13-11-6_v_new'])
-with open(f"{output_path}/diaoche_event.txt", "w", encoding="utf-8") as f:
-    for diaoche_result in diaoche_results:
-        f.write(f"{diaoche_result}\n")
-df.to_csv(os.path.join(output_path, table_key), index=False)
-df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
-logger.success("【处理折臂吊车】保存数据完成")
+#                     # 根据事件对的顺序更新status
+#                     if (
+#                         last_index is not None
+#                         and df.loc[last_index, key_action_field] == "False"
+#                     ):
+#                         if i == 0:
+#                             df.loc[last_index, key_action_field] = "小艇入水"
+#                         elif i == 2:
+#                             df.loc[last_index, key_action_field] = "小艇落座"
+#                 else:
+#                     logger.warning("列表中没有大于 9 的值")
+#                 # 保存结果
+# # df = df.drop(columns=[stage_field])
+# # df = df.drop(columns=['13-11-6_v_new'])
+# with open(f"{output_path}/diaoche_event.txt", "w", encoding="utf-8") as f:
+#     for diaoche_result in diaoche_results:
+#         f.write(f"{diaoche_result}\n")
+# df.to_csv(os.path.join(output_path, table_key), index=False)
+# df.to_csv(os.path.join(output_path, table_name_map[table_key]), index=False)
+# logger.success("【处理折臂吊车】保存数据完成")
 
 
 # In[ ]:
@@ -1229,13 +1230,19 @@ df_merge = (
     .merge(df_Dp, on="csvTime", how="left")
     .merge(df_2tui, on="csvTime", how="left")
 )
-df_merge["cruise_stage"] = np.where(
-    df_merge["key_action"] == "ON DP", "动力定位状态开始", ""
+df_merge["docking_status"] = "False"
+df_merge["voyage_status"] = "False"
+df_merge["escort_status"] = "False"
+df_merge["dp_status"] = "False"
+df_merge["dp_status"] = np.where(
+    df_merge["key_action"] == "ON DP", "动力定位状态开始", "False"
 )
-df_merge["cruise_stage"] = np.where(
-    df_merge["key_action"] == "OFF DP", "动力定位状态结束", df_merge["cruise_stage"]
+df_merge["dp_status"] = np.where(
+    df_merge["key_action"] == "OFF DP", "动力定位状态结束", df_merge["dp_status"]
 )
-
+dp_indexs=df_merge[df_merge["dp_status"].isin(["动力定位状态开始", "动力定位状态结束"])].index
+for i in range(0,len(dp_indexs)-1,2):
+    df_merge.loc[dp_indexs[i]+1:dp_indexs[i+1]-1, "dp_status"] = "动力定位状态中"
 
 # 找到下一个P3_32为0的点
 def find_next_zero(df, index):
@@ -1262,36 +1269,60 @@ for i in range(len(df)):
         first_index = i
         break
 second_index = find_next_nonzero(df_merge, first_index + 1) - 1
-df_merge.loc[first_index, "cruise_stage"] = "停泊状态开始"
-df_merge.loc[second_index, "cruise_stage"] = "停泊状态结束"
+df_merge.loc[first_index, "docking_status"] = "停泊状态开始"
+df_merge.loc[second_index, "docking_status"] = "停泊状态结束"
+df_merge.loc[first_index+1:second_index-1, "docking_status"] = "停泊状态中"
 while 1:
     first_index = find_next_zero(df_merge, second_index + 1)
     if first_index == len(df_merge):
         break
     if first_index - second_index < 120:
-        df_merge.loc[second_index, "cruise_stage"] = ""
+        df_merge.loc[second_index, "docking_status"] = "False"
     else:
-        df_merge.loc[first_index, "cruise_stage"] = "停泊状态开始"
+        df_merge.loc[first_index, "docking_status"] = "停泊状态开始"
     second_index = find_next_nonzero(df_merge, first_index + 1) - 1
     if second_index == len(df_merge) - 1:
         break
-    df_merge.loc[second_index, "cruise_stage"] = "停泊状态结束"
+    df_merge.loc[second_index, "docking_status"] = "停泊状态结束"
+    
+stop_indexs=df_merge[df_merge["docking_status"].isin(["停泊状态开始", "停泊状态结束"])].index
+for i in range(0,len(stop_indexs)-1,2):
+    df_merge.loc[stop_indexs[i]+1:stop_indexs[i+1]-1, "docking_status"] = "停泊状态中"
+    
 
 
 def label_sailing_begin_end(df):
     sailing_begin_index = -1
     sailing_end_index = 0
     for i in range(1, df.shape[0]):
-        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_15"] >= 1000:
-            sailing_begin_index = i
-        if sailing_begin_index > sailing_end_index and df.loc[i, "P3_15"] < 1000:
+        if df.loc[i, "stage"] == "布放阶段中" and df.loc[i, "key_action"] == "OFF DP" and df.loc[i, "docking_status"]=="False":
+            df.loc[i, "escort_status"] = "伴航状态开始"
+        if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP" and df.loc[i, "docking_status"]=="False":
+            df.loc[i - 1, "escort_status"] = "伴航状态结束"
+        if df.loc[i, "docking_status"]!="False" and sailing_begin_index > sailing_end_index:
+            logger.info(f"航渡状态开始失效")
             sailing_end_index = i
-            df.loc[sailing_begin_index, "cruise_stage"] = "航渡状态开始"
-            df.loc[sailing_end_index, "cruise_stage"] = "航渡状态结束"
-        if df.loc[i, "stage"] == "布放阶段中" and df.loc[i, "key_action"] == "OFF DP":
-            df.loc[i, "cruise_stage"] = "伴航状态开始"
-        if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP":
-            df.loc[i - 1, "cruise_stage"] = "伴航状态结束"
+            continue
+        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_32"] >= 1000 and df.loc[i, "P3_15"] >= 200 and df.loc[i, "docking_status"]=="False":
+            logger.info(f"找到航渡状态开始的时间：{df.loc[i, 'csvTime']}")
+            sailing_begin_index = i
+            continue
+        if sailing_begin_index > sailing_end_index and (df.loc[i, "P3_15"] < 128 or df.loc[i, "P3_32"] < 1000):
+            sailing_end_index = i
+            logger.info(f"找到航渡状态结束的时间：{df.loc[i, 'csvTime']}")
+            df.loc[sailing_begin_index, "voyage_status"] = "航渡状态开始"
+            df.loc[sailing_end_index, "voyage_status"] = "航渡状态结束"
+            df.loc[sailing_begin_index+1:sailing_end_index-1, "voyage_status"] = "航渡状态中"
+    escort_indexs=df_merge[df_merge["escort_status"].isin(["伴航状态开始", "伴航状态结束"])].index
+    for i in range(0,len(escort_indexs)-1,2):
+        df_merge.loc[escort_indexs[i]+1:escort_indexs[i+1]-1, "escort_status"] = "伴航状态中"    
+        
+    hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
+    logger.info(f"航渡状态开始和结束的索引对应的时间：{df.loc[hangdu_indexs, 'csvTime']}")
+    for i in range(0,len(hangdu_indexs)-1,2):
+        if hangdu_indexs[i+1]-hangdu_indexs[i]<15 or not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all():
+            df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
+            
 
 
 logger.special("开始标注航渡状态和伴航状态")
