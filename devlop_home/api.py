@@ -42,17 +42,21 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
         vote_res.final_answer = ReasoningAnswer(answer="")
         return vote_res
 
-    answer_content = "\n".join(
-        [f"答案 {i+1}: {result}" for i, result in enumerate(vote_res.get_answers())]
-    )
-    messages = [
-        {"role": "system", "content": prompts.get_prompt_vote()},
-        {"role": "user", "content": f"问题：{question}\n{answer_content}"},
-    ]
-    logger.info(f"【开始投票】问题：{question}\n{answer_content}")
+    try:
+        answer_content = "\n".join(
+            [f"答案 {i+1}: {result}" for i, result in enumerate(vote_res.get_answers())]
+        )
+        messages = [
+            {"role": "system", "content": prompts.get_prompt_vote()},
+            {"role": "user", "content": f"问题：{question}\n{answer_content}"},
+        ]
+        logger.info(f"【开始投票】问题：{question}\n{answer_content}")
 
-    best_answer = parse_res(get_completion(messages))
-    vote_res.final_answer = ReasoningAnswer(best_answer)
+        best_answer = parse_res(get_completion(messages))
+        vote_res.final_answer = ReasoningAnswer(best_answer)
+    except Exception:
+        logger.error(f"【第{id}题投票错误】\n{traceback.format_exc()}")
+        vote_res.final_answer = vote_res.solutions[0].reasoning_answer
 
     return vote_res
 
