@@ -519,7 +519,10 @@ def get_key_actions(start_time, end_time):
             }
 
         status_changes = filtered_data[["csvTime", "key_action"]].copy()
-
+        if device_name =='A架':
+            status_changes = status_changes[~status_changes["key_action"].isin(['缆绳挂妥', '缆绳解除'])]
+        elif device_name =='绞车':
+            status_changes = status_changes[status_changes["key_action"].isin(['缆绳挂妥', '缆绳解除'])]
         status_changes["csvTime"] = status_changes["csvTime"].dt.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
@@ -531,10 +534,11 @@ def get_key_actions(start_time, end_time):
 
     result1 = get_status_changes("A架动作表", "A架")
     result2 = get_status_changes("折臂吊车与小艇动作表", "折臂吊车")
-    result3 = get_status_changes("艏侧推系统DP动作表", "定位系统")
+    result3 = get_status_changes("艏侧推系统DP动作表", "艏推DP")
+    result4 = get_status_changes("A架动作表", "绞车")
 
     results = [
-        result for result in [result1, result2, result3] if "error" not in result
+        result for result in [result1, result2, result3, result4] if "error" not in result
     ]
 
     return {
