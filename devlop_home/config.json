@@ -22,7 +22,7 @@
         "enable_correct": false,
         "enable_export_api_response": false,
         "summary_only_answer": true,
-        "vote_times": 1,
+        "vote_times": 5,
         "max_workers_main": 20,
         "max_workers_subtask": 5,
         "max_function_calling_iterations": 6

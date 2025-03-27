@@ -51,10 +51,8 @@ def vote(id: str, question: str, vote_times: int) -> VoteResult:
     ]
     logger.info(f"【开始投票】问题：{question}\n{answer_content}")
 
-    response = get_completion(messages)
-    best_answer = json.loads(parse_res(response))
-    vote_res.final_answer = ReasoningAnswer(best_answer.get("final_answer",""))
-    vote_res.reason = best_answer.get("reason", "")
+    best_answer = parse_res(get_completion(messages))
+    vote_res.final_answer = ReasoningAnswer(best_answer)
 
     return vote_res
 
