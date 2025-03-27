@@ -386,6 +386,10 @@ class Decomposition:
             "subtasks": [subtask.to_simple_dict() for subtask in self.subtasks],
         }
 
+    def to_summary_dict(self):
+        """返回一个字典表示，不包含api_response"""
+        return [subtask.to_simple_dict() for subtask in self.subtasks]
+
     def clone(self):
         return copy.deepcopy(self)
 
@@ -480,13 +484,16 @@ class ProblemSolution:
             "answer": self.reasoning_answer.get_correct_answer(),
         }
 
-    def to_summary_json(self):
-        """返回一个字典表示，用于问题总结"""
-        return {
-            "id": self.id,
-            "question": self.question,
-            "decomposition": self.decomposition.to_simple_dict(),
-        }
+    def to_summary_str(self):
+        """返回一个字符串表示，用于问题总结"""
+        return f"""
+        原始问题：{self.question}
+        格式要求：{self.decomposition.format_requirement}
+        假设条件：{self.decomposition.assumption}
+        任务链流程：{self.decomposition.chain_of_subtasks}
+        任务前后依赖：{self.decomposition.dependency}
+        解答过程：{self.decomposition.to_summary_dict()}
+        """
 
     def to_correct_json(self):
         """返回一个字典表示，用于问题纠错"""
