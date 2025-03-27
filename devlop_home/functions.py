@@ -517,7 +517,10 @@ def get_key_actions(start_time, end_time):
             }
 
         status_changes = filtered_data[["csvTime", "key_action"]].copy()
-
+        if device_name =='A架':
+            status_changes = status_changes[~status_changes["key_action"].isin(['缆绳挂妥', '缆绳解除'])]
+        elif device_name =='绞车':
+            status_changes = status_changes[status_changes["key_action"].isin(['缆绳挂妥', '缆绳解除'])]
         status_changes["csvTime"] = status_changes["csvTime"].dt.strftime(
             "%Y-%m-%d %H:%M:%S"
         )
@@ -529,10 +532,11 @@ def get_key_actions(start_time, end_time):
 
     result1 = get_status_changes("A架动作表", "A架")
     result2 = get_status_changes("折臂吊车与小艇动作表", "折臂吊车")
-    result3 = get_status_changes("艏侧推系统DP动作表", "定位系统")
+    result3 = get_status_changes("艏侧推系统DP动作表", "艏推DP")
+    result4 = get_status_changes("A架动作表", "绞车")
 
     results = [
-        result for result in [result1, result2, result3] if "error" not in result
+        result for result in [result1, result2, result3, result4] if "error" not in result
     ]
 
     return {
@@ -1581,7 +1585,8 @@ if __name__ == "__main__":
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","三号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","四号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 09:09:08","2024-08-24 16:03:08","实际发电量","整个柴油发电机组")['result'])
-    print(calculate_energy_consumption('2024-08-23 10:30:08', '2024-08-23 17:57:08', '推进系统'))
+    print(get_key_actions('2024-05-17 19:00:00', '2024-05-17 20:00:00'))
+    # print(calculate_energy_consumption('2024-08-23 10:30:08', '2024-08-23 17:57:08', '推进系统'))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(
