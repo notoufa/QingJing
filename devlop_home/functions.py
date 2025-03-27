@@ -219,7 +219,7 @@ def get_filtered_data(
             )
         else:
             result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
-    if not ignore_too_many and len(filtered_data) > 30:
+    if not ignore_too_many and len(filtered_data) > 100:
         return {
             "error": f"查询数据过多或传参错误，请更改参数后重新调用函数",
             "metadata": metadata,
