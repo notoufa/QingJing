@@ -1312,17 +1312,24 @@ def label_sailing_begin_end(df):
         if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP" and df.loc[i, "docking_status"]=="False" and flag:
             flag = False
             df.loc[i - 1, "escort_status"] = "伴航状态结束"
-        if df.loc[i, "docking_status"]!="False" and sailing_begin_index > sailing_end_index:
-            logger.info(f"航渡状态开始失效")
-            sailing_end_index = i
-            continue
-        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_32"] >= 1000 and df.loc[i, "P3_15"] >= 200 and df.loc[i, "docking_status"]=="False":
-            logger.info(f"找到航渡状态开始的时间：{df.loc[i, 'csvTime']}")
+        # if df.loc[i, "docking_status"]!="False" and sailing_begin_index > sailing_end_index:
+        #     logger.info(f"航渡状态开始失效")
+        #     sailing_end_index = i
+        #     continue
+        # if sailing_begin_index < sailing_end_index and df.loc[i, "P3_32"] >= 1000 and df.loc[i, "P3_15"] >= 200 and df.loc[i, "docking_status"]=="False":
+        #     logger.info(f"找到航渡状态开始的时间：{df.loc[i, 'csvTime']}")
+        #     sailing_begin_index = i
+        #     continue
+        # if sailing_begin_index > sailing_end_index and (df.loc[i, "P3_15"] < 128 or df.loc[i, "P3_32"] < 1000):
+        #     sailing_end_index = i
+        #     logger.info(f"找到航渡状态结束的时间：{df.loc[i, 'csvTime']}")
+        #     df.loc[sailing_begin_index, "voyage_status"] = "航渡状态开始"
+        #     df.loc[sailing_end_index, "voyage_status"] = "航渡状态结束"
+        #     df.loc[sailing_begin_index+1:sailing_end_index-1, "voyage_status"] = "航渡状态中"
+        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_15"] >= 1000:
             sailing_begin_index = i
-            continue
-        if sailing_begin_index > sailing_end_index and (df.loc[i, "P3_15"] < 128 or df.loc[i, "P3_32"] < 1000):
+        if sailing_begin_index > sailing_end_index and df.loc[i, "P3_15"] < 1000:
             sailing_end_index = i
-            logger.info(f"找到航渡状态结束的时间：{df.loc[i, 'csvTime']}")
             df.loc[sailing_begin_index, "voyage_status"] = "航渡状态开始"
             df.loc[sailing_end_index, "voyage_status"] = "航渡状态结束"
             df.loc[sailing_begin_index+1:sailing_end_index-1, "voyage_status"] = "航渡状态中"
@@ -1335,26 +1342,26 @@ def label_sailing_begin_end(df):
         df_merge.loc[escort_indexs[i]+1:escort_indexs[i+1]-1, "escort_status"] = "伴航状态中"    
         i+=2
         
-    hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
-    logger.info(f"航渡状态开始和结束的索引对应的时间：{df.loc[hangdu_indexs, 'csvTime']}")
-    last_end_index = 1
-    for i in range(0,len(hangdu_indexs)-1,2):
-        flag=True
-        if (
-            not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all() 
-            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "stage"].isin(["回收阶段中", "布放阶段中"]).any())
-            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "escort_status"].isin(["伴航状态中"]).any())
-            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "P3_15"] > 1000).sum() < 10  # 计算区间内大于 1000 的数据量
-        ):
-            df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
-            flag=False
-        if flag and hangdu_indexs[i]-last_end_index<10 and i>0 and df_merge.loc[last_end_index,"voyage_status"]!="False":
-            df_merge.loc[last_end_index:hangdu_indexs[i], "voyage_status"] = "航渡状态中"
-        last_end_index=hangdu_indexs[i+1]
-    hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
-    for i in range(0,len(hangdu_indexs)-1,2):
-        if hangdu_indexs[i+1]-hangdu_indexs[i]<15:
-            df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
+    # hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
+    # logger.info(f"航渡状态开始和结束的索引对应的时间：{df.loc[hangdu_indexs, 'csvTime']}")
+    # last_end_index = 1
+    # for i in range(0,len(hangdu_indexs)-1,2):
+    #     flag=True
+    #     if (
+    #         not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all() 
+    #         or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "stage"].isin(["回收阶段中", "布放阶段中"]).any())
+    #         or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "escort_status"].isin(["伴航状态中"]).any())
+    #         or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "P3_15"] > 1000).sum() < 10  # 计算区间内大于 1000 的数据量
+    #     ):
+    #         df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
+    #         flag=False
+    #     if flag and hangdu_indexs[i]-last_end_index<10 and i>0 and df_merge.loc[last_end_index,"voyage_status"]!="False":
+    #         df_merge.loc[last_end_index:hangdu_indexs[i], "voyage_status"] = "航渡状态中"
+    #     last_end_index=hangdu_indexs[i+1]
+    # hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
+    # for i in range(0,len(hangdu_indexs)-1,2):
+    #     if hangdu_indexs[i+1]-hangdu_indexs[i]<15:
+    #         df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
             
 
 
