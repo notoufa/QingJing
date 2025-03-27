@@ -1129,10 +1129,10 @@ def aggregate_saling_stage(start_date: str, end_date: str, stage: str):
             ).total_seconds() / 60)
         result.append(
             {
-                "date": day,
-                "start_times": start_points.get(day, []),
-                "end_times": end_points.get(day, []),
-                "duration": f"{duration}分钟",
+                "日期": day,
+                "开始时间列表": start_points.get(day, []),
+                "结束时间列表": end_points.get(day, []),
+                f"{stage}总时长": f"{duration}分钟",
             }
         )
 
