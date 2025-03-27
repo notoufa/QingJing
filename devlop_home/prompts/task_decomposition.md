@@ -36,6 +36,7 @@
 
 - assumption：问题中的假设条件
 - format_requirement：问题中的格式要求（如时间输出格式要求为 XX:XX）
+  - 若问题的输出结果格式为指定的JSON结构，需要附带该JSON结构
 - contains_time：问题中是否包含时间（true/false）
 - raw_question：不包含假设条件和格式要求的原始问题
 - dependency：原始问题中前后的依赖关系

@@ -191,7 +191,7 @@ def get_summary(
     :param solution: 问题解答
     :return: 问题总结的答案
     """
-    logger.info(f"【开始总结问题{solution.id}的答案】", solution.to_summary_json())
+    logger.info(f"【开始总结问题{solution.id}的答案】", solution.to_summary_str())
     messages = [
         {
             "role": "system",
@@ -199,7 +199,7 @@ def get_summary(
         },
         {
             "role": "user",
-            "content": str(solution.to_summary_json()),
+            "content": str(solution.to_summary_str()),
         },
     ]
     response = get_completion(messages, tools=tools.get_calculate_tools())
