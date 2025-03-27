@@ -938,8 +938,11 @@ def before_or_late_ratio(
         "time_point": time_point,
     }
 
-    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    start_date = f"{start_date} 00:00:00"
+    end_date = f"{end_date} 23:59:59"
+
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
 
     time_point_dt = datetime.strptime(time_point, "%H:%M")
     time_point_dt = time_point_dt.replace(
@@ -973,14 +976,19 @@ def before_or_late_ratio(
     satisfy_count = 0
     total_count = 0
     day_map = {}
-    for res_time in table_data["csvTime"]:
-        res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
-        res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
-        if not day_map.get(res_day):
-            day_map[res_day] = {
+    
+    while current_dt <= end_dt:
+        day_str = current_dt.strftime("%Y-%m-%d")
+        day_map[day_str] = {
                 "performed": True,
                 "filtered": False,
             }
+        current_dt += timedelta(days=1)
+    
+    for res_time in table_data["csvTime"]:
+        res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
+        res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
+
         time_point_dt = time_point_dt.replace(
             year=res_time_dt.year, month=res_time_dt.month, day=res_time_dt.day
         )
