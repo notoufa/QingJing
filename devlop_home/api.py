@@ -513,6 +513,8 @@ def get_table_meta_and_tool(
     tables = res.get("tables", [])
     need_tools = res.get("tools", [])
 
+    if task.question.find("比例") != -1 and "before_or_late_ratio" not in need_tools:
+        need_tools.append("before_or_late_ratio")
     if not decomposition.contains_time and "设备参数详情" not in tables:
         tables.append("设备参数详情")
     if len(need_tools) == 1 and need_tools[0] in [

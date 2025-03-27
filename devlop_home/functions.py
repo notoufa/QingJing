@@ -562,15 +562,12 @@ def get_device_parameter_detail(params: list[str]):
 
     table = Texttable()
     table.set_deco(Texttable.HEADER)
-    table.set_cols_width([10,1000])
-    table.set_cols_align(["c","c"])
-    table.add_row(["参数名称","参数详情"])
+    table.set_cols_width([10, 1000])
+    table.set_cols_align(["c", "c"])
+    table.add_row(["参数名称", "参数详情"])
     for row in details:
-        table.add_row([
-            row["parameter_name_cn"],
-            row["result"]
-        ])
-    logger.debug("\n",table.draw())
+        table.add_row([row["parameter_name_cn"], row["result"]])
+    logger.debug("\n", table.draw())
 
     return {
         "result": details,
@@ -912,29 +909,35 @@ def calculate_power_generation_or_fuel_consumption(
     }
 
 
-def calculate_action_proportion(
-    start_time: str, end_time: str, key_action: str, time_point: str
+def before_or_late_ratio(
+    start_date: str,
+    end_date: str,
+    key_action: str,
+    time_point: str,
+    before_or_late: str,
 ):
     """
-    计算指定时间段内指定动作在指定时间点前发生的比例
+    计算指定时间段内指定动作早于/晚于指定时间点发生的比例
 
-    :param start_time: 时间段的起始时间，格式为 'YYYY-MM-DD HH:MM:SS'
-    :param end_time: 时间段的结束时间，格式为 'YYYY-MM-DD HH:MM:SS'
+    :param start_time: 时间段的起始时间，格式为 'YYYY-MM-DD'
+    :param end_time: 时间段的结束时间，格式为 'YYYY-MM-DD'
     :param action: 需要计算比例的动作名称，如 '起吊'、'入水' 等
     :param time_point: 指定时间点，格式为 'HH:MM'
+    :param before_or_late: 早于或晚于，可选'早于'、'晚于'
 
-    :return: 动作在指定时间点前发生的比例，返回百分比
+    :return: 动作早于/晚于指定时间点发生的比例，返回百分比
     """
     metadata = {
-        "function_name": "calculate_action_proportion",
-        "start_time": start_time,
-        "end_time": end_time,
-        "action": key_action,
+        "function_name": "before_or_late_ratio",
+        "start_date": start_date,
+        "end_date": end_date,
+        "before_or_late": before_or_late,
+        "key_action": key_action,
         "time_point": time_point,
     }
 
-    start_dt = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-    end_dt = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
 
     time_point_dt = datetime.strptime(time_point, "%H:%M")
     time_point_dt = time_point_dt.replace(
@@ -949,14 +952,14 @@ def calculate_action_proportion(
 
     get_data_result = get_filtered_data(
         action_table_configs[key_action],
-        start_time,
-        end_time,
+        start_date,
+        end_date,
         columns=["csvTime"],
         conditions=[{"column": "key_action", "operator": "==", "value": key_action}],
     )
 
     try:
-        logger.info("【calculate_action_proportion中间结果】", get_data_result)
+        logger.info("【before_or_late_ratio中间结果】", get_data_result)
         table_data = get_data_result["result"]
     except:
         return {
@@ -965,7 +968,7 @@ def calculate_action_proportion(
             "metadata": metadata,
         }
 
-    before_count = 0
+    satisfy_count = 0
     total_count = 0
     day_map = {}
     for res_time in table_data["csvTime"]:
@@ -979,22 +982,32 @@ def calculate_action_proportion(
         time_point_dt = time_point_dt.replace(
             year=res_time_dt.year, month=res_time_dt.month, day=res_time_dt.day
         )
-        if res_time_dt < time_point_dt:
+        if before_or_late == "before" and res_time_dt < time_point_dt:
             day_map[res_day] = {
                 "performed": True,
                 "filtered": True,
             }
+        elif before_or_late == "late" and res_time_dt > time_point_dt:
+            day_map[res_day] = {
+                "performed": True,
+                "filtered": True,
+            }
+        elif before_or_late not in ["before", "late"]:
+            return {
+                "error": "before_or_late可选值为'before'、'late'",
+                "metadata": metadata,
+            }
 
     for key in day_map:
         if day_map[key]["filtered"]:
-            before_count += 1
+            satisfy_count += 1
 
     total_count = len(day_map)
 
     if total_count == 0:
-        return 0
-
-    proportion = (before_count / total_count) * 100
+        proportion = 0
+    else:
+        proportion = (satisfy_count / total_count) * 100
     return {
         "result": proportion,
         "unit": "%",
@@ -1573,10 +1586,10 @@ function_map: dict[str, callable] = {
     "sort_only_by_time": sort_only_by_time,
     "calculate_list_length": calculate_list_length,
     "count_deapsea_operations": count_deapsea_operations,
+    "before_or_late_ratio": before_or_late_ratio,
     # 弃用
     "sort_by_datetime": sort_by_datetime,
     "generate_simple_python_code": generate_simple_python_code,
-    "calculate_action_proportion": calculate_action_proportion,
 }
 
 if __name__ == "__main__":

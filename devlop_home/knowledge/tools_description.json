@@ -84,5 +84,11 @@
         "function_name": "count_deapsea_operations",
         "input": "起始时间、结束时间。",
         "output": "在指定时间范围内进行的完整的深海作业次数。"
+    },
+    {
+        "function_name": "before_or_late_ratio",
+        "input": "起始日期、结束日期、指定动作、指定时间点、指定早于/晚于",
+        "output": "指定时间段内指定动作早于/晚于指定时间点发生的比例，返回值为百分比。",
+        "example": "统计2024/8/24在9点前征服者出水的比例"
     }
 ]

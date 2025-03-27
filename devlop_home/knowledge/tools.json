@@ -133,7 +133,7 @@
                     "conditions": {
                         "type": "array",
                         "description": "可选的过滤条件列表，每个条件包含列名、运算符和值。",
-                        "default":[],
+                        "default": [],
                         "items": {
                             "type": "object",
                             "properties": {
@@ -513,18 +513,18 @@
     {
         "type": "function",
         "function": {
-            "name": "calculate_action_proportion",
-            "description": "计算指定时间段内指定动作在指定时间点前发生的比例，返回值为百分比。示例问题：统计2024/8/24在9点前开始作业的比例（%，保留2位小数）",
+            "name": "before_or_late_ratio",
+            "description": "计算指定时间段内指定动作早于/晚于指定时间点发生的比例，返回值为百分比。示例问题：统计2024/8/24在9点前开始作业的比例",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "start_time": {
+                    "start_date": {
                         "type": "string",
-                        "description": "时间段起始时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                        "description": "时间段起始日期，格式为 'YYYY-MM-DD'。"
                     },
-                    "end_time": {
+                    "end_date": {
                         "type": "string",
-                        "description": "时间段结束时间，格式为 'YYYY-MM-DD HH:MM:SS'。"
+                        "description": "时间段结束日期，格式为 'YYYY-MM-DD'。"
                     },
                     "key_action": {
                         "type": "string",
@@ -533,11 +533,19 @@
                     "time_point": {
                         "type": "string",
                         "description": "指定时间点，格式为 'HH:MM'，表示该时间点前的比例。"
+                    },
+                    "before_or_late": {
+                        "type": "string",
+                        "enum": [
+                            "早于",
+                            "晚于"
+                        ],
+                        "description": "指定早于或晚于，可选值为'早于'、'晚于'"
                     }
                 },
                 "required": [
-                    "start_time",
-                    "end_time",
+                    "start_date",
+                    "end_date",
                     "key_action",
                     "time_point"
                 ]
