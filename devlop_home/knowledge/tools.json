@@ -547,7 +547,43 @@
                     "start_date",
                     "end_date",
                     "key_action",
-                    "time_point"
+                    "time_point",
+                    "before_or_late"
+                ]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "aggregate_saling_stage",
+            "description": "计算指定时间段内每天指定航行状态的开始时间、结束时间和时长，支持'停泊状态'、'航渡状态'、'动力定位状态'、'伴航状态'",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "description": "时间段起始日期，格式为 'YYYY-MM-DD'。"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "description": "时间段结束日期，格式为 'YYYY-MM-DD'。"
+                    },
+                    "stage": {
+                        "type": "string",
+                        "enum": [
+                            "停泊状态",
+                            "航渡状态",
+                            "动力定位状态",
+                            "伴航状态"
+                        ],
+                        "description": "需要查询到航行状态，支持'停泊状态'、'航渡状态'、'动力定位状态'、'伴航状态'。"
+                    }
+                },
+                "required": [
+                    "start_date",
+                    "end_date",
+                    "stage"
                 ]
             }
         }

@@ -2,7 +2,7 @@
 
 import json
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 from actions import action_table_configs
 from texttable import Texttable
@@ -47,6 +47,7 @@ def get_filtered_data(
     columns=None,
     conditions_logic: str = "AND",
     conditions: List[Dict[str, str]] = None,
+    ignore_too_many=False,
 ):
     """
     根据数据表名、开始时间、结束时间、列名获取指定时间范围内的相关数据。返回值为包含指定列名和对应值的字典。
@@ -218,12 +219,13 @@ def get_filtered_data(
             )
         else:
             result[column] = filtered_data[column].replace({pd.NA: None}).tolist()
-    if len(filtered_data) > 30:
+    if not ignore_too_many and len(filtered_data) > 30:
         return {
             "error": f"查询数据过多或传参错误，请更改参数后重新调用函数",
             "metadata": metadata,
         }
-    logger.special("\n", get_text_table(result))
+    if not ignore_too_many:
+        logger.special("\n", get_text_table(result))
 
     return {
         "result": result,
@@ -1011,6 +1013,131 @@ def before_or_late_ratio(
     }
 
 
+def aggregate_saling_stage(start_date: str, end_date: str, stage: str):
+    """
+    计算指定时间段内每天指定航行状态的开始时间、结束时间和时长。
+
+    :param start_date: 时间段起始日期，格式为 'YYYY-MM-DD'
+    :param end_date: 时间段结束日期，格式为 'YYYY-MM-DD'
+    :param stage: 查询的航行状态，支持'停泊状态'、'航渡状态'、'动力定位状态'、'伴航状态'
+
+    :return: 每天的开始时间、结束时间和时长信息。
+    """
+    metadata = {
+        "function_name": "aggregate_saling_stage",
+        "start_date": start_date,
+        "end_date": end_date,
+        "stage": stage,
+    }
+
+    start_date = f"{start_date} 00:00:00"
+    end_date = f"{end_date} 23:59:59"
+
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+    current_dt = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+    end_dt = datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
+
+    stage_column_map = {
+        "停泊状态": "docking_status",
+        "航渡状态": "voyage_status",
+        "动力定位状态": "dp_status",
+        "伴航状态": "escort_status",
+    }
+
+    if stage not in stage_column_map:
+        return {
+            "error": f"无效的航行状态: {stage}",
+            "metadata": metadata,
+        }
+
+    get_filtered_data_result = get_filtered_data(
+        "航行状态表",
+        start_date,
+        end_date,
+        columns=["csvTime", stage_column_map[stage]],
+        conditions=[
+            {
+                "column": stage_column_map[stage],
+                "operator": "in",
+                "value": ",".join([f"{stage}开始", f"{stage}中", f"{stage}结束"]),
+            }
+        ],
+        ignore_too_many=True,
+    )
+
+    try:
+        filtered_data = get_filtered_data_result["result"]
+    except:
+        return {
+            "error": "获取数据错误",
+            "detail": get_filtered_data_result,
+            "metadata": metadata,
+        }
+
+    start_points = {}
+    end_points = {}
+
+    while current_dt <= end_dt:
+        day_str = current_dt.strftime("%Y-%m-%d")
+        start_points[day_str] = []
+        end_points[day_str] = []
+        current_dt += timedelta(days=1)
+
+    for index, item in enumerate(filtered_data["csvTime"]):
+        res_time = item
+        res_stage = filtered_data[stage_column_map[stage]][index]
+        res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
+        res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
+
+        if f"{stage}开始" in res_stage:
+            start_points[res_day].append(res_time)
+        elif f"{stage}结束" in res_stage:
+            end_points[res_day].append(res_time)
+
+    result = []
+    for day in start_points.keys():
+        aggregate_data_result = aggregate_data(
+            "航行状态表",
+            f"{day} 00:00:00",
+            f"{day} 23:59:59",
+            stage_column_map[stage],
+            method="count",
+            conditions=[
+                {
+                    "column": stage_column_map[stage],
+                    "operator": "in",
+                    "value": ",".join([f"{stage}开始", f"{stage}中"]),
+                }
+            ],
+        )[f"{stage_column_map[stage]}_count"]
+        if aggregate_data_result > 0:
+            if len(start_points.get(day, [])) == 0:
+                start_points[day].append(f"{day} 00:00:00")
+            if len(end_points.get(day, [])) == 0:
+                end_points[day].append(f"{day} 23:59:59")
+        sorted_start_points = sorted(start_points.get(day, []))
+        sorted_end_points = sorted(end_points.get(day, []))
+        duration=0
+        for start_time, end_time in zip(sorted_start_points, sorted_end_points):
+            duration += round((
+                datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+                - datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+            ).total_seconds() / 60)
+        result.append(
+            {
+                "date": day,
+                "start_times": start_points.get(day, []),
+                "end_times": end_points.get(day, []),
+                "duration": f"{duration}分钟",
+            }
+        )
+
+    return {
+        "result": result,
+        "metadata": metadata,
+    }
+
+
 def perform_math_operations(operation, operands):
     """
     进行数学运算，包括加法、减法、乘法、除法、求和、求绝对值和求平均值。
@@ -1583,22 +1710,28 @@ function_map: dict[str, callable] = {
     "calculate_list_length": calculate_list_length,
     "count_deapsea_operations": count_deapsea_operations,
     "before_or_late_ratio": before_or_late_ratio,
+    "aggregate_saling_stage": aggregate_saling_stage,
     # 弃用
     "sort_by_datetime": sort_by_datetime,
     "generate_simple_python_code": generate_simple_python_code,
 }
 
 if __name__ == "__main__":
+    pass
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","一号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","二号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","三号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-05-17 00:00:00","2024-05-25 00:00:00","理论发电量","四号柴油发电机",diesel_density=0.85,diesel_calorific_value=42.6)['result'])
     # print(calculate_power_generation_or_fuel_consumption("2024-08-24 09:09:08","2024-08-24 16:03:08","实际发电量","整个柴油发电机组")['result'])
-    print(
-        calculate_energy_consumption(
-            "2024-08-23 10:30:08", "2024-08-23 17:57:08", "推进系统"
-        )
-    )
+    # print(
+    #     calculate_energy_consumption(
+    #         "2024-08-23 10:30:08", "2024-08-23 17:57:08", "推进系统"
+    #     )
+    # )
+    # print(aggregate_saling_stage("2024-10-01", "2024-10-08", "航渡状态"))
+    # print(aggregate_saling_stage("2024-10-01", "2024-10-08", "动力定位状态"))
+    # print(aggregate_saling_stage("2024-10-01", "2024-10-08", "停泊状态"))
+    # print(aggregate_saling_stage("2024-10-01", "2024-10-08", "伴航状态"))
     # print(sort_only_by_time(['2024-08-17 09:38:27', '2024-08-18 09:08:27', '2024-08-19 08:54:27', '2024-08-20 06:25:09', '2024-08-21 08:51:09', '2024-08-22 00:00:09', '2024-08-23 10:30:08', '2024-08-24 09:09:08'], 'asc', 'AND', [{'operator': '<', 'value': '14:00:00'}] ))
     # print(
     #     aggregate_data(
