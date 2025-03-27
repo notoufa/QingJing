@@ -497,6 +497,7 @@ def find_qidiao_value(data):
     for i in range(len(tmp)):
         if tmp.iloc[i] < 75:
             return tmp[i]
+    return tmp.iloc[-1]
 
 
 def find_stable_value(data1, data2, peak1, peak2):
@@ -1229,13 +1230,24 @@ df_merge = (
     .merge(df_Dp, on="csvTime", how="left")
     .merge(df_2tui, on="csvTime", how="left")
 )
-df_merge["cruise_stage"] = np.where(
-    df_merge["key_action"] == "ON DP", "动力定位状态开始", ""
+df_merge["docking_status"] = "False"
+df_merge["voyage_status"] = "False"
+df_merge["escort_status"] = "False"
+df_merge["dp_status"] = "False"
+df_merge["dp_status"] = np.where(
+    df_merge["key_action"] == "ON DP", "动力定位状态开始", "False"
 )
-df_merge["cruise_stage"] = np.where(
-    df_merge["key_action"] == "OFF DP", "动力定位状态结束", df_merge["cruise_stage"]
+df_merge["dp_status"] = np.where(
+    df_merge["key_action"] == "OFF DP", "动力定位状态结束", df_merge["dp_status"]
 )
-
+dp_indexs=df_merge[df_merge["dp_status"].isin(["动力定位状态开始", "动力定位状态结束"])].index
+i = 0
+while i < len(dp_indexs) - 1:
+    if df_merge.loc[dp_indexs[i], "dp_status"]=="动力定位状态结束" or df_merge.loc[dp_indexs[i+1], "dp_status"]=="动力定位状态开始":
+        i+=1
+        continue
+    df_merge.loc[dp_indexs[i]+1:dp_indexs[i+1]-1, "dp_status"] = "动力定位状态中"
+    i+=2
 
 # 找到下一个P3_32为0的点
 def find_next_zero(df, index):
@@ -1262,36 +1274,88 @@ for i in range(len(df)):
         first_index = i
         break
 second_index = find_next_nonzero(df_merge, first_index + 1) - 1
-df_merge.loc[first_index, "cruise_stage"] = "停泊状态开始"
-df_merge.loc[second_index, "cruise_stage"] = "停泊状态结束"
+df_merge.loc[first_index, "docking_status"] = "停泊状态开始"
+df_merge.loc[second_index, "docking_status"] = "停泊状态结束"
+df_merge.loc[first_index+1:second_index-1, "docking_status"] = "停泊状态中"
 while 1:
     first_index = find_next_zero(df_merge, second_index + 1)
     if first_index == len(df_merge):
         break
     if first_index - second_index < 120:
-        df_merge.loc[second_index, "cruise_stage"] = ""
+        df_merge.loc[second_index, "docking_status"] = "False"
     else:
-        df_merge.loc[first_index, "cruise_stage"] = "停泊状态开始"
+        df_merge.loc[first_index, "docking_status"] = "停泊状态开始"
     second_index = find_next_nonzero(df_merge, first_index + 1) - 1
     if second_index == len(df_merge) - 1:
         break
-    df_merge.loc[second_index, "cruise_stage"] = "停泊状态结束"
+    df_merge.loc[second_index, "docking_status"] = "停泊状态结束"
+    
+stop_indexs=df_merge[df_merge["docking_status"].isin(["停泊状态开始", "停泊状态结束"])].index
+i=0
+while i < len(stop_indexs) - 1:
+    if df_merge.loc[stop_indexs[i], "docking_status"]=="停泊状态结束" or df_merge.loc[stop_indexs[i+1], "docking_status"]=="停泊状态开始":
+        i+=1
+        continue
+    df_merge.loc[stop_indexs[i]+1:stop_indexs[i+1]-1, "docking_status"] = "停泊状态中"
+    i+=2
+    
 
 
 def label_sailing_begin_end(df):
     sailing_begin_index = -1
     sailing_end_index = 0
+    flag = False
     for i in range(1, df.shape[0]):
-        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_15"] >= 1000:
-            sailing_begin_index = i
-        if sailing_begin_index > sailing_end_index and df.loc[i, "P3_15"] < 1000:
+        if df.loc[i, "stage"] == "布放阶段中" and df.loc[i, "key_action"] == "OFF DP" and df.loc[i, "docking_status"]=="False":
+            df.loc[i, "escort_status"] = "伴航状态开始"
+            flag = True
+        if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP" and df.loc[i, "docking_status"]=="False" and flag:
+            flag = False
+            df.loc[i - 1, "escort_status"] = "伴航状态结束"
+        if df.loc[i, "docking_status"]!="False" and sailing_begin_index > sailing_end_index:
+            logger.info(f"航渡状态开始失效")
             sailing_end_index = i
-            df.loc[sailing_begin_index, "cruise_stage"] = "航渡状态开始"
-            df.loc[sailing_end_index, "cruise_stage"] = "航渡状态结束"
-        if df.loc[i, "stage"] == "布放阶段中" and df.loc[i, "key_action"] == "OFF DP":
-            df.loc[i, "cruise_stage"] = "伴航状态开始"
-        if df.loc[i, "stage"] == "回收阶段中" and df.loc[i, "key_action"] == "ON DP":
-            df.loc[i - 1, "cruise_stage"] = "伴航状态结束"
+            continue
+        if sailing_begin_index < sailing_end_index and df.loc[i, "P3_32"] >= 1000 and df.loc[i, "P3_15"] >= 200 and df.loc[i, "docking_status"]=="False":
+            logger.info(f"找到航渡状态开始的时间：{df.loc[i, 'csvTime']}")
+            sailing_begin_index = i
+            continue
+        if sailing_begin_index > sailing_end_index and (df.loc[i, "P3_15"] < 128 or df.loc[i, "P3_32"] < 1000):
+            sailing_end_index = i
+            logger.info(f"找到航渡状态结束的时间：{df.loc[i, 'csvTime']}")
+            df.loc[sailing_begin_index, "voyage_status"] = "航渡状态开始"
+            df.loc[sailing_end_index, "voyage_status"] = "航渡状态结束"
+            df.loc[sailing_begin_index+1:sailing_end_index-1, "voyage_status"] = "航渡状态中"
+    escort_indexs=df_merge[df_merge["escort_status"].isin(["伴航状态开始", "伴航状态结束"])].index
+    i=0
+    while i < len(escort_indexs) - 1:
+        if df_merge.loc[escort_indexs[i], "escort_status"]=="伴航状态结束" or df_merge.loc[escort_indexs[i+1], "escort_status"]=="伴航状态开始":
+            i+=1
+            continue
+        df_merge.loc[escort_indexs[i]+1:escort_indexs[i+1]-1, "escort_status"] = "伴航状态中"    
+        i+=2
+        
+    hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
+    logger.info(f"航渡状态开始和结束的索引对应的时间：{df.loc[hangdu_indexs, 'csvTime']}")
+    last_end_index = 1
+    for i in range(0,len(hangdu_indexs)-1,2):
+        flag=True
+        if (
+            not (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1]-1, "P3_15"] >= 128).all() 
+            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "stage"].isin(["回收阶段中", "布放阶段中"]).any())
+            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "escort_status"].isin(["伴航状态中"]).any())
+            or (df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "P3_15"] > 1000).sum() < 10  # 计算区间内大于 1000 的数据量
+        ):
+            df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
+            flag=False
+        if flag and hangdu_indexs[i]-last_end_index<10 and i>0 and df_merge.loc[last_end_index,"voyage_status"]!="False":
+            df_merge.loc[last_end_index:hangdu_indexs[i], "voyage_status"] = "航渡状态中"
+        last_end_index=hangdu_indexs[i+1]
+    hangdu_indexs=df_merge[df_merge["voyage_status"].isin(["航渡状态开始", "航渡状态结束"])].index
+    for i in range(0,len(hangdu_indexs)-1,2):
+        if hangdu_indexs[i+1]-hangdu_indexs[i]<15:
+            df_merge.loc[hangdu_indexs[i]:hangdu_indexs[i+1], "voyage_status"] = "False"
+            
 
 
 logger.special("开始标注航渡状态和伴航状态")
