@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 import json
 
 input_file = "submits/2025-02-20-第1次-84.9.jsonl"

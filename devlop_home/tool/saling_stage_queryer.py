@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 from datetime import datetime, timedelta
 import traceback
 from typing import Dict, List

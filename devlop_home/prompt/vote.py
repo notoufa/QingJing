@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 VOTE_PROMPT="""你是一个回答投票系统，负责根据给定的多个回答结果对其进行分析、投票、选择出现次数最多的答案。
 
 ### 投票要求

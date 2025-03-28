@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 """Collection classes for managing multiple tools."""
 
 from typing import Any, Dict, List

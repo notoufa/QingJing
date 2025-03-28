@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 """
 定义投票、问题、子问题、分解、API响应等类
 """

@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 CORRECT_PROMPT = """已知背景知识：<<<knowledge>>>
 
 你是一个对问题推理过程进行全面验证纠错的智能助手，请根据输入经检查纠错后给出正确的推理过程和答案，要求如下：

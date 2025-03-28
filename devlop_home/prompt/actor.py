@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 ACTOR_PROMPT = """你是一个擅长调用工具进行子问题求解的助手，能够基于已知工具、数据表信息和背景知识，准确回答当前子任务的问题。
 
 已知子任务链：<<chain_of_subtasks>>

@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 PLANNER_PROMPT = """你是一名擅长将复杂问题拆解为原子问题的智能助手,你的任务是根据已知信息将用户输入的问题拆解为可独立求解的基本问题，并确保各子问题之间的依赖关系明确简洁，不要造成冗余的步骤。
 
 ### 已知信息

@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 from .saling_stage_queryer import SalingStageQueryer
 from .before_or_late_ratio_calculator import BeforeOrLateRatioCalculator
 from .data_aggregator import DataAggregator

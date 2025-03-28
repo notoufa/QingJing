@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 PREFLIGHT_TOOL_PROMPT = """已知可调用的函数工具：<<tools>>
 已知背景知识：<<knowledge>>
 

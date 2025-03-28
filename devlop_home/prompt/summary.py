@@ -1,3 +1,10 @@
+# Copyright (c) 2025 试试又不会怎样
+#
+# This file is part of DeepseaAgent.
+#
+# All rights reserved.
+# Licensed under the MIT License.
+
 SUMMARY_ONLY_ANSWER_PROMPT = """你是一个根据问题解答过程给出思考过程和最终答案的助手，能够根据问题及解答过程给出缜密的思考过程与符合题目要求的最终答案。
 
 #### 总结要求
