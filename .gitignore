@@ -5,3 +5,4 @@ devlop_data/tmp/**
 devlop_home/tests/**
 devlop_home/复赛数据/**
 .history/**
+**/**.pyc
