@@ -6,22 +6,20 @@
 
 import os
 import pandas as pd
-from collections import defaultdict
+import numpy as np
 from datetime import datetime
 import json
 import logger
 import traceback
-import shutil
-from itertools import dropwhile
 
-table_name_map = {
-    "Ajia_plc_1.csv": "A架动作表.csv",
-    "device_13_11_meter_1311.csv": "折臂吊车与小艇动作表.csv",
-    "Port3_ksbg_9.csv": "艏侧推系统DP动作表.csv",
-}
+config_file = "devlop_home/config.json"
 
-data_path = "devlop_home/复赛b榜数据/"
-output_path = "devlop_home/data"
+with open(config_file, "r", encoding="utf-8") as file:
+    config = json.load(file)["data_config"]
+
+table_name_map = config["file_mapping"]
+data_path = config["input_data_path"]
+output_path = config["output_data_path"]
 
 os.makedirs(output_path, exist_ok=True)
 logger.init()
@@ -35,6 +33,7 @@ current_status_field = "current_status"
 no_current_status_flag = "False"
 running_flag = "开机运行中"
 not_running_flag = "未运行"
+sailing_stage_table_name = "航行状态表"
 
 
 # In[ ]:
@@ -351,6 +350,8 @@ HUISHOU = """你是一个严谨且细心的数据分析助手，请根据给定�
 现有一组新的电流变化序列数据：  
 <<L>>  
 请根据上述规则，返回符合要求的三个值，答案仅包含列表格式。"""
+
+
 def limit_consecutive_zeros(lst, max_zeros=10):
     result = []
     zero_count = 0
@@ -366,11 +367,13 @@ def limit_consecutive_zeros(lst, max_zeros=10):
 
     return result
 
+
 def predict_sequence_by_llm(L_sequence, is_xiafang: bool):
-    from api import get_completion
-    from utils import parse_res,load_api_config
-    load_api_config('GLM')
-    L_sequence=str(limit_consecutive_zeros(L_sequence))
+    from llm import LLM
+    from utils import parse_res, load_api_config
+
+    load_api_config("GLM")
+    L_sequence = str(limit_consecutive_zeros(L_sequence))
     # with open(prompt_ajia_judge_file, "r", encoding="utf-8") as file:
     #     ajia_judge = file.read()
 
@@ -381,7 +384,7 @@ def predict_sequence_by_llm(L_sequence, is_xiafang: bool):
 
     prompt = ajia_judge.replace("<<L>>", L_sequence)
     messages = [{"role": "user", "content": prompt}]
-    response = get_completion(messages)
+    response = LLM().ask(messages)
     res = parse_res(response)
     logger.info("【LLM返回】：%s" % res)
     return res
@@ -1201,11 +1204,9 @@ logger.success("【处理折臂吊车】保存数据完成")
 
 
 # 判断标注4个巡航阶段
-import numpy as np
-
 logger.special("开始标注航行状态")
 
-output_filename = "航行状态表.csv"
+output_filename = f"{sailing_stage_table_name}.csv"
 
 file1 = "A架动作表.csv"
 file2 = "艏侧推系统DP动作表.csv"

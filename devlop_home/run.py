@@ -1,21 +1,18 @@
 import json
 import concurrent.futures as cf
 import os
-import traceback
-import api
 import time
 import argparse
-from solution import VoteResult
+from schema import VoteResult
 import logger
 import utils
-import tools
+from agent.start import process_one
 
 submit_dir = "devlop_output/results"
 solution_dir = "devlop_output/solutions"
 
 test_input_path = "devlop_data/questions/test.jsonl"
 production_input_path = "devlop_data/questions/rematch_A.jsonl"
-replace_filepath = "devlop_home/knowledge/replace.json"
 
 
 def parse_args():
@@ -48,43 +45,11 @@ def parse_args():
     return args
 
 
-def handle_question(query):
-    """
-    预处理问题
-    """
-    with open(replace_filepath, "r", encoding="utf-8") as f:
-        replace_dict = json.load(f)
-    for key, value in replace_dict.items():
-        query = query.replace(key, value)
-    return query
-
-
-def process_one(line: dict) -> VoteResult | dict:
-    """
-    获取一个问题的解决过程及答案
-    """
-    id = line["id"]
-    question = handle_question(line["question"])
-    try:
-        logger.info(f"【开始获取问题{id}的答案】", question)
-        vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
-        logger.special(
-            f"【{id}的最终答案】:\n",
-            vote_res.final_answer.get_correct_answer(),
-            sep="",
-        )
-        return vote_res
-    except Exception as e:
-        logger.error(f"【获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}")
-        return {"id": id, "question": question, "answer": str(e)}
-
-
 def init():
     """
     初始化
     """
     logger.init()
-    tools.load_tools()
     utils.load_module_config()
     os.makedirs(submit_dir, exist_ok=True)
     os.makedirs(solution_dir, exist_ok=True)
@@ -108,7 +73,6 @@ def main():
 
     logger.debug(
         f"【运行模式】: {'测试' if is_test else '生产'},",
-        f"【API 配置】: {utils.api_config.config_name},",
         f"【问题总数】: {len(question_list)},",
         f"【投票次数】: {utils.module_config.vote_times},",
         f"【问题并发线程数】: {max_workers_main},",

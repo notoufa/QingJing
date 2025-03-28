@@ -13,8 +13,8 @@
   - jupyter_client : 8.6.3
   - jupyter_core : 5.7.2
   - traitlets : 5.14.3
-- 安装依赖：`pip install -r requirements.txt`
-- 数据集：将数据集放置在`devlop_data/assets/复赛数据`文件夹下
+- 安装依赖：`pip install -r devlop_home/requirements.txt`
+- 数据集：将数据集放置在`devlop_home/复赛b榜数据`文件夹下
 - 环境变量：设置 GLM 的 API KEY，环境变量名为`ZHIPUAI_API_KEY`
 
 ### 二、运行代码
@@ -29,32 +29,70 @@
 
 1. 生成`devlop_home/data_process.py`文件：`jupyter nbconvert --to script devlop_home/data_process.ipynb`
 2. 运行`devlop_home/data_process.py`文件，预处理数据集至`data`文件夹：`python devlop_home/data_process.py`
-3. 运行`devlop_home/main.py`文件，依次回答问题，得到结果：`python devlop_home/main.py -p`
-   - 可以修改相关配置，查看`config.json`文件
+3. 运行`devlop_home/main.py`文件，依次回答问题，得到结果：`python devlop_home/main.py .\devlop_data\input_param.json`
+   - 可以修改相关配置，查看`devlop_home/config.json`文件
 
 #### 三、目录结构
 
 ```plaintext
-devlop_home目录
-├── data/               预处理后的数据集(运行代码后才有)
-├── knowledge/          外部知识、表格元信息、函数调用的定义
-├── prompts/            提示词
-├── questions/          问题数据
-├── results/            运行结果(运行代码后才有)
-├── solutions/          运行结果对应的解决方案(运行代码后才有)
-├── submits/            最终提交结果(运行代码后才有)
-├── tools/              工具代码
-|
-├── actions.py          设备关键动作对应的表、字段和判断规则
-├── api.py              与GLM的API交互，获得问题答案
-├── data_process.ipynb  数据预处理与标注
-├── data_process.py     数据预处理与标注(运行命令行后才有)
-├── functions.py        函数调用的实现
-├── logger.py           日志模块
-├── main.py             主程序
-├── prompts.py          提示词处理
-├── solution.py         相关数据Model
-├── tools.py            函数调用的定义
-├── utils.py            工具函数
-├── run.bat             运行脚本
+devlop_home目录结构
+│  config.json            # 配置文件
+│  data_process.ipynb     # 数据预处理 Jupyter Notebook
+│  data_process.py        # 数据预处理 Python 文件
+│  knowledge.py           # 知识库管理
+│  llm.py                 # LLM API管理
+│  logger.py              # 日志
+│  main.py                # 主函数
+│  requirements.txt       # Python依赖
+│  run.py                 # 主函数（本地调试）
+│  schema.py              # Model定义
+│  utils.py               # 工具
+│
+├─agent                   # Agent池
+│  │  actor.py            # ActorAgent
+│  │  base.py             # BaseAgent
+│  │  critic.py           # CriticAgent
+│  │  planner.py          # PlannerAgent
+│  │  start.py            # 单个问题处理入口
+│  └─ __init__.py
+│
+│
+├─knowledge               # 知识库
+│  │  knowledge.json      # 基于交互轨迹生成的经验知识
+│  └─ table_meta.json     # 数据表结构
+│
+├─manual
+│  │  actions.json        # LLM标注的关键动作
+│  └─ stages.json         # LLM标注的关键阶段
+│
+├─prompt                  # Prompt
+│  │  actor.py            # ActorAgent相关指令
+│  │  critic.py           # CriticAgent相关指令
+│  │  planner.py          # PlannerAgent相关指令
+│  │  preflight.py        # 预检请求相关指令
+│  │  summary.py          # 总结相关指令
+│  │  vote.py             # 投票相关指令
+│  └─ __init__.py
+│
+├─tool                                    # 工具池
+│  │  base.py                             # BaseTool
+│  │  before_or_late_ratio_calculator.py
+│  │  data_aggregator.py
+│  │  data_filter.py
+│  │  deepsea_operation_counter.py
+│  │  device_param_detail_queryer.py
+│  │  duration_calculator.py
+│  │  energy_usage_calculator.py
+│  │  key_action_retriever.py
+│  │  math_calculator.py
+│  │  power_fuel_calculator.py
+│  │  python_code_generator.py
+│  │  saling_stage_queryer.py
+│  │  time_converter.py
+│  │  time_sorter.py
+│  │  tool_collection.py                  # 工具集合
+│  │  tool_pool.py                        # 工具池
+│  └─ __init__.py
+│
+└─ data、复赛b榜数据                        # 预处理后数据
 ```

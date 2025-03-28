@@ -2,10 +2,11 @@
 
 import json
 import numpy as np
+import pandas as pd
 import logger
 import traceback
-import os
-from solution import ApiConfig, ModuleConfig
+from schema import ApiConfig, ModuleConfig
+from texttable import Texttable
 
 config_file = "devlop_home/config.json"
 font_file = "devlop_home/msyh.ttf"
@@ -36,32 +37,6 @@ def load_module_config() -> ModuleConfig:
         data = json.load(file)
     module_config = ModuleConfig.from_dict(data["module_config"])
     return module_config
-
-
-def check_api_key(api_key_env: str) -> str:
-    """
-    检查API_KEY是否设定
-    """
-    api_key = os.getenv(api_key_env)
-    if not api_key:
-        raise RuntimeError(
-            f"{api_key_env} is not set. Please set the environment variable."
-        )
-    return api_key
-
-
-def check_base_url(base_url_env: str = "BASE_HOST") -> str:
-    """
-    检查BASE_HOST是否设定
-    """
-    base_url = os.getenv(base_url_env)
-    if not base_url:
-        logger.warning(
-            f"{base_url_env} is not set. Please set the environment variable."
-        )
-        return None
-    else:
-        return f"{base_url}/api/paas/v4/"
 
 
 def strtify(obj):
@@ -109,7 +84,7 @@ def try_run(func, *args, max_retries=3, **kwargs):
         if not res:
             attempts += 1
             logger.error(
-                f"第 {attempts} 次执行 {func.__name__} 出错，错误堆栈：\n{traceback.format_exc()}"
+                f"第 {attempts} 次执行 {func.__name__} 出错，\n{traceback.format_exc()}"
             )
         else:
             return res
@@ -156,62 +131,122 @@ def save_solutions(vote_results, result_path: str):
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(
             json.dumps(
-                [
-                    vote_res.to_dict(module_config.enable_export_api_response)
-                    for vote_res in vote_results
-                ],
+                [vote_res.to_dict() for vote_res in vote_results],
                 ensure_ascii=False,
                 default=custom_serializer,
             )
         )
 
 
-def get_completion(messages: list[dict], tools: list[dict] = []):
+def get_table_meta(table_meta_filepath, table_name, columns):
     """
-    获得对话结果
+    根据数据表名和列名，获取数据表中指定列的元信息。
 
-    :param messages: 对话消息
-    :param tools: 工具
-    :param model: 模型
-    :return: 对话结果
+    :param table_name (str): 数据表名
+    :param columns (list): 需要查询的列名列表
+
+    :return dict: 包含列名和对应元信息的字典，或错误信息
     """
-    model = api_config.model
-    temperature = api_config.temperature
-    stream = api_config.stream
+
+    with open(table_meta_filepath, "r", encoding="utf-8") as file:
+        raw_table_data = json.load(file)
+
+    table_meta = None
+
+    for table in raw_table_data:
+        if table["table_name"] == table_name:
+            table_meta = table
+
+    if table_meta is None:
+        return {
+            "error": f"数据表 {table_name} 的元信息不存在",
+        }
+
+    column_desc = {}
+    for column in columns:
+        for tmp in table_meta["columns"]:
+            if tmp["name"] == column:
+                column_desc[column] = tmp["desc"]
+
+    return column_desc
+
+
+def render_text_table(result: dict) -> str:
+    """
+    渲染数据表格
+
+    :param result (dict): 数据字典
+
+    :return str: 返回数据表格
+    """
+    if not result:
+        return
+
+    table = Texttable()
+    table.set_deco(Texttable.HEADER)
+
+    column_widths = [
+        10 if header not in ["csvTime", "current_status"] else 20
+        for header in result.keys()
+    ]
+    table.set_cols_width(column_widths)
+
+    table.set_cols_align(["c" for _ in result.keys()])
+
+    headers = list(result.keys())
+    table.add_row(headers)
+
+    rows = zip(*[result[col] for col in headers])
+    for row in rows:
+        table.add_row(row)
+
+    return table.draw()
+
+
+def load_and_filter_data(
+    file_path, start_time, end_time, power_column
+) -> tuple[pd.DataFrame | str]:
+    """
+    加载 CSV 文件并筛选指定时间范围内的数据
+
+    :param file_path (str): CSV 文件路径
+    :param start_time (str): 开始时间
+    :param end_time (str): 结束时间
+    :param power_column (str): 功率列名
+
+    :return DataFrame|str: 筛选后的 DataFrame | 错误
+    """
     try:
-        if api_config.type.upper() == "OPENAI":
-            from openai import OpenAI
-
-            if not api_config.base_url:
-                raise RuntimeError("通用OpenAI接口配置 需要 base_url 参数")
-            client = OpenAI(
-                base_url=api_config.base_url,
-                api_key=check_api_key(api_config.api_key_env),
-            )
-        elif api_config.type.upper() == "ZHIPUAI":
-            from zhipuai import ZhipuAI
-
-            client = ZhipuAI(
-                base_url=check_base_url(),
-                api_key=check_api_key(api_config.api_key_env),
-            )
-
-        logger.trace("【请求回答】", str(messages), "【工具】", str(tools))
-
-        response = client.chat.completions.create(
-            model=model,
-            stream=stream,
-            messages=messages,
-            tools=tools,
-            temperature=temperature,
-        )
-
-        logger.trace("【回答结果】", str(response))
-
-        if response.choices[0].finish_reason == "length":
-            logger.warning("【回答长度过长】")
-
-        return response
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        return f"文件 {file_path} 未找到"
+    try:
+        df["csvTime"] = pd.to_datetime(df["csvTime"])
     except Exception as e:
-        logger.error(f"【请求回答出错】: {e}\n{traceback.format_exc()}")
-        raise e
+        return f"时间列转换失败: {e}"
+
+    if isinstance(start_time, str):
+        start_time_dt = pd.to_datetime(start_time)
+    if isinstance(end_time, str):
+        end_time_dt = pd.to_datetime(end_time)
+
+    filtered_data = df[
+        (df["csvTime"] >= start_time_dt) & (df["csvTime"] <= end_time_dt)
+    ].copy()
+
+    if filtered_data.empty:
+        return "筛选数据为空"
+
+    filtered_data.loc[:, "diff_seconds"] = (
+        filtered_data["csvTime"].diff().dt.total_seconds().shift(-1)
+    )
+
+    # filtered_data.loc[filtered_data.index[-1], "diff_seconds"] = (
+    #     (end_time_dt - pd.to_datetime(filtered_data.iloc[-1]["csvTime"])).total_seconds()
+    # )
+
+    filtered_data.loc[:, "energy_kWh"] = (
+        filtered_data["diff_seconds"] * filtered_data[power_column] / 3600
+    )
+
+    return filtered_data

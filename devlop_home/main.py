@@ -3,68 +3,21 @@ import concurrent.futures as cf
 import os
 import sys
 import traceback
-import api
 import time
-from solution import VoteResult
+from schema import VoteResult
 import logger
 import utils
-import tools
+from agent.start import process_one
 
 result_dir = "devlop_output/results"
 solution_dir = "devlop_output/solutions"
 answer_filepath = "devlop_home/test.jsonl"
-replace_filepath = "devlop_home/knowledge/replace.json"
-
-
-def handle_question(query):
-    """
-    预处理问题
-    """
-    with open(replace_filepath, "r", encoding="utf-8") as f:
-        replace_dict = json.load(f)
-    for key, value in replace_dict.items():
-        query = query.replace(key, value)
-    return query
-
-
-def process_one(line: dict) -> VoteResult | dict:
-    """
-    获取一个问题的解决过程及答案
-    """
-    id = line["id"]
-    int_id = int(id.split("_")[-1])
-    question = handle_question(line["question"])
-
-    # with open(answer_filepath, "r", encoding="utf-8") as f:
-    #     answer_list = [json.loads(line.strip()) for line in f]
-    # answer = None
-    # for item in answer_list:
-    #     if item["id"] == id:
-    #         answer = item["answer"]
-    #         return {"id": id, "question": question, "answer": answer}
-
-    # if int_id not in range(51, 76):
-    #     return {"id": id, "question": question, "answer": ""}
-
-    try:
-        logger.info(f"【开始获取问题{id}的答案】", question)
-        vote_res = api.vote(id, question, utils.module_config.vote_times).clone()
-        vote_res.init_question = line["question"]
-        logger.special(
-            f"【{id}的最终答案】:\n",
-            vote_res.final_answer.get_correct_answer(),
-        )
-        return vote_res
-    except Exception as e:
-        logger.error(f"【获取问题{id}的答案出错】错误堆栈：\n{traceback.format_exc()}")
-        return {"id": id, "question": line["question"], "answer": str(e)}
 
 
 def load_params():
     """
     加载参数
     """
-    tools.load_tools()
     utils.load_api_config()
     utils.load_module_config()
 

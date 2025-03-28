@@ -8,7 +8,6 @@ echo "数据解压完成"
 cd /app/
 echo "开始执行数据处理"
 python3 /app/devlop_home/data_process.py
-# sleep 15
 
 echo "数据处理完成"
 
