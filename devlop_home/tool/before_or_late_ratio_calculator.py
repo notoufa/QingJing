@@ -140,10 +140,13 @@ class BeforeOrLateRatioCalculator(BaseTool):
 
         :return ToolResult: 动作早于/晚于指定时间点发生的比例，返回百分比
         """
+        
+
         start_date = f"{start_date} 00:00:00"
         end_date = f"{end_date} 23:59:59"
 
         start_dt = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+        current_dt = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
         end_dt = datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
 
         time_point_dt = datetime.strptime(time_point, "%H:%M")
@@ -152,38 +155,39 @@ class BeforeOrLateRatioCalculator(BaseTool):
         )
 
         if key_action not in action_table_configs.keys():
-            return ToolFailure(error=f"动作 {key_action} 不存在")
+            return {
+                "error": f"动作 {key_action} 不存在",
+            }
 
-        get_data_result = DataFilter().execute(
+        get_data_result = DataFilter.execute(
             action_table_configs[key_action],
             start_date,
             end_date,
             columns=["csvTime"],
-            conditions=[
-                {"column": "key_action", "operator": "==", "value": key_action}
-            ],
+            conditions=[{"column": "key_action", "operator": "==", "value": key_action}],
         )
 
         try:
-            logger.info(
-                "【before_or_late_ratio_calculator中间结果】", get_data_result.output
-            )
-            table_data = get_data_result.output["result"]
+            logger.info("【before_or_late_ratio中间结果】", get_data_result)
+            table_data = get_data_result["result"]
         except:
-            return ToolFailure(error=f"获取数据失败：{get_data_result.error}")
+            return {
+                "result": 0,
+                "unit": "%",
+            }
 
         satisfy_count = 0
         total_count = 0
         day_map = {}
-
+        
         while current_dt <= end_dt:
             day_str = current_dt.strftime("%Y-%m-%d")
             day_map[day_str] = {
-                "performed": True,
-                "filtered": False,
-            }
+                    "performed": True,
+                    "filtered": False,
+                }
             current_dt += timedelta(days=1)
-
+        
         for res_time in table_data["csvTime"]:
             res_time_dt = datetime.strptime(res_time, "%Y-%m-%d %H:%M:%S")
             res_day = datetime.strftime(res_time_dt, "%Y-%m-%d")
@@ -191,18 +195,20 @@ class BeforeOrLateRatioCalculator(BaseTool):
             time_point_dt = time_point_dt.replace(
                 year=res_time_dt.year, month=res_time_dt.month, day=res_time_dt.day
             )
-            if before_or_late == "before" and res_time_dt < time_point_dt:
+            if before_or_late == "早于" and res_time_dt < time_point_dt:
                 day_map[res_day] = {
                     "performed": True,
                     "filtered": True,
                 }
-            elif before_or_late == "late" and res_time_dt > time_point_dt:
+            elif before_or_late == "晚于" and res_time_dt > time_point_dt:
                 day_map[res_day] = {
                     "performed": True,
                     "filtered": True,
                 }
-            elif before_or_late not in ["before", "late"]:
-                return ToolFailure(error="before_or_late可选值为'before'、'late'")
+            elif before_or_late not in ["早于", "晚于"]:
+                return {
+                    "error": "before_or_late可选值为'早于'、'晚于'",
+                }
 
         for key in day_map:
             if day_map[key]["filtered"]:
@@ -214,10 +220,8 @@ class BeforeOrLateRatioCalculator(BaseTool):
             proportion = 0
         else:
             proportion = (satisfy_count / total_count) * 100
-
-        return ToolResult(
-            output={
-                "result": proportion,
-                "unit": "%",
-            },
-        )
+        return {
+            "result": proportion,
+            "unit": "%"
+        }
+       
