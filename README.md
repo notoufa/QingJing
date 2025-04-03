@@ -1,10 +1,21 @@
 # 清竞
 
+### 一、团队信息
+
 - 赛事名称：GLM 深远海船舶作业大模型应用赛
 - 队伍编号：5ed89b27e7b84c47b6196611d6f20753
 - 队伍名称：试试又不会怎样
+- 团队成员：刘泉昕（队长）、徐瑞达、钟健维
 
-### 一、环境准备
+### 二、项目介绍及框架图
+
+#### 2.1 项目介绍
+
+#### 2.2 框架图
+
+### 三、环境准备
+
+#### 3.1 环境要求
 
 - Python 版本：3.11.11
 - Jupter 版本：
@@ -13,26 +24,57 @@
   - jupyter_client : 8.6.3
   - jupyter_core : 5.7.2
   - traitlets : 5.14.3
-- 安装依赖：`pip install -r devlop_home/requirements.txt`
-- 数据集：将数据集放置在`devlop_home/复赛b榜数据`文件夹下
+
+#### 3.2 安装依赖
+
+- 安装 Python 相关依赖：
+  ```sh
+  pip install -r devlop_home/requirements.txt
+  ```
 - 环境变量：设置 GLM 的 API KEY，环境变量名为`ZHIPUAI_API_KEY`
+  - Linux/MacOS
+  ```bash
+  export ZHIPUAI_API_KEY=your_api_key
+  echo $ZHIPUAI_API_KEY
+  ```
+  - Windows
+  ```cmd
+  set ZHIPUAI_API_KEY=your_api_key
+  echo %ZHIPUAI_API_KEY%
+  ```
+- 数据集：将数据集放置在`devlop_home/复赛b榜数据`文件夹下
 
-### 二、运行代码
+### 四、运行
 
-任选 1 种方式运行代码：
-
-#### 2.1 批处理脚本
+#### 4.1 批处理脚本（推荐）
 
 - 运行`run.bat`，将自动完成数据预处理、问题回答、结果输出等操作
 
-#### 2.2 手动运行
+#### 4.2 手动运行
 
-1. 生成`devlop_home/data_process.py`文件：`jupyter nbconvert --to script devlop_home/data_process.ipynb`
-2. 运行`devlop_home/data_process.py`文件，预处理数据集至`data`文件夹：`python devlop_home/data_process.py`
-3. 运行`devlop_home/main.py`文件，依次回答问题，得到结果：`python devlop_home/main.py .\devlop_data\input_param.json`
-   - 可以修改相关配置，查看`devlop_home/config.json`文件
+1. 生成`devlop_home/data_process.py`文件：
 
-#### 三、目录结构
+```sh
+jupyter nbconvert --to script devlop_home/data_process.ipynb
+```
+
+2. 运行`devlop_home/data_process.py`文件，预处理数据集至`devlop_home/data`文件夹：
+
+```sh
+python devlop_home/data_process.py
+```
+
+3. 运行`devlop_home/main.py`文件，依次回答问题，得到结果：
+
+```sh
+python devlop_home/main.py .\devlop_data\input_param.json .\devlop_result\answer.jsonl
+```
+
+4. 修改相关配置：查看`devlop_home/config.json`文件
+
+#### 4.3 Demo
+
+#### 五、目录结构
 
 ```plaintext
 devlop_home目录结构

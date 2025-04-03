@@ -40,6 +40,8 @@ class LLM:
         """
         检查API_KEY是否设定
         """
+        if not api_key_env:
+            return ""
         api_key = os.getenv(api_key_env)
         if not api_key:
             raise RuntimeError(

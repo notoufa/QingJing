@@ -7,14 +7,6 @@
             "api_key_env": "ZHIPUAI_API_KEY",
             "model": "glm-4-plus",
             "temperature": 0
-        },
-        {
-            "config_name": "DeepSeek",
-            "type": "OPENAI",
-            "base_url": "https://api.ppinfra.com/v3/openai",
-            "api_key_env": "DEEPSEEK_API_KEY",
-            "model": "deepseek/deepseek-v3",
-            "temperature": 0
         }
     ],
     "data_config": {
